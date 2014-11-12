@@ -1,0 +1,27 @@
+{
+  "name": "batam-webapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gregory Zussa",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.9.0",
+    "consolidate": "^0.10.0",
+    "errorhandler": "^1.2.0",
+    "express": "^4.9.5",
+    "handlebars": "^2.0.0",
+    "method-override": "^2.2.0",
+    "mongodb": "^1.4.17",
+    "mongoskin": "^1.4.4",
+    "morgan": "^1.3.2",
+    "underscore": "^1.7.0",
+    "validator": "^3.22.1"
+  },
+  "devDependencies": {
+    "superagent": "^0.20.0"
+  }
+}

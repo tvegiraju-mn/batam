@@ -1,0 +1,81 @@
+[
+	{ 
+		report_id : "build_1_201401010000000000200_legacy_test_plan", 
+		name : "test1", 
+		date : { "$date": "2014-01-01T00:00:00.000+0200" }, 
+		status : "pass", 
+		duration : 13423, 
+		time : "10-15s", 
+		regression : "same", 
+		
+		test_flag : "cfengine2", 
+		os : "linux2", 
+		type : "UT2", 
+		host : "mn23434ph2", 
+		suite : "coreapp2", 
+		
+		log : "Logs: 19:12:02.604 - 05:45:05.443 - 05:44:18.767 - THREAD: pool-3-thread-1 05:44:18.772 - Beginning transaction. 05:44:18.787 - Logged in as anonymousTest 05:45:05.426 - Rolling back transaction. 05:45:05.433 - Error: Calculated AmountDue on the bucket line should be equals to 2 : Expected <2> Got <0> at strategy/testTricareEndToEndStrategyPullBucketingRevenueTierBasisFixedAmount.act:368 at acts.mn:174 at ACT Driver:1" 
+	},
+	{ 
+		report_id : "build_1_201401010000000000200_agile_test_plan", 
+		name : "test5", 
+		date : { "$date": "2014-01-01T00:00:00.000+0200" }, 
+		status : "pass", 
+		duration : 13423, 
+		time : "10-15s", 
+		regression : "same", 
+		
+		test_flag : "cfengine2", 
+		os : "linux2", 
+		type : "UT2", 
+		host : "mn23434ph2", 
+		suite : "coreapp2", 
+		
+		log : "Logs: 19:12:02.604 - 05:45:05.443 - 05:44:18.767 - THREAD: pool-3-thread-1 05:44:18.772 - Beginning transaction. 05:44:18.787 - Logged in as anonymousTest 05:45:05.426 - Rolling back transaction. 05:45:05.433 - Error: Calculated AmountDue on the bucket line should be equals to 2 : Expected <2> Got <0> at strategy/testTricareEndToEndStrategyPullBucketingRevenueTierBasisFixedAmount.act:368 at acts.mn:174 at ACT Driver:1" 
+	},
+	{ 
+		report_id : "build_1_201402010000000000200_legacy_test_plan", 
+		name : "test2", 
+		date : { "$date": "2014-02-01T00:00:00.000+0200" }, 
+		status : "pass", 
+		duration : 13423, 
+		time : "10-15s", 
+		regression : "same", 
+		
+		test_flag : "cfengine2", 
+		os : "linux2", 
+		type : "UT2", 
+		host : "mn23434ph2", 
+		suite : "coreapp2", 
+		
+		log : "Logs: 19:12:02.604 - 05:45:05.443 - 05:44:18.767 - THREAD: pool-3-thread-1 05:44:18.772 - Beginning transaction. 05:44:18.787 - Logged in as anonymousTest 05:45:05.426 - Rolling back transaction. 05:45:05.433 - Error: Calculated AmountDue on the bucket line should be equals to 2 : Expected <2> Got <0> at strategy/testTricareEndToEndStrategyPullBucketingRevenueTierBasisFixedAmount.act:368 at acts.mn:174 at ACT Driver:1" 
+	}
+	{ 
+		report_id : "build_1_201402010000000000200_legacy_test_plan", 
+		name : "test3", 
+		date : { "$date": "2014-02-01T00:00:00.000+0200" }, 
+		status : "pass", 
+		duration : 123, 
+		time : "15-30s", 
+		regression : "fixed", 
+		
+		author : "Jean Fonce2", 
+		language : "Java2", 
+		kpi_name : "Bucketing time2", 
+		kpi_value : "12ms2", 
+		author : "Jean Fonce2",
+		 
+		log : "Logs: 19:12:02.604 - 05:45:05.443 - 05:44:18.767 - THREAD: pool-3-thread-1 05:44:18.772 - Beginning transaction. 05:44:18.787 - Logged in as anonymousTest 05:45:05.426 - Rolling back transaction. 05:45:05.433 - Error: Calculated AmountDue on the bucket line should be equals to 2 : Expected <2> Got <0> at strategy/testTricareEndToEndStrategyPullBucketingRevenueTierBasisFixedAmount.act:368 at acts.mn:174 at ACT Driver:1" 
+	}
+	{ 
+		report_id : "build_1_201402010000000000200_legacy_test_plan", 
+		name : "test4", 
+		date : { "$date": "2014-02-01T00:00:00.000+0200" }, 
+		status : "killed", 
+		duration : 1234232345, 
+		time : "30s-1h", 
+		regression : "new", 
+		
+		log : "Logs: 19:12:02.604 - 05:45:05.443 - 05:44:18.767 - THREAD: pool-3-thread-1 05:44:18.772 - Beginning transaction. 05:44:18.787 - Logged in as anonymousTest 05:45:05.426 - Rolling back transaction. 05:45:05.433 - Error: Calculated AmountDue on the bucket line should be equals to 2 : Expected <2> Got <0> at strategy/testTricareEndToEndStrategyPullBucketingRevenueTierBasisFixedAmount.act:368 at acts.mn:174 at ACT Driver:1" 
+	}
+]

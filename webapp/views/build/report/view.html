@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Build And Test Automation Management</title>
+
+    <!-- Bootstrap -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="../../../css/jquery.dataTables.min.css">
+  
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Build And Test Automation Management</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Builds</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="page-header" style="margin-top:75px">
+          <h1>Tests Report</h1>
+          <a href="/{{build_id}}">{{build_name}}</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"  id="report_header">
+            </h3>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <dl class="dl-horizontal">
+                  	<dt>Description</dt>
+                    <dd id="report_description"></dd>
+                    
+                    <dt>Date</dt>
+                    <dd id="report_date"></dd>
+
+                    <dt>Status</dt>
+                    <dd id="report_status"><!-- <span class="label label-success">Completed</span> --></dd>
+
+                    <dt>Duration</dt>
+                    <dd id="report_duration"><!-- <span class="label label-danger">29 hours <span class="glyphicon glyphicon-chevron-up"></span></span> --></dd>
+
+                    <dt>Logs</dt>
+                    <dd id="report_logs"></dd>
+                  </dl>
+                </div>
+                <div class="col-md-6">
+                  <dl class="dl-horizontal">
+                  	<dt>Number Of Tests</dt>
+                    <dd id="report_tests"></dd>
+                    
+                    <dt>Total Regressions</dt>
+                    <dd id="report_active_regressions"><!-- <span class="label label-danger">3 <span class="glyphicon glyphicon-chevron-up"></span></span> --></dd>
+
+                    <dt>New Regressions</dt>
+                    <dd id="report_new_regressions"><!-- <span class="label label-warning">2 <span class="glyphicon glyphicon-chevron-down"></span></span> --></dd>
+
+                    <dt>Regressions Fixed</dt>
+                    <dd id="report_fixed_regressions"><!-- <span class="label label-success">10 <span class="glyphicon glyphicon-chevron-up"></span></span> --></dd>
+                  </dl>
+                </div>
+              </div>
+              <div id="graphs_link"></div>
+              <div class="row">
+	              <div class="col-md-6" id="graph" style="height: 300px"></div>
+	              <div class="col-md-6" id="trend"></div>
+	          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h3 id="thumbnails" class="page-header">Tests</h3>
+          <div class="form-horizontal">
+          	<div id="tests_search_criterias" class="form-group">
+	          <div class="col-sm-offset-10 col-sm-2">
+	            <button  id="tests_search" class="btn btn-default">Search</button>
+	      	  </div>
+	        </div> 
+	      </div>
+          <div>
+            <b id="show_hide_columns">Show/Hide columns: </b>
+          </div>
+          <table id="tests" class="display" cellspacing="0" width="100%"></table>  
+        </div><!-- /.col-md-12 -->
+      </div>
+    </div>
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="../../../js/bootstrap.min.js"></script>
+	<script src="../../../js/moment.min.js"></script>
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="../../../js/jquery.dataTables.min.js"></script>
+    <!-- Google Visualization Chart -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript" >
+    google.load("visualization", "1.1", {packages:["corechart"]});
+    function formatWithLabel(value, trend, threshold, isTime){
+    	if(trend == undefined || trend == null){
+    		trend = 0;
+    	}
+    	if(value <= threshold){
+    		if(isTime){
+    			value = durationToStr(value);
+    		}
+    		if(trend > 0){
+    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
+    		}else if(trend < 0){
+    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
+    		}else{
+    			return '<span class="label label-success>'+value+' </span>';
+    		}
+    	}
+    	if(value > 0){
+    		if(isTime){
+    			value = durationToStr(value);
+    		}
+    		if(trend > 0){
+    			return '<span class="label label-danger">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
+    		}else if(trend < 0){
+    			return '<span class="label label-warning">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
+    		}else{
+    			return '<span class="label label-warning">'+value+' </span>';
+    		}
+    	}else{
+    		console.log("An unexpected error happenned");
+    	}
+    }
+	function durationToStr (milliseconds) {
+		var result = '';
+        var temp = Math.floor(milliseconds / 1000);
+    
+        var days = Math.floor((temp %= 31536000) / 86400);
+        if (days) {
+        	result += days + ' d ';
+        }
+        var hours = Math.floor((temp %= 86400) / 3600);
+        if (hours) {
+        	result += hours + ' h ';
+        }
+        var minutes = Math.floor((temp %= 3600) / 60);
+        if (minutes) {
+        	result += minutes + ' m ';
+        }
+        var seconds = temp % 60;
+        if (seconds) {
+        	result += seconds + ' sec ';
+        }
+        return result; 
+    }
+    $(document).ready(function(){
+	    var criteriasIds = [];
+	    var table;
+	    var graph = 'status';
+	    
+  		// Initial fetch
+    	$.getJSON('/api/reports/{{report_id}}', function(response){
+	      	var reportHeader = '';
+	      	if(response.report.previous_id != null){
+	      		reportHeader += '<a href="/'+response.report.build_previous_id+'/report/'+response.report.previous_id+'"><span class="glyphicon glyphicon-chevron-left"></span> Previous </a> ';
+	      	}
+	      	reportHeader += '<span style="padding-left:50px"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><strong>'+response.report.name+'</strong></a></span> ';
+	      	if(response.report.next_id != null){
+	      		reportHeader += '<span class="pull-right"><a href="/'+response.report.build_next_id+'/report/'+response.report.next_id+'"> Next <span class="glyphicon glyphicon-chevron-right"></span></a></span> ';
+	      	}
+	      	$('#report_header').html(reportHeader);
+	      	$('#report_name').html(response.report.name);
+	      	var description = response.report.description == undefined ? 'n/a' : response.report.description;
+	      	$('#report_description').html(description);
+	      	var date = response.report.date == undefined ? 'n/a' : moment(response.report.date).format('MMM Do YYYY, h:mm:ss a');
+	    	$('#report_date').html(date);
+	    	if(response.report.status == null){
+	    		$('#report_status').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		if(response.report.status == 'completed'){
+	    			$('#report_status').html('<span class="label label-success">'+response.report.status+'</span>');
+	    		}else{
+	    			$('#report_status').html('<span class="label label-danger">'+response.report.status+'</span>');
+	    		}
+	    	}
+	    	if(response.report.duration == null){
+	    		$('#report_duration').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		$('#report_duration').html(formatWithLabel(response.report.duration.value, response.report.duration.trend, 600000, true));		
+	    	}
+    	
+	    	if(response.report.logs == null){
+	    		$('#report_logs').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		var logs = '';
+	    		for(var i = 0; i < response.report.logs.length; i++){
+	    			if(i != 0){
+	    				logs += ', ';
+	    			}
+	    			logs += response.report.logs[i];
+	    		}
+	    		$('#report_logs').html(logs);
+	    	}
+    	
+	    	if(response.report.tests == null || response.report.tests.regressions == null){
+	    		$('#report_active_regressions').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		$('#report_active_regressions').html(formatWithLabel(response.report.tests.regressions.value, response.report.tests.regressions.trend, 0, false));
+	    	}
+    	
+	    	if(response.report.tests == null || response.report.tests.new_regressions == null){
+	    		$('#report_new_regressions').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		$('#report_new_regressions').html(formatWithLabel(response.report.tests.new_regressions.value, response.report.tests.new_regressions.trend, 0, false));
+	    	}
+    	
+	    	if(response.report.tests == null || response.report.tests.fixed_regressions == null){
+	    		$('#report_fixed_regressions').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		if(response.report.tests.fixed_regressions.trend == -1){
+	    			$('#report_fixed_regressions').html('<span class="label label-success">'+response.report.tests.fixed_regressions.value+' <span class="glyphicon glyphicon-chevron-down"></span></span>');
+	    		}else if(response.report.tests.fixed_regressions.trend == 1){
+	    			$('#report_fixed_regressions').html('<span class="label label-success">'+response.report.tests.fixed_regressions.value+' <span class="glyphicon glyphicon-chevron-up"></span></span>');
+	    		}else{
+	    			$('#report_fixed_regressions').html('<span class="label label-success">'+response.report.tests.fixed_regressions.value+'</span>');
+	    		}
+	    	}
+	    	
+	    	if(response.report.tests == null|| response.report.tests.all == null){
+	    		$('#report_tests').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		if(response.report.tests.all.trend == -1){
+	    			$('#report_tests').html(response.tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span>');
+	    		}else if(response.report.tests.all.trend == 1){
+	    			$('#report_tests').html(response.report.tests.all.value+' <span class="glyphicon glyphicon-chevron-up"></span>');
+	    		}else{
+	    			$('#report_tests').html(response.report.tests.all.value);
+	    		}
+	    	}
+	      	
+	    	// Initialize search
+	        $.getJSON('/api/criterias/test/{{report_id}}', function(response){
+          		var criteriasForm = '';
+          		for(var i = 0; i < response.criterias.length; i++){
+           			criteriasIds[i] = response.criterias[i].name;
+	            	if(i % 2 == 0){
+	              		criteriasForm += '<div class="form-group">' +
+		              	'  <div class="row">' +
+	              		'    <label for="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
+	              		'    <div class="col-sm-3">' +
+	              		'      <select class="form-control" id="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" name="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">';
+	              		criteriasForm += '        <option value="">Any</option>';
+	              		for(var j = 0; j < response.criterias[i].values.length; j++){
+	                		criteriasForm += '        <option value="'+response.criterias[i].values[j].toLowerCase().replace(" ", "_")+'">'+response.criterias[i].values[j]+'</option>';
+	              		}
+	              		criteriasForm += '      </select>' +
+	              		'    </div>';
+	              		if(i + 1 >= response.criterias.length){
+		                	criteriasForm += '    <div class="col-sm-3">' +
+		                	'     </div>'
+		                	'  </div>' +
+		                	'</div>';
+		              	}
+		            }else{
+		              	criteriasForm += '    <label for="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
+		              	'    <div class="col-sm-3">' +
+		              	'      <select class="form-control" id="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" name="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">';
+		              	criteriasForm += '        <option value="">Any</option>';
+		              	for(var j = 0; j < response.criterias[i].values.length; j++){
+		                	criteriasForm += '        <option value="'+response.criterias[i].values[j].toLowerCase().replace(" ", "_")+'">'+response.criterias[i].values[j]+'</option>';
+	              		}
+	              		criteriasForm += '      </select>' +
+	              		'    </div>' +
+	              		'  </div>' +
+	              		'</div>';
+	            	}
+	          	} 
+          		$('#tests_search_criterias').before(criteriasForm); 
+         
+	          	//Submit search button
+	          	$('#tests_search').click(function(){
+	          		//Display graph 
+		          	var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
+	            	for(var j = 0; j < criteriasIds.length; j++){
+	              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+	            	}
+	            	//Display Graphs
+	            	$.getJSON('/api/tests/stat'+query, function(response){
+	          	  		displayGraph(response);
+	            	}).error(function(){
+			  	    	//TODO Handle error better
+			  	    	alert("error while fetching /api/tests/stat"+query); 
+		  	    	}).fail(function(){
+			  	    	//TODO Handle error better
+			  	    	alert("fail while fetching /api/tests/stat"+query); 
+		  	    	});
+	          		
+	            	//Display tests
+	            	//table.destroy();
+	            	displayTable();
+	          	});
+         
+	          	//Add show hide bar
+	          	var showHideLinks = '';
+	          	for(var i = 0; i < criteriasIds.length; i++){
+	        	  	if(i != 0){
+	        		  	showHideLinks += ' - ';
+	        	  	}
+	        	  	showHideLinks += '<a class="toggle-vis" data-column="'+(i+1)+'">'+criteriasIds[i]+'</a> ';
+	          	}
+	          	$('#show_hide_columns').after(showHideLinks); 
+	          	
+	          	// Add Show graphs
+	          	var graphLink = '<ul class="nav nav-tabs" role="tablist">';
+	          	for(var i = 0; i < response.criterias.length; i++){
+	          		graphLink += '<li><a id="graph_link_'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">'+response.criterias[i].name+'</a></li>';
+	          	}
+	          	graphLink += '</ul>';
+	          	$('#graphs_link').html(graphLink);
+	          	
+	          	//Display default status graph 
+	          	var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
+            	for(var j = 0; j < criteriasIds.length; j++){
+              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+            	}
+            	//Display Graphs
+            	$.getJSON('/api/tests/stat'+query, function(response){
+          	  		displayGraph(response);
+            	}).error(function(){
+		  	    	//TODO Handle error better
+		  	    	alert("error while fetching /api/tests/stat"+query); 
+	  	    	}).fail(function(){
+		  	    	//TODO Handle error better
+		  	    	alert("fail while fetching /api/tests/stat"+query); 
+	  	    	});
+	          	
+	          	//Add event click to show graph
+	          	for(var i = 0; i < response.criterias.length; i++){
+	          		$('#graph_link_'+response.criterias[i].name.toLowerCase().replace(" ", "_")).click(function(){
+	          			graph = this.id.replace("graph_link_", "");
+	          			var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
+		            	for(var j = 0; j < criteriasIds.length; j++){
+		              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+		            	}
+		            	//Display Graphs
+		            	$.getJSON('/api/tests/stat'+query, function(response){
+		          	  		displayGraph(response);
+		            	}).error(function(){
+				  	    	//TODO Handle error better
+				  	    	alert("error while fetching /api/tests/stat"+query); 
+			  	    	}).fail(function(){
+				  	    	//TODO Handle error better
+				  	    	alert("fail while fetching /api/tests/stat"+query); 
+			  	    	});
+	          		});
+	          	}
+	       	  
+	          	//Display Tests 
+	          	displayTable(response);
+	        }).error(function(){
+		    	//TODO Handle error better
+		    	alert("error while fetching /api/criterias/test/{{report_id}}"); 
+		    }).fail(function(){
+		    	//TODO Handle error better
+		    	alert("fail while fetching /api/criterias/test/{{report_id}}"); 
+		    });	
+	    }).error(function(){
+	    	//TODO Handle error better
+	    	alert("error while fetching /api/reports/{{report_id}}"); 
+	    }).fail(function(){
+	    	//TODO Handle error better
+	    	alert("fail while fetching /api/reports/{{report_id}}"); 
+	    });	
+	 	
+	 	function displayTable (){
+	 		// load tests
+	 		var columns = [];
+	 		//Add mandatory default column Name
+	 		columns[0] = {title: "Name"};
+	 		for(var i = 0; i < criteriasIds.length; i++){
+	 			columns[i+1] = {};
+	 			if(i >= 3){
+	 				columns[i+1].title = criteriasIds[i];
+	 				columns[i+1].visible = false;	
+	 			}else{
+	 				columns[i+1].title = criteriasIds[i];
+	 			}
+	      	}
+	 		
+	 		var data = {build_id : "{{build_id}}", report_id : "{{report_id}}"};
+	 		for(var i = 0; i < criteriasIds.length; i++){
+	 			var currentValue = $('#'+criteriasIds[i].toLowerCase().replace(" ", "_")).val();
+	 			if(currentValue != undefined && currentValue != null && currentValue != ""){
+	 				data[criteriasIds[i].toLowerCase().replace(" ","_")] = $('#'+criteriasIds[i].toLowerCase().replace(" ", "_")).val();
+	 			}
+	 	    }
+	 		
+	 	    $('#tests').DataTable( {
+	 	    	destroy: true,
+	 	        serverSide: true,
+	 	        searching: false,
+	 	        ajax: {
+	 	            url: "/api/tests",
+	 	            "data": data,
+	 	            type: 'GET',
+		            timeout: 15000,   
+		            error: function handleDataTableError( xhr, textStatus, error ) {
+		    	        if ( textStatus === 'timeout' ) {
+		    	            alert( 'The server took too long to send the data.' );
+		    	        }
+		    	        else {
+		    	            alert( 'An error occurred on the server. Please try again in a minute.' );
+		    	        }
+		    	    }
+	 	        },
+	 	    	columns: columns,
+	 	    	drawCallback: function(settings) {
+	 	    		table = $('#tests').DataTable();
+	 	    		for(var i = 4; i < criteriasIds.length; i++){
+	 	    	   		//i starts at 4 since we always waant to display difault column Status, Regression and Time.
+	 	    	   		//i+1 is needed since the 0 column is the mandatory name column not listed in the criteriasIds list.
+	 	    	   		table.column(i+1).visible(false);
+	 	        	} 
+	 	    	    
+	 	    	   	$('a.toggle-vis').on( 'click', function (e) {
+	 	            	e.preventDefault();
+	
+	 	            	// Get the column API object
+	 	            	var column = table.column( $(this).attr('data-column') );
+	
+	 	            	// Toggle the visibility
+	 	            	column.visible( ! column.visible() );
+	 	          	});
+	 	    	}
+	 	    });  	
+	  	}
+		 	
+	 	function displayGraph(response){
+	 		
+            var dataSource = [];
+            dataSource[0] = [response.stat.name, "Count"]
+            for(var j = 0; j < response.stat.values.length; j++){
+            	dataSource[j+1] = [response.stat.values[j].name, response.stat.values[j].value];
+            }
+           
+            var data = google.visualization.arrayToDataTable(dataSource);
+			var chartTitle = "Tests executed Per " + response.stat.name;
+          	var options = {
+            	title: chartTitle,
+          	};
+
+          	var chart = new google.visualization.PieChart(document.getElementById("graph"));
+          	chart.draw(data, options);
+          	
+          	displayTrend(response);
+	  	}
+	 	
+		function displayTrend(response){
+	 		
+            var trendHtml = '<dl style="margin-top:20px" class="dl-horizontal">';
+            for(var j = 0; j < response.stat.values.length; j++){
+            	trendHtml += '<dt>'+response.stat.values[j].name+'</dt>';
+            	trendHtml += '<dd>'+response.stat.values[j].value+'</dd>';
+            }
+            trendHtml += '</dl>';
+            $('#trend').html(trendHtml);
+	  	}
+		 
+	});
+  	
+  	
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+[
+  {name: "Test Flag"},
+  {name: "OS"},
+  {name: "Type"},
+  {name: "Host"},
+  {name: "Suite"},
+  {name: "Author"},
+  {name: "Language"}
+]

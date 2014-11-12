@@ -1,0 +1,28 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/gzussa/local/bin/node',
+1 verbose cli   '/home/gzussa/local/bin/npm',
+1 verbose cli   'init' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 silly package data undefined
+5 info init written successfully
+6 error Error: Invalid name: "Build And Test Automation Management"
+6 error     at ensureValidName (/home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/node_modules/normalize-package-data/lib/fixer.js:315:15)
+6 error     at Object.module.exports.fixNameField (/home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/node_modules/normalize-package-data/lib/fixer.js:204:5)
+6 error     at /home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/node_modules/normalize-package-data/lib/normalize.js:30:38
+6 error     at Array.forEach (native)
+6 error     at normalize (/home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/node_modules/normalize-package-data/lib/normalize.js:29:15)
+6 error     at final (/home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:342:33)
+6 error     at then (/home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:126:33)
+6 error     at /home/gzussa/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:316:48
+6 error     at evalmachine.<anonymous>:207:20
+6 error     at OpenReq.Req.done (/home/gzussa/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:141:5)
+7 error If you need help, you may report this *entire* log,
+7 error including the npm and node versions, at:
+7 error     <http://github.com/npm/npm/issues>
+8 error System Linux 2.6.18-308.11.1.el5
+9 error command "/home/gzussa/local/bin/node" "/home/gzussa/local/bin/npm" "init"
+10 error cwd /home/gzussa/dev/batam/webapp
+11 error node -v v0.10.32
+12 error npm -v 1.4.28
+13 verbose exit [ 1, true ]

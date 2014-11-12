@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Build And Test Automation Management</title>
+
+    <!-- Bootstrap -->
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.dataTables.min.css">
+
+    <!-- Shepherd -->
+    <!-- <link rel="stylesheet" href="../../css/shepherd-theme-arrows.css" />
+    <link rel="stylesheet" href="../../css/shepherd-theme-arrows-plain-buttons.css" /> -->
+  
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Build And Test Automation Management</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Builds</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="page-header" style="margin-top:75px">
+          <h1>Build <!--<a href="build/create.html"> <button type="button" class="btn btn-success pull-right">Add Test Execution Plan</button></a> --></h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title" id="build_header">
+            </h3>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <dl class="dl-horizontal">
+                    <dt>Name</dt>
+                    <dd id="build_name"></dd>
+                    
+                    <dt>Description</dt>
+                    <dd id="build_description"></dd>
+
+                    <dt>Build Date</dt>
+                    <dd id="build_date"></dd>
+
+                    <dt>Build Status</dt>
+                    <dd id="build_status"></dd>
+
+                    <dt>Duration</dt>
+                    <dd id="build_duration"></dd>
+				  </dl>
+                  <hr id="build_criterias" />
+                  <dl class="dl-horizontal" id="build_criterias"></dl>             
+                </div>
+                 <div class="col-md-6" >
+                  <dl class="dl-horizontal" id="build_info"></dl>
+                  <hr id="build_reports_separator"/>
+				  <dl class="dl-horizontal" id="build_reports"></dl>
+                </div>
+              </div>
+              <div class="row" id="build_timeline_section">
+                <div class="col-md-12" >
+                  <div id="build_timeline" style="height: 100px;"></div>
+                </div>
+              </div>
+              <h3 id="thumbnails" class="page-header">Commits </h3>
+              <table id="commits" class="display" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
+                    <th>Commit Id</th>
+                    <th>Date Committed</th>
+                    <th>Author</th>
+                  </tr>
+                </thead>
+                <tfoot>
+                  <tr>
+                    <th>Commit Id</th>
+                    <th>Date Committed</th>
+                    <th>Author</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="list-group" id="reports_list">
+          </div>
+        </div><!-- /.col-md-12 -->
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="../../js/bootstrap.min.js"></script>
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="../../js/jquery.dataTables.min.js"></script>
+    <!-- Google Visualization Chart -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="../../js/moment.min.js"></script>
+	<script type="text/javascript" >
+	google.load("visualization", "1.1", {packages:["timeline"]});
+	function formatWithLabel(value, trend, threshold, isTime){
+		if(trend == undefined || trend == null){
+    		trend = 0;
+    	}
+    	if(value <= threshold){
+    		if(isTime){
+    			value = durationToStr(value);
+    		}
+    		if(trend > 0){
+    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
+    		}else if(trend < 0){
+    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
+    		}else{
+    			return '<span class="label label-success>'+value+' </span>';
+    		}
+    	}
+    	if(value > 0){
+    		if(isTime){
+    			value = durationToStr(value);
+    		}
+    		if(trend > 0){
+    			return '<span class="label label-danger">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
+    		}else if(trend < 0){
+    			return '<span class="label label-warning">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
+    		}else{
+    			return '<span class="label label-warning">'+value+' </span>';
+    		}
+    	}else{
+    		console.log("An unexpected error happenned");
+    	}
+    }
+	function durationToStr (milliseconds) {
+		var result = '';
+        var temp = Math.floor(milliseconds / 1000);
+    
+        var days = Math.floor((temp %= 31536000) / 86400);
+        if (days) {
+        	result += days + ' d ';
+        }
+        var hours = Math.floor((temp %= 86400) / 3600);
+        if (hours) {
+        	result += hours + ' h ';
+        }
+        var minutes = Math.floor((temp %= 3600) / 60);
+        if (minutes) {
+        	result += minutes + ' m ';
+        }
+        var seconds = temp % 60;
+        if (seconds) {
+        	result += seconds + ' sec ';
+        }
+        return result; 
+    }
+	
+	$(document).ready(function(){
+		// Initial fetch
+	    $.getJSON('/api/builds/{{build_id}}', function(response){
+	    	var buildHeader = '';
+	    	if(response.build.previous_id != null){
+	    		buildHeader += '<a href="/'+response.build.previous_id+'"><span class="glyphicon glyphicon-chevron-left"></span> Previous </a> ';
+	    	}
+	    	buildHeader += '<span style="padding-left:50px"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><strong>'+response.build.name+'</strong></a></span> ';
+	    	if(response.build.next_id != null){
+	    		buildHeader += '<span class="pull-right"><a href="/'+response.build.next_id+'"> Next <span class="glyphicon glyphicon-chevron-right"></span></a></span> ';
+	    	}
+	    	$('#build_header').html(buildHeader);
+	    	$('#build_name').html(response.build.name);
+	    	var description = response.build.description == undefined? 'n/a' : response.build.description;
+	    	$('#build_description').html(description);
+	    	var date = response.build.date == undefined ? 'n/a' : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
+	    	$('#build_date').html(date);
+	    	if(response.build.status == undefined){
+	    		$('#build_status').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		if(response.build.status == 'completed'){
+	    			$('#build_status').html('<span class="label label-success">'+response.build.status+'</span>');
+	    		}else{
+	    			$('#build_status').html('<span class="label label-danger">'+response.build.status+'</span>');
+	    		}
+	    	}
+	    	if(response.build.duration == undefined){
+	    		$('#build_duration').html('<span class="label label-default">N/A</span>');	
+	    	}else{
+	    		$('#build_duration').html(formatWithLabel(response.build.duration.value, response.build.duration.trend, 600000, true));
+	    	}
+	    	if(response.build.criterias != null){
+	    		var buildCriterias = '';
+	    		for(var i = 0; i < response.build.criterias.length; i++){
+	    			buildCriterias += '<dt><i>'+response.build.criterias[i].name+'</i></dt>'+
+	    			'<dd>'+response.build.criterias[i].value+'</dd>';
+	    		}
+	    		$('#build_criterias').html(buildCriterias);	
+	    	}else{
+	    		$('#build_criterias').remove();	
+	    		$('#build_criterias_separator').remove();	
+	    	} 
+	    	if(response.build.infos != null){
+	    		var buildInfos = '';
+	    		for(var i = 0; i < response.build.infos.length; i++){
+	    			buildInfos += '<dt>'+response.build.infos[i].name+'</dt>'+
+	    			'<dd>'+response.build.infos[i].value+'</dd>';
+	    		}
+	    		$('#build_info').html(buildInfos);	
+	    	}else{
+	    		$('#build_info').remove();	
+	    	}  
+	    	if(response.build.reports != null){
+	    		var buildReports = '';
+	    		for(var i = 0; i < response.build.reports.length; i++){
+	    			buildReports += '<dt>'+response.build.reports[i].name+'</dt>'+
+	    			'<dd>'+response.build.reports[i].value+'</dd>';
+	    		}
+	    		$('#build_reports').html(buildReports);	
+	    	}else{
+	    		$('#build_reports').remove();
+	    		$('#build_reports_separator').remove();
+	    	} 
+	    	if(response.build.build_timeline != null){
+	    		for(var i = 0; i < response.build.build_timeline.rows.length; i++){
+	    			response.build.build_timeline.rows[i].c[2].v = new Date(response.build.build_timeline.rows[i].c[2].v);
+	    			response.build.build_timeline.rows[i].c[3].v = new Date(response.build.build_timeline.rows[i].c[3].v);
+	    		}
+	
+    	        var container = document.getElementById('build_timeline');
+    	        var chart = new google.visualization.Timeline(container);
+    	        var dataTable = new google.visualization.DataTable(response.build.build_timeline);
+
+    	        var options = {};
+
+    	        chart.draw(dataTable, options);
+	    	}else{
+	    		$('#build_timeline_section').remove();
+	    	} 
+	    }).error(function(){
+	    	//TODO Handle error better
+	    	alert("error while fetching /api/builds/{{build_id}}"); 
+	    }).fail(function(){
+	    	//TODO Handle error better
+	    	alert("fail while fetching /api/builds/{{build_id}}"); 
+	    });
+		
+	    $.getJSON('/api/reports?build_id={{build_id}}', function(response){
+	    	var listHtml = '';
+	    	//TODO If no results, display No Available message
+	    	for(var i = 0; i < response.reports.length; i++){
+	    		listHtml += '<a href="/{{build_id}}/report/'+response.reports[i].id+'" class="list-group-item">' +
+	    		'		<div class="row">' +
+	    		'			<div class="col-sm-4">' +
+	    		'				<strong>'+response.reports[i].name +'</strong>'+
+	    		'			</div>' +
+	    		'			<div class="col-sm-2">';
+	    		if(response.reports[i].tests == null || response.reports[i].tests.regressions == null || response.reports[i].tests.regressions.value == null){
+	    			listHtml += '				<strong> Regressions <span class="label label-info">n/a</span></strong>';
+	    		}else{
+	    			listHtml += '				<strong> Regressions '+formatWithLabel(response.reports[i].tests.regressions.value, response.reports[i].tests.regressions.trend, 0, false)+'</strong>';
+	    		}
+	    		listHtml += '			</div>' +
+	    		'			<div class="col-sm-2">';
+	    		if(response.reports[i].tests == null || response.reports[i].tests.new_regressions == null || response.reports[i].tests.new_regressions.value == null){
+	    			listHtml += '				<strong> New <span class="label label-info">n/a</span></strong>';
+	    		}else{
+	    			listHtml += '				<strong> New '+formatWithLabel(response.reports[i].tests.new_regressions.value, response.reports[i].tests.new_regressions.trend, 0, false)+'</strong>';
+	    		}
+	    		listHtml += '			</div>' +
+	    		'			<div class="col-sm-2">';
+	    		if(response.reports[i].tests == null || response.reports[i].tests.fixed_regressions == null || response.reports[i].tests.fixed_regressions.value == null){
+	    			listHtml += '				<strong> Fixed <span class="label label-info">n/a</span></strong>';
+	    		}else{
+	    			listHtml += '				<strong> Fixed <span class="label label-success">'+response.reports[i].tests.fixed_regressions.value;
+		    		if(response.reports[i].tests.fixed_regressions.trend == 1){
+		    			listHtml +=	'						<span class="glyphicon glyphicon-chevron-up"></span>';
+		    		}else if(response.reports[i].tests.fixed_regressions.trend = -1){
+		    			listHtml +=	'						<span class="glyphicon glyphicon-chevron-down"></span>';
+		    		}
+	    			listHtml +=	'					</span></strong>';
+	    		}
+	    		listHtml +=	'			</div>' +
+	    		'		</div>' +
+	    		'		<div class="list-group-item-text">';
+	    		var description = response.reports[i].description == undefined ? 'n/a': response.reports[i].description;
+	    		listHtml +=	'  			'+description+'<div class="pull-right"> ';
+	    		if(response.reports[i].status == undefined){
+	    			listHtml +=	'			<span class="label label-info">n/a</span>';
+	    		}else if(response.reports[i].status == "completed"){
+	            	listHtml +=	'			<span class="label label-success">'+response.reports[i].status+'</span>';
+	            }else{
+	            	listHtml +=	'			<span class="label label-danger">'+response.reports[i].status+'</span>';
+	            }
+	    		var updateTime = response.reports[i].date == undefined ? 'n/a' : moment(response.reports[i].date).fromNow();
+	            listHtml +=	'  			'+updateTime+'</div>' +
+	            '		</div>' +
+	            '</a>';
+	    	}
+	    
+	   		$('#reports_list').html(listHtml);
+	    	
+	    }).error(function(){
+	    	//TODO Handle error better
+	    	alert("error while fetching /api/reports?build_id={{build_id}}"); 
+	    }).fail(function(){
+	    	//TODO Handle error better
+	    	alert("fail while fetching /api/reports?build_id={{build_id}}"); 
+	    });		
+	    
+	 	// load commits
+	    $('#commits').dataTable( {
+	        serverSide: true,
+	        searching: false,
+	        ajax: {
+	            url: "/api/commits",
+	            data: {build_id : "{{build_id}}"},
+	            type: 'GET',
+	            timeout: 15000,   
+	            error: function handleDataTableError( xhr, textStatus, error ) {
+	    	        if ( textStatus === 'timeout' ) {
+	    	            alert( 'The server took too long to send the data.' );
+	    	        }
+	    	        else {
+	    	            alert( 'An error occurred on the server. Please try again in a minute.' );
+	    	        }
+	    	    }
+	        }	    	
+	    });
+	 	
+	});
+              
+    </script>  
+    
+  </body>
+</html>

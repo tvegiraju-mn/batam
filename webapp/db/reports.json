@@ -1,0 +1,62 @@
+[
+  {
+    id: "build_1_201401010000000000200_legacy_test_plan",
+    next_id : "build_1_201402010000000000200_legacy_test_plan",
+    build_id: "build_1_201401010000000000200",
+    name : "Legacy Test Plan",
+    description: "Legacy Test Plan",
+    date : { "$date": "2014-01-01T00:00:00.000+0200" },
+    status: "completed",
+    duration : {value: 1234123, trend: 1},
+    logs: ['<a href="#">sf1pdcertapp57a</a>',
+      '<a href="#">mnipdcertapp29</a>',
+      '<a href="#">mnipdcertapp28</a>',
+      '<a href="#">mnipdbuild5</a>'
+    ],
+    tests:{
+      all:{value: 23433, trend:1},
+      regressions: {value: 23433, trend:1},
+      new_regressions: {value: 23, trend:-1},
+      fixed_regressions: {value: 2, trend:0}
+    }
+  },
+  {
+    id: "build_1_201402010000000000200_legacy_test_plan",
+    previous_id : "build_1_201401010000000000200_legacy_test_plan",
+    build_id: "build_1_201402010000000000200",
+    name : "Legacy Test Plan",
+    description: "Legacy Test Plan",
+    date : { "$date": "2014-02-01T00:00:00.000+0200" },
+    status: "error",
+    duration : {value: 12123, trend: 1},
+    logs: ['<a href="#">sf1pdcertapp57a</a>'
+    ],
+    tests:{
+      all:{value: 23433, trend:1},
+      regressions: {value: 23433, trend:1},
+      new_regressions: {value: 23, trend:-1},
+      fixed_regressions: {value: 2, trend:0}
+    }
+  },
+  {
+    id: "build_1_201401010000000000200_agile_test_plan",
+    build_id: "build_1_201401010000000000200",
+    name : "agile Test Plan",
+    description: "Agile Test Plan",
+    date : { "$date": "2014-02-01T00:00:00.000+0200" },
+    status: "error",
+    duration : {value: 23, trend: 1},
+    logs: ['<a href="#">sf1pdcertapp57a</a>'],
+    tests:{
+      all:{value: 23433, trend:1},
+      regressions: {value: 23433, trend:1},
+      new_regressions: {value: 23, trend:-1},
+      fixed_regressions: {value: 2, trend:0}
+    }
+  } ,
+  {
+    id: "build_5_201401010000000000200_legacy_test_plan",
+    build_id: "build_5_201401010000000000200",
+    name : "Legacy Test Plan"
+  }, 
+]
