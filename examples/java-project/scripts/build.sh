@@ -1,114 +1,195 @@
 #!/bin/bash
 
+#####################################################################################################################
+#####################################################################################################################
+##                                                                                                                 ##
+## In this build script we execute maven goal while pushing tracking information to the Batam System.              ##
+## We push informations in 4 steps:                                                                                ##
+## - Step 1 : Create and update a Build.                                                                           ##                 
+## - Step 2 : Create and update a Test Report.                                                                     ##
+## - Step 3 : Submit tests results.                                                                                ##
+## - Step 4 : Run build analysis.                                                                                  ##
+## The script also handle errors.                                                                                  ##
+## If any maven goal doesn't succeed, we stop build tracking by running the build analysis and we exit the script. ##
+## Steps 2 and 3 are performed using Junit library. See com.modeln.batam.example.javaproject.AppTest.java          ##
+##                                                                                                                 ##
+#####################################################################################################################
+#####################################################################################################################
+ 
+## Connector jar location.
+CONNECTOR=../../connectors/java-connector/target/java-connector-0.0.1-SNAPSHOT.jar
+## Build name.
+BUILD_NAME="Build"
+
+## Remove maven log if file exist.
 if [ -e maven.log ]; then
   echo 'REMOVING LOG FILE'
   rm maven.log
 fi
-CONNECTOR=../../connectors/java-connector/target/java-connector-0.0.1-SNAPSHOT.jar
-## Create build Id
-START_DATE=$(date +%s%3N)
-BUILD_NAME="Build"
-## Create Build definition JSON file
-echo 'CREATE BUILD'
-echo '{' > build.json
-echo '	"name": "'$BUILD_NAME'",' >> build.json
-echo '	"description": "This is a simple build",' >> build.json
-echo '	"start_date": "'$(date +%s%3N)'"' >> build.json
-echo '}' >> build.json
-## Send json file with action CreateBuild
+
+###################################
+## Step 1.0 : Create a new Build.##
+###################################
+echo 'STEP 1: CREATE BUILD OBJECT JSON'
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME",
+	"description": "This is a simple build",
+	"start_date": "$(date +%s%3N)"
+}
+EOF
+
+## Send json file with action CreateBuild.
 java -jar $CONNECTOR -a create_build -f build.json 
 rm build.json
 
-## Create Another JSON file with criterias and additional informations about the build.
-echo 'UPDATE BUILD'
-echo '{' > build.json
-echo '	"name": "'$BUILD_NAME'",' >> build.json
-echo '  "criterias": [' >> build.json
-echo '		{"name": "Host", "value": "'$(hostname)'"},' >> build.json
-echo '          {"name": "OS", "value": "Linux"}' >> build.json
-echo '	],' >> build.json
-echo '  "infos": [' >> build.json
-echo '		{"name": "Java Version", "value": "'$(java -version | grep "java version")'"},' >> build.json
-echo '          {"name": "Maven Version", "value": "'$(mvn -v | grep "Apache Maven")'"}' >> build.json
-echo '  ],' >> build.json
-echo '  "commits": ['>> build.json
-echo '          '$(git log --pretty=format:'{"id": "%H", "author": "%ae", "date": "%cd"}' | sed "s/}/},/g") >> build.json
-echo '	{"id": "", "author": "", "date": ""}]' >> build.json # Create a empty object in order to deal with last commas.
-echo '}' >> build.json 
-## Send json file with action UpdateBuild
+###########################################################################################
+## Step 1.1 (optional) : Update created Build with criterias, infos and commits          ##
+## NOTE: we look for every commits but we truly should only look for newly created ones. ##
+###########################################################################################
+echo 'STEP 1.1 (OPTIONAL) : UPDATE BUILD WITH CRITERIAS, INFOS AND COMMITS'
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME",
+	"criterias": [
+		{"name": "Host", "value": "$(hostname)"},
+		{"name": "OS", "value": "Linux"}
+	],
+	"infos": [
+		{"name": "Java Version", "value": "1.6"},
+		{"name": "Maven Version", "value": "$(mvn -v | grep "Apache Maven")"}
+	],
+	"commits": [
+		$(git log --pretty=format:'{"id": "%H", "author": "%ae", "date": "%cd"}' | sed "s/}/},/g")
+		{"id": "", "author": "", "date": ""}
+	]
+}
+EOF
+
+## Send json file with action UpdateBuild.
 java -jar $CONNECTOR -a "update_build" -f build.json 
 rm build.json
 
-## Build project and track steps
-echo '>> RUN MAVEN CLEAN STEP'
+###########################################################
+## Step 1.2 : Build project using maven and track steps. ##
+###########################################################
+echo 'STEP 1.2 (OPTIONAL) : UPDATE BUILD WITH STEPS'
+
+## Execute maven clean goal.
+echo 'MAVEN CLEAN STEP'
 START_CLEAN_DATE=$(date +%s%3N)
 mvn clean > maven.log
 END_CLEAN_DATE=$(date +%s%3N)
-if grep -q "ERROR" maven.log; then
-   echo 'MAVEN CLEAN STEP FAILED'
-   echo '{' > build.json
-   echo '  "name": "'$BUILD_NAME'",' >> build.json 
-   echo '  "status": "error",' >> build.json
-   echo '  "end_date": "'$(date +%s%3N)'"' >> build.json
-   echo '}' >> build.json
-   java -jar $CONNECTOR -a "update_build" -f build.json
-   rm build.json
-   echo '{' > build.json
-   echo '  "name": "'$BUILD_NAME'"' >> build.json
-   echo '}' >> build.json
-   java -jar $CONNECTOR -a "start_analysis" -f build.json
-   rm build.json
-   return
-fi
-echo 'MAVEN CLEAN STEP succeeded'
-echo '{' > build.json
-echo '  "name": "'$BUILD_NAME'",' >> build.json
-echo '  "steps": [{"name": "clean", "start_date":"'$START_CLEAN_DATE'", "end_date":"'$END_CLEAN_DATE'"}]' >> build.json
-echo '}' >> build.json
-java -jar $CONNECTOR -a "update_build" -f build.json
 
-echo 'MAVEN COMPILE'
+## If maven clean step didn't succeeded, we end build tracking.
+if grep -q "ERROR" maven.log; then
+	echo 'MAVEN CLEAN STEP FAILED'
+	cat > build.json <<EOF
+	{
+		"name": "$BUILD_NAME",
+		"status": "error",
+		"end_date": "$(date +%s%3N)"
+	}
+EOF
+    ## Send json file with action UpdateBuild.
+	java -jar $CONNECTOR -a "update_build" -f build.json
+	rm build.json
+	
+  	#############################################
+	## Final step : Run analysis Build Failed. ##
+	#############################################
+  	echo 'Final Step: RUN ANALYSIS'
+	cat > build.json <<EOF
+	{
+		"name": "$BUILD_NAME"
+	}
+EOF
+    ## Send json file with action StartAnalysis.
+	java -jar $CONNECTOR -a "start_analysis" -f build.json
+	rm build.json
+	return
+fi
+
+echo 'MAVEN CLEAN STEP SUCCEEDED'
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME"
+	"steps": [{"name": "clean", "start_date":"$START_CLEAN_DATE", "end_date":"$END_CLEAN_DATE"}]
+}
+EOF
+## Send json file with action UpdateBuild.
+java -jar $CONNECTOR -a "update_build" -f build.json
+rm build.json
+
+## Execute Maven compile goals.
+echo 'MAVEN COMPILE STEP'
 START_COMPILE_DATE=$(date +%s%3N)
 mvn resources:resources compiler:compile resources:testResources compiler:testCompile >> maven.log
 END_COMPILE_DATE=$(date +%s%3N)
+
+## If maven compile step didn't succeeded, we end build tracking.
 if grep -q "ERROR" maven.log; then
-   echo 'MAVEN COMPILE STEP FAILED'
-   echo '{' > build.json
-   echo '  "name": "'$BUILD_NAME'",' >> build.json
-   echo '  "status": "error",' >> build.json
-   echo '  "end_date": "'$(date +%s%3N)'"' >> build.json
-   echo '}' >> build.json
-   java -jar $CONNECTOR -a "update_build" -f build.json
-   rm build.json
-   echo '{' > build.json
-   echo '  "name": "'$BUILD_NAME'"' >> build.json
-   echo '}' >> build.json
-   java -jar $CONNECTOR -a "start_analysis" -f build.json
-   rm build.json
-   return
+   	echo 'MAVEN COMPILE STEP FAILED'
+   	cat > build.json <<EOF
+		"name": "$BUILD_NAME",
+		"status": "error",
+		"end_date": "$(date +%s%3N)"
+	}
+EOF
+    ## Send json file with action UpdateBuild.
+   	java -jar $CONNECTOR -a "update_build" -f build.json
+   	rm build.json
+   	
+   	#############################################
+	## Final step : Run analysis Build Failed. ##
+	#############################################
+   	echo 'Final Step : RUN ANALYSIS'
+   	cat > build.json <<EOF
+	{
+		"name": "$BUILD_NAME"
+	}
+EOF
+    ## Send json file with action StartAnalysis.
+	java -jar $CONNECTOR -a "start_analysis" -f build.json
+	rm build.json
+	return
 fi
-echo 'MAVEN COMPILE STEP succeeded'
-echo '{' > build.json
-echo '  "name": "'$BUILD_NAME'",' >> build.json
-echo '  "steps": [{"name": "Compile All", "start_date":"'$START_COMPILE_DATE'", "end_date":"'$END_COMPILE_DATE'"}]' >> build.json
-echo '}' >> build.json
+echo 'MAVEN COMPILE STEP SUCCEEDED'
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME",
+	"steps": [{"name": "Compile All", "start_date":"$START_COMPILE_DATE", "end_date":"$END_COMPILE_DATE"}]
+}
+EOF
+## Send json file with action UpdateBuild
 java -jar $CONNECTOR -a "update_build" -f build.json
 
-echo 'MAVEN TEST'
+## Execute maven test goal.
+echo 'MAVEN TEST STEP'
 START_TEST_DATE=$(date +%s%3N)
 mvn surefire:test >> maven.log
 END_TEST_DATE=$(date +%s%3N)
+
 echo 'MAVEN TEST STEP DONE'
-echo '{' > build.json
-echo '  "name": "'$BUILD_NAME'",' >> build.json
-echo '  "steps": [{"name": "Test All", "start_date":"'$START_TEST_DATE'", "end_date":"'$END_TEST_DATE'"}],' >> build.json
-echo '  "end_date": "'$(date +%s%3N)'"' >> build.json
-echo '}' >> build.json
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME",
+	"steps": [{"name": "Test All", "start_date":"$START_TEST_DATE", "end_date":"$END_TEST_DATE"}],
+	"end_date": "$(date +%s%3N)"
+}
+EOF
+## Send json file with action UpdateBuild.
 java -jar $CONNECTOR -a "update_build" -f build.json
 
-echo 'RUN ANALYSIS'
-echo '{' > build.json
-echo '  "name": "'$BUILD_NAME'"' >> build.json
-echo '}' >> build.json
+##############################################
+## Step 4.0 : Run analysis Build Succeeded. ##
+##############################################
+echo 'Final Step : RUN ANALYSIS'
+cat > build.json <<EOF
+{
+	"name": "$BUILD_NAME"
+}
+EOF
+## Send json file with action StartAnalysis.
 java -jar $CONNECTOR -a "start_analysis" -f build.json
 rm build.json

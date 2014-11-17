@@ -1,4 +1,4 @@
-package com.modeln.batam.example;
+package com.modeln.batam.example.javaproject;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +16,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import com.modeln.batam.connector.SimplePublisherHelper;
-import com.modeln.batam.example.javamaven.App;
+import com.modeln.batam.example.javaproject.App;
 
 public class AppTest {
 	private Date startDate = null;
@@ -28,6 +28,7 @@ public class AppTest {
 		@Override
 		public void succeeded(Description description) {
 			try {
+				System.out.println("STEP 3.0: SUBMIT TEST");
 				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), startDate, endDate, "completed", null, null);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -37,6 +38,7 @@ public class AppTest {
 		@Override
 		public void failed(Throwable e, Description description) {
 			try {
+				System.out.println("STEP 3.0: SUBMIT TEST");
 				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), startDate, endDate,  "failed", null, e.getMessage());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -48,12 +50,14 @@ public class AppTest {
 	@BeforeClass
 	public static void setUp() throws IOException{
 		//Create Test Report
+		System.out.println("STEP 2.0: CREATE BUILD REPORT");
 		SimplePublisherHelper.createNewBuildTestReport(null, "AllTestsSuite", null, "Build", "Execute all tests", new Date());
 	}
 
 	@AfterClass
 	public static void tearDown() throws IOException{
 		//Create Test Report
+		System.out.println("STEP 3.5 (Optional): UPDATE BUILD REPORT");
 		SimplePublisherHelper.updateBuildTestReportEndDate(null, new Date());
 	}
 

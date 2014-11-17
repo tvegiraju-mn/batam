@@ -288,11 +288,7 @@ public String createBuild(Build build) throws IOException {
 	}
 
 	public String updateBuildEndDate(String id, Date endDate) throws IOException {
-		
-		if(!(endDate != null)){
-			throw new InvalidArgumentException("startDate argument should not be null. ");
-		}
-		
+	
 		Build build = new Build(id, null, null, endDate, null, null, null, null, null, null, null);
 		
 		return updateBuild(build);

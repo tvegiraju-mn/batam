@@ -1,4 +1,4 @@
-package com.modeln.batam.example.javamaven;
+package com.modeln.batam.example.javaproject;
 
 import java.util.UUID;
 
