@@ -1,0 +1,2 @@
+# Project Examples:
+- [Java Project](https://github.com/ModelN/batam/tree/master/examples/java-project) / [java-connector](https://github.com/ModelN/batam/tree/master/connectors/java-connector): Maven based project. Test Suite executed using the [Junit](http://junit.org/) Library.

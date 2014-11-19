@@ -5,11 +5,11 @@ It integrates with your continuous integration system and allows you to go from 
 Ideal for large and complex build systems.
 
 ![Figure 1.0 : Architecture Diagram.](https://raw.githubusercontent.com/ModelN/batam/master/doc/img/architecture_diagram.png)
-Figure 1.0 : Architecture Diagram.
+*Figure 1.0 : Architecture Diagram.*
 
 As described in Figure 1.0, connectors are connected to your Continuous Integration System. 
 It can be [Jenkins](http://jenkins-ci.org/) systems or any other framework. In the future, we will have as many connectors as programming languages for easy of use. 
-These [connectors](https://github.com/ModelN/batam/tree/master/connectors are light weight. Their goal is to implement a well defined API and push messages to the message broker following a specific format. 
+These [connectors](https://github.com/ModelN/batam/tree/master/connectors) are light weight. Their goal is to implement a well defined API and push messages to the message broker following a specific format. 
 [Workers](https://github.com/ModelN/batam/tree/master/worker) are consumers of the message broker system. They consume messages, crunch the data by running some analytics and persist reports into a database. 
 The [Webapp](https://github.com/ModelN/batam/tree/master/webapp) is just a reporting user interface on top of the database. 
 Workers persist data that is then retrieve by the Webapp module.
@@ -34,7 +34,7 @@ Information are pushed to a Message Broker service ([RabbitMQ](http://www.rabbit
 - Multiple workers can be deployed at the same time for scalability.
 
 ### [Webapp](https://github.com/ModelN/batam/tree/master/webapp)
-Node JS application used to visualize reports.
+- Node JS application used to visualize reports.
 
 ### [Examples](https://github.com/ModelN/batam/tree/master/examples)
 Connector integration examples:
@@ -42,8 +42,8 @@ Connector integration examples:
 
 
 ## Install
-- Install a MongoDb database
-- Install RabbitMq
+- Install a [MongoDB](http://www.mongodb.org/) database.
+- Install [RabbitMQ](http://www.rabbitmq.com/).
 - Install, configure and run the webapp module.
 - Install, configure and run one or multiple workers.
 - Use connectors in your build environment.
