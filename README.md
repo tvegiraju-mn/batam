@@ -4,7 +4,7 @@ The BATAM application is a flexible build reporting and monitoring application.
 It integrates with your continuous integration system and allows you to go from a high level to a very detail view of your build and tests execution. 
 Ideal for large and complex build systems.
 
-![Figure 1.0 : Architecture Diagram.](https://raw.github.com/ModelN/batam/tree/master/doc/img/architecture_diagram.png)
+![Figure 1.0 : Architecture Diagram.](https://raw.githubusercontent.com/ModelN/batam/master/doc/img/architecture_diagram.png)
 Figure 1.0 : Architecture Diagram.
 
 As described in Figure 1.0, connectors are connected to your Continuous Integration System. 
