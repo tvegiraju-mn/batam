@@ -132,7 +132,7 @@
     		}else if(trend < 0){
     			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
     		}else{
-    			return '<span class="label label-success>'+value+' </span>';
+    			return '<span class="label label-success">'+value+' </span>';
     		}
     	}
     	if(value > 0){
@@ -325,7 +325,7 @@
 	        	  	if(i != 0){
 	        		  	showHideLinks += ' - ';
 	        	  	}
-	        	  	showHideLinks += '<a class="toggle-vis" data-column="'+(i+1)+'">'+criteriasIds[i]+'</a> ';
+	        	  	showHideLinks += '<a class="toggle-vis" onclick="event.preventDefault(); clickme('+(i+1)+', event)" data-column="'+(i+1)+'">'+criteriasIds[i]+'</a> ';
 	          	}
 	          	$('#show_hide_columns').after(showHideLinks); 
 	          	
@@ -390,19 +390,20 @@
 	    	//TODO Handle error better
 	    	alert("fail while fetching /api/reports/{{report_id}}"); 
 	    });	
-	 	
+  		
 	 	function displayTable (){
 	 		// load tests
 	 		var columns = [];
-	 		//Add mandatory default column Name
+	 		// Add mandatory default column Name
 	 		columns[0] = {title: "Name"};
 	 		for(var i = 0; i < criteriasIds.length; i++){
 	 			columns[i+1] = {};
-	 			if(i >= 3){
+	 			if(visibleColumns[i] == undefined || visibleColumns[i] == false){
 	 				columns[i+1].title = criteriasIds[i];
 	 				columns[i+1].visible = false;	
 	 			}else{
 	 				columns[i+1].title = criteriasIds[i];
+	 				columns[i+1].visible = true;
 	 			}
 	      	}
 	 		
@@ -436,20 +437,14 @@
 	 	    	drawCallback: function(settings) {
 	 	    		table = $('#tests').DataTable();
 	 	    		for(var i = 4; i < criteriasIds.length; i++){
-	 	    	   		//i starts at 4 since we always waant to display difault column Status, Regression and Time.
+	 	    	   		//i starts at 4 since we always want to display default columns Status, Regression and Time.
 	 	    	   		//i+1 is needed since the 0 column is the mandatory name column not listed in the criteriasIds list.
-	 	    	   		table.column(i+1).visible(false);
+	 	    	   		if(visibleColumns[i] == undefined || visibleColumns[i] == false){
+	 	    	   			table.column(i+1).visible(false);
+	 	    			}else{
+	 	    				table.column(i+1).visible(true);
+	 	    			}
 	 	        	} 
-	 	    	    
-	 	    	   	$('a.toggle-vis').on( 'click', function (e) {
-	 	            	e.preventDefault();
-	
-	 	            	// Get the column API object
-	 	            	var column = table.column( $(this).attr('data-column') );
-	
-	 	            	// Toggle the visibility
-	 	            	column.visible( ! column.visible() );
-	 	          	});
 	 	    	}
 	 	    });  	
 	  	}
@@ -486,7 +481,19 @@
 	  	}
 		 
 	});
-  	
+    
+  	//Global variable to keep track of visible columns
+ 	var visibleColumns = [true,true,true];
+    function clickme(dataColumn, e) {
+     	e.preventDefault();
+     	table = $('#tests').DataTable();
+     	//Fetch column.
+     	var column = table.column( dataColumn );
+     	//Set global visibility variable.
+     	visibleColumns[dataColumn - 1] = ! column.visible();
+     	// Toggle the visibility
+     	column.visible( ! column.visible() );
+   	}
   	
     </script>
   </body>

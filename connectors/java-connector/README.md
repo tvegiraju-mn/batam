@@ -21,7 +21,7 @@ When integrating with your continuous integration system, you need to make sure 
 *A build, with one or multiple reports and one or multiple tests per reports.* 
 Whatever the outcome of your build execution is (pass, failed, error, etc...), you need to execute the **start_analysin** action at the very end of your process.
 
-The **start_analysis* action tells the system that the build execution is done and it gives the BATAM system the green light to start crunching and analysis data received. 
+The **start_analysis** action tells the system that the build execution is done and it gives the BATAM system the green light to start crunching and analysis data received. 
 If this action is not called, the system will not know the build is over. As a consequence, it will not analyze it until you create a new build version.
  
 The Connector doesn't have any particular data validations. It is strongly recommended to send informations for every fields. 
