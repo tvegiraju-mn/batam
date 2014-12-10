@@ -46,7 +46,7 @@ public class SimplePublisherHelper {
 	
 	public static String createBuild(Build build) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createBuild(build);
 		publisher.endConnection();
 		
@@ -55,7 +55,7 @@ public class SimplePublisherHelper {
 	
 	public static String updateBuild(Build build) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateBuild(build);
 		publisher.endConnection();
 		
@@ -64,7 +64,7 @@ public class SimplePublisherHelper {
 	
 	public static String startBuildAnalysis(Build build) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.startBuildAnalysis(build);
 		publisher.endConnection();
 		
@@ -73,7 +73,7 @@ public class SimplePublisherHelper {
 	
 	public static String createReport(TestReport report) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createReport(report);
 		publisher.endConnection();
 		
@@ -82,7 +82,7 @@ public class SimplePublisherHelper {
 	
 	public static String updateReport(TestReport report) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateReport(report);
 		publisher.endConnection();
 		
@@ -91,7 +91,7 @@ public class SimplePublisherHelper {
 	
 	public static String createTest(TestInstance test) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createTest(test);
 		publisher.endConnection();
 		
@@ -100,7 +100,7 @@ public class SimplePublisherHelper {
 	
 	public static String updateTest(TestInstance test) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateTest(test);
 		publisher.endConnection();
 		
@@ -120,7 +120,7 @@ public class SimplePublisherHelper {
 			List<Commit> commits) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createNewBuild(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits);
 		publisher.endConnection();
 		
@@ -135,7 +135,7 @@ public class SimplePublisherHelper {
 			List<Pair> infos) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createNewBuild(id, name, startDate, description, criterias, infos);
 		publisher.endConnection();
 		
@@ -145,7 +145,7 @@ public class SimplePublisherHelper {
 	public static String addBuildCommits(String id, List<Commit> commits) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.addBuildCommits(id, commits);
 		publisher.endConnection();
 		
@@ -155,7 +155,7 @@ public class SimplePublisherHelper {
 	public static String addBuildInfos(String id, List<Pair> infos) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.addBuildInfos(id, infos);
 		publisher.endConnection();
 		
@@ -165,7 +165,7 @@ public class SimplePublisherHelper {
 	public static String addBuildReports(String id, List<Pair> reports) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.addBuildReports(id, reports);
 		publisher.endConnection();
 		
@@ -175,7 +175,7 @@ public class SimplePublisherHelper {
 	public static String addBuildSteps(String id, List<Step> steps) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.addBuildSteps(id, steps);
 		publisher.endConnection();
 		
@@ -185,7 +185,7 @@ public class SimplePublisherHelper {
 	public static String updateBuildEndDate(String id, Date endDate) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateBuildEndDate(id, endDate);
 		publisher.endConnection();
 		
@@ -195,7 +195,7 @@ public class SimplePublisherHelper {
 	public static String updateBuildStatus(String id, String status) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateBuildStatus(id, status);
 		publisher.endConnection();
 		
@@ -205,7 +205,7 @@ public class SimplePublisherHelper {
 	public static String runBuildAnalysis(String id) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.runBuildAnalysis(id);
 		publisher.endConnection();
 		
@@ -223,7 +223,7 @@ public class SimplePublisherHelper {
 			List<String> logs) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createNewBuildTestReport(id, name, buildId, buildName, description, startDate, endDate, status, logs);
 		publisher.endConnection();
 		
@@ -238,7 +238,7 @@ public class SimplePublisherHelper {
 			Date startDate) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.createNewBuildTestReport(id, name, buildId, buildName, description, startDate);
 		publisher.endConnection();
 		
@@ -248,7 +248,7 @@ public class SimplePublisherHelper {
 	public static String addBuildTestReportLogs(String id, List<String> logs) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.addBuildTestReportLogs(id, logs);
 		publisher.endConnection();
 		
@@ -259,7 +259,7 @@ public class SimplePublisherHelper {
 			String status) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateBuildTestReportStatus(id, status);
 		publisher.endConnection();
 		
@@ -270,7 +270,7 @@ public class SimplePublisherHelper {
 			Date endDate) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.updateBuildTestReportEndDate(id, endDate);
 		publisher.endConnection();
 		
@@ -287,7 +287,7 @@ public class SimplePublisherHelper {
 			String log) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
-		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
+		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
 		String message = publisher.submitTest(reportId, reportName, name, startDate, endDate, status, criterias, log);
 		publisher.endConnection();
 		

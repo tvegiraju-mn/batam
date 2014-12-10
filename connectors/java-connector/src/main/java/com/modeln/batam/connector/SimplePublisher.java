@@ -68,7 +68,7 @@ public class SimplePublisher {
 		return instance;
 	}
 
-	public void beginConnection(String host, Integer port, String queue, String mode) throws IOException {
+	public void beginConnection(String host, String user, String password, Integer port, String queue, String mode) throws IOException {
 
 		if(host == null){
 			host = ConfigHelper.HOST;
@@ -76,6 +76,14 @@ public class SimplePublisher {
 		
 		if(port == null){
 			port = ConfigHelper.PORT;
+		}
+		
+		if(user == null){
+			user = ConfigHelper.USER;
+		}
+		
+		if(password == null){
+			password = ConfigHelper.PASSWORD;
 		}
 		
 		if(queue == null){
@@ -96,6 +104,8 @@ public class SimplePublisher {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);
 		factory.setPort(port);
+		factory.setUsername(user);
+		factory.setPassword(password);
 		connection = factory.newConnection();
 		channel = connection.createChannel();
 		channel.queueDeclare(queue, false, false, false, null);
