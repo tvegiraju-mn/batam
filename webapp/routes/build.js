@@ -56,7 +56,7 @@ exports.list = function(req, res, next){
     	
     //Fetch search values for each criterias passed in the request as query params.
     _.each(criterias, function(element, index, list){
-    	var currentCriteriaTag = element.name.toLowerCase().replace(" ", "_");
+    	var currentCriteriaTag = replaceAll(" ", "_", element.name.toLowerCase());
     	
     	//Fetch params based on their origin (GET or POST).
     	var param = null;
@@ -99,8 +99,8 @@ exports.list = function(req, res, next){
         		var convertedCriterias = [];
         		_.each(criterias, function(element, index, list){
         			this[index] = {};
-        			this[index].name = element.name.toLowerCase().replace(" ", "_");
-        			this[index].value = element.value.toLowerCase().replace(" ", "_");
+        			this[index].name = replaceAll(" ", "_", element.name.toLowerCase());
+        			this[index].value = replaceAll(" ", "_", element.value.toLowerCase());
         		}, convertedCriterias);
         		var isValid = true;
         		_.each(filters, function(element, index, list){
@@ -206,4 +206,8 @@ exports.view = function(req, res, next){
     	}
 	    
 	});
+}
+
+function replaceAll(find, replace, str) {
+  return str.replace(new RegExp(find, 'g'), replace);
 }

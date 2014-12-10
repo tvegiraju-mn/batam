@@ -119,7 +119,7 @@ exports.list = function(req, res, next){
 			for(var index in tests){
 				data[index] = ['<a href="/'+req.query.build_id+'/report/'+req.query.report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time)]; 
 				for(var i = 0; i < criterias.length; i++){
-					var currentCriterias = criterias[i].name.toLowerCase().replace(" ", "_");
+					var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
 					if(!_.isUndefined(tests[index][currentCriterias])){
 						data[index][4+i] = tests[index][currentCriterias];
 					}else{
@@ -187,7 +187,7 @@ exports.stat = function(req, res, next){
 			statName = "Time"
 		}else{
 			for(var i = 0; i < criterias.length; i++){
-				var currentCriterias = criterias[i].name.toLowerCase().replace(" ", "_");
+				var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
 				if(currentCriterias == req.query.graph){
 					statName = criterias[i].name;
 				}
@@ -241,16 +241,16 @@ function createSearchCriterias(req, criterias){
 	if(!_.isNull(req.query.time) && !_.isEmpty(req.query.time)){
 		searchCriterias.time = req.query.time;
 	}
-	
+	console.log("criterias = "+util.inspect(criterias))
 	//Add dynamic criterias to searchCriterias Object.
 	//Loop through name criterias and convert name field value into searchCriteria attributes set with value fetched from request query.
 	for(var i = 0; i < criterias.length; i++){
-		var currentCriterias = criterias[i].name.toLowerCase().replace(" ", "_");
+		var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
 		if(!_.isUndefined(req.query[currentCriterias]) && !_.isNull(req.query[currentCriterias]) && !_.isEmpty(req.query[currentCriterias])){
 			searchCriterias[currentCriterias] = req.query[currentCriterias];
 		}
 	}
-	
+	console.log(util.inspect(searchCriterias));
 	searchCriterias.report_id = req.query.report_id;	
 	
 	return searchCriterias;
@@ -329,7 +329,7 @@ exports.search = function(req, res, next){
 				var currentTest = tests[j];
 			
 				for(var index in allCriterias){
-					convertedIndex = index.toLowerCase().replace(" ","_");
+					convertedIndex = replaceAll(" ","_", index.toLowerCase());
 					if(!_.isUndefined(currentTest[convertedIndex]) && !_.isEmpty(currentTest[convertedIndex]) && !_.isNull(currentTest[convertedIndex])){
 						allCriterias[index][currentTest[convertedIndex]] = true;
 					}
@@ -354,5 +354,8 @@ exports.search = function(req, res, next){
 		});
 	});
 }
-	
+
+function replaceAll(find, replace, str) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
 

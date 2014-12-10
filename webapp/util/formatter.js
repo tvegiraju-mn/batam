@@ -12,12 +12,16 @@ exports.formatRegression = function(status, regression){
 	if(status == 'pass'){
 		if(regression != 'new'){
 			return '<span class="label label-success">'+regression+'</span>';
+		}else{
+			return '<span class="label label-default">'+regression+'</span>';
 		}
 	}else if(status == 'fail' || status == 'error'){
 		if(regression == 'same'){
 			return '<span class="label label-danger">'+regression+'</span>';
 		}else if(regression == 'new'){
 			return '<span class="label label-warning">'+regression+'</span>';
+		}else{
+			return '<span class="label label-default">'+regression+'</span>';
 		}
 	}else{
 		return '<span class="label label-default">'+regression+'</span>';

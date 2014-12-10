@@ -171,6 +171,9 @@
         if (seconds) {
         	result += seconds + ' sec ';
         }
+        if(result == 0){
+        	return milliseconds + ' ms ';
+        }
         return result; 
     }
 	
@@ -291,7 +294,7 @@
 	    			listHtml += '				<strong> Fixed <span class="label label-success">'+response.reports[i].tests.fixed_regressions.value;
 		    		if(response.reports[i].tests.fixed_regressions.trend == 1){
 		    			listHtml +=	'						<span class="glyphicon glyphicon-chevron-up"></span>';
-		    		}else if(response.reports[i].tests.fixed_regressions.trend = -1){
+		    		}else if(response.reports[i].tests.fixed_regressions.trend == -1){
 		    			listHtml +=	'						<span class="glyphicon glyphicon-chevron-down"></span>';
 		    		}
 	    			listHtml +=	'					</span></strong>';

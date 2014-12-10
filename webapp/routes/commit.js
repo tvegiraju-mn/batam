@@ -37,7 +37,7 @@ exports.list = function(req, res, next){
 		}
 	});
 	
-	req.collections.commits.find({build: req.query.build_id}, {_id:0}).limit(parseInt(req.query.length)).skip(parseInt(req.query.start)).toArray(function(error, commits){
+	req.collections.commits.find({build_id: req.query.build_id}, {_id:0}).limit(parseInt(req.query.length)).skip(parseInt(req.query.start)).toArray(function(error, commits){
 		if(error) return next(error);
 		for(var index in commits){
 			data[index] = ['<a href="'+commits[index].url+'">'+commits[index].sha+'</a>', commits[index].date_committed.toString(), commits[index].author];      

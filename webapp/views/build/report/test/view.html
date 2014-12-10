@@ -142,6 +142,9 @@
         if (seconds) {
         	result += seconds + ' sec ';
         }
+        if(result == 0){
+        	return milliseconds + ' ms ';
+        }
         return result; 
     }	
     $(document).ready(function(){

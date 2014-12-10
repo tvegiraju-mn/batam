@@ -170,6 +170,9 @@
         if (seconds) {
         	result += seconds + ' sec ';
         }
+        if(result == 0){
+        	return milliseconds + ' ms ';
+        }
         return result; 
     }
     $(document).ready(function(){
@@ -265,12 +268,12 @@
 	            	if(i % 2 == 0){
 	              		criteriasForm += '<div class="form-group">' +
 		              	'  <div class="row">' +
-	              		'    <label for="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
+	              		'    <label for="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
 	              		'    <div class="col-sm-3">' +
-	              		'      <select class="form-control" id="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" name="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">';
+	              		'      <select class="form-control" id="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" name="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">';
 	              		criteriasForm += '        <option value="">Any</option>';
 	              		for(var j = 0; j < response.criterias[i].values.length; j++){
-	                		criteriasForm += '        <option value="'+response.criterias[i].values[j].toLowerCase().replace(" ", "_")+'">'+response.criterias[i].values[j]+'</option>';
+	                		criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
 	              		}
 	              		criteriasForm += '      </select>' +
 	              		'    </div>';
@@ -281,12 +284,12 @@
 		                	'</div>';
 		              	}
 		            }else{
-		              	criteriasForm += '    <label for="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
+		              	criteriasForm += '    <label for="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
 		              	'    <div class="col-sm-3">' +
-		              	'      <select class="form-control" id="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'" name="'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">';
+		              	'      <select class="form-control" id="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" name="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">';
 		              	criteriasForm += '        <option value="">Any</option>';
 		              	for(var j = 0; j < response.criterias[i].values.length; j++){
-		                	criteriasForm += '        <option value="'+response.criterias[i].values[j].toLowerCase().replace(" ", "_")+'">'+response.criterias[i].values[j]+'</option>';
+		                	criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
 	              		}
 	              		criteriasForm += '      </select>' +
 	              		'    </div>' +
@@ -301,7 +304,7 @@
 	          		//Display graph 
 		          	var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
 	            	for(var j = 0; j < criteriasIds.length; j++){
-	              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+	              		query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
 	            	}
 	            	//Display Graphs
 	            	$.getJSON('/api/tests/stat'+query, function(response){
@@ -332,7 +335,7 @@
 	          	// Add Show graphs
 	          	var graphLink = '<ul class="nav nav-tabs" role="tablist">';
 	          	for(var i = 0; i < response.criterias.length; i++){
-	          		graphLink += '<li><a id="graph_link_'+response.criterias[i].name.toLowerCase().replace(" ", "_")+'">'+response.criterias[i].name+'</a></li>';
+	          		graphLink += '<li><a id="graph_link_'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">'+response.criterias[i].name+'</a></li>';
 	          	}
 	          	graphLink += '</ul>';
 	          	$('#graphs_link').html(graphLink);
@@ -340,7 +343,7 @@
 	          	//Display default status graph 
 	          	var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
             	for(var j = 0; j < criteriasIds.length; j++){
-              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+              		query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
             	}
             	//Display Graphs
             	$.getJSON('/api/tests/stat'+query, function(response){
@@ -355,11 +358,11 @@
 	          	
 	          	//Add event click to show graph
 	          	for(var i = 0; i < response.criterias.length; i++){
-	          		$('#graph_link_'+response.criterias[i].name.toLowerCase().replace(" ", "_")).click(function(){
+	          		$('#graph_link_'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())).click(function(){
 	          			graph = this.id.replace("graph_link_", "");
 	          			var query = '?build_id={{build_id}}&report_id={{report_id}}&graph='+graph;
 		            	for(var j = 0; j < criteriasIds.length; j++){
-		              		query += "&"+criteriasIds[j].toLowerCase().replace(" ", "_")+'='+$('#'+criteriasIds[j].toLowerCase().replace(" ", "_")).val();
+		              		query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
 		            	}
 		            	//Display Graphs
 		            	$.getJSON('/api/tests/stat'+query, function(response){
@@ -409,9 +412,9 @@
 	 		
 	 		var data = {build_id : "{{build_id}}", report_id : "{{report_id}}"};
 	 		for(var i = 0; i < criteriasIds.length; i++){
-	 			var currentValue = $('#'+criteriasIds[i].toLowerCase().replace(" ", "_")).val();
+	 			var currentValue = $('#'+replaceAll(" ", "_", criteriasIds[i].toLowerCase())).val();
 	 			if(currentValue != undefined && currentValue != null && currentValue != ""){
-	 				data[criteriasIds[i].toLowerCase().replace(" ","_")] = $('#'+criteriasIds[i].toLowerCase().replace(" ", "_")).val();
+	 				data[replaceAll(" ","_", criteriasIds[i].toLowerCase())] = $('#'+replaceAll(" ", "_", criteriasIds[i].toLowerCase())).val();
 	 			}
 	 	    }
 	 		
@@ -494,6 +497,10 @@
      	// Toggle the visibility
      	column.visible( ! column.visible() );
    	}
+    
+    function replaceAll(find, replace, str) {
+   		return str.replace(new RegExp(find, 'g'), replace);
+    }
   	
     </script>
   </body>
