@@ -32,9 +32,10 @@ import java.util.Properties;
 public class ConfigHelper {
 	
 	private final static String HOST_PROPERTY_CONF = "com.modeln.batam.host";
-	private final static String PORT_PROPERTY_CONF = "com.modeln.batam.port";
-	private final static String USER_PROPERTY_CONF = "com.modeln.batam.user";
+	private final static String USER_PROPERTY_CONF = "com.modeln.batam.username";
 	private final static String PASSWORD_PROPERTY_CONF = "com.modeln.batam.password";
+	private final static String PORT_PROPERTY_CONF = "com.modeln.batam.port";
+	private final static String VHOST_PROPERTY_CONF = "com.modeln.batam.vhost";
 	private final static String QUEUE_PROPERTY_CONF = "com.modeln.batam.queue";
 	private final static String TEST_MODE_PROPERTY_CONF = "com.modeln.batam.test_mode";
 	
@@ -42,15 +43,17 @@ public class ConfigHelper {
 	public static String USER;
 	public static String PASSWORD;
 	public static Integer PORT;
+	public static String VHOST;
 	public static String QUEUE_NAME;
 	public static String TEST_MODE;
 	
 	static{
 		try {
 			HOST = getPropValue(HOST_PROPERTY_CONF);
-			PORT = Integer.valueOf(getPropValue(PORT_PROPERTY_CONF));
 			USER = getPropValue(USER_PROPERTY_CONF);
 			PASSWORD = getPropValue(PASSWORD_PROPERTY_CONF);
+			PORT = Integer.valueOf(getPropValue(PORT_PROPERTY_CONF));
+			VHOST = getPropValue(VHOST_PROPERTY_CONF);
 			QUEUE_NAME = getPropValue(QUEUE_PROPERTY_CONF);
 			TEST_MODE = getPropValue(TEST_MODE_PROPERTY_CONF);
 		} catch (IOException e) {

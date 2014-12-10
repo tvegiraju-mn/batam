@@ -68,22 +68,26 @@ public class SimplePublisher {
 		return instance;
 	}
 
-	public void beginConnection(String host, String user, String password, Integer port, String queue, String mode) throws IOException {
+	public void beginConnection(String host, String username, String password, Integer port, String vhost, String queue, String mode) throws IOException {
 
 		if(host == null){
 			host = ConfigHelper.HOST;
+		}
+		
+		if(username == null){
+			username = ConfigHelper.USER;
+		}
+		
+		if(password == null){
+			password = ConfigHelper.PASSWORD;
 		}
 		
 		if(port == null){
 			port = ConfigHelper.PORT;
 		}
 		
-		if(user == null){
-			user = ConfigHelper.USER;
-		}
-		
-		if(password == null){
-			password = ConfigHelper.PASSWORD;
+		if(vhost == null){
+			vhost = ConfigHelper.VHOST;
 		}
 		
 		if(queue == null){
@@ -104,8 +108,9 @@ public class SimplePublisher {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);
 		factory.setPort(port);
-		factory.setUsername(user);
+		factory.setUsername(username);
 		factory.setPassword(password);
+		factory.setVirtualHost(vhost);
 		connection = factory.newConnection();
 		channel = connection.createChannel();
 		channel.queueDeclare(queue, false, false, false, null);
