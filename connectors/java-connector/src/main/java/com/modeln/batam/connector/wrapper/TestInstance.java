@@ -62,7 +62,11 @@ public class TestInstance {
 	private String log; 
 	
 	private List<Pair> criterias;
-
+	
+	public TestInstance() {
+		super();
+	}
+	
 	public TestInstance(String reportId, String reportName, String name, Date startDate, Date endDate, String status,
 			List<Pair> criterias, String log) {
 		super();

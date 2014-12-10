@@ -340,7 +340,7 @@ public String createBuild(Build build) throws IOException {
 		
 		TestReport report = new TestReport(id, name, buildId, buildName, description, startDate, null, null, null);
 		
-		return updateReport(report);
+		return createReport(report);
 	}
 
 	public String addBuildTestReportLogs(String id, List<String> logs) throws IOException {

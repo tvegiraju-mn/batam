@@ -66,6 +66,10 @@ public class TestReport {
 	
 	private List<String> logs;
 
+	public TestReport() {
+		super();
+	}
+	
 	public TestReport(String id, String name, String buildId, String buildName, 
 			String description, Date startDate, Date endDate, String status,
 			List<String> logs) {

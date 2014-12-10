@@ -119,7 +119,7 @@ public class Commit {
 		obj.put("commit_id", commitId);
 		obj.put("url", url);
 		obj.put("author", author);
-		obj.put("date_committed", dateCommitted);
+		obj.put("date_committed", dateCommitted == null ? null : String.valueOf(dateCommitted.getTime()));
 		
 		return obj.toJSONString();
 	}

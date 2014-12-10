@@ -84,8 +84,8 @@ public class Step {
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
 		obj.put("name", name);
-		obj.put("start_date", startDate);
-		obj.put("end_date", endDate);
+		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
+		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		
 		return obj.toJSONString();
 	}

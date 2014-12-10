@@ -73,6 +73,8 @@ public class Build {
 	
 	private List<Commit> commits;
 
+	public Build(){}
+	
 	public Build(String id, String name, Date startDate, Date endDate, String status,
 			String description, List<Pair> criterias,
 			List<Pair> infos, List<Pair> reports,
@@ -191,6 +193,7 @@ public class Build {
 		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("description", description);
+		obj.put("status", status);
 		obj.put("criterias", criterias);
 		obj.put("infos", infos);
 		obj.put("reports", reports);
