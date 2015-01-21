@@ -245,33 +245,43 @@ public class SimplePublisherHelper {
 		return message;
 	}
 	
-	public static String addBuildTestReportLogs(String id, List<String> logs) throws IOException{
+	public static String addBuildTestReportLogs(String id, 
+			String name, 
+			String buildId, 
+			String buildName,
+			List<String> logs) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.addBuildTestReportLogs(id, logs);
+		String message = publisher.addBuildTestReportLogs(id, name, buildId, buildName, logs);
 		publisher.endConnection();
 		
 		return message;
 	}
 	
 	public static String updateBuildTestReportStatus(String id, 
+			String name, 
+			String buildId, 
+			String buildName,
 			String status) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.updateBuildTestReportStatus(id, status);
+		String message = publisher.updateBuildTestReportStatus(id, name, buildId, buildName, status);
 		publisher.endConnection();
 		
 		return message;
 	}
 	
 	public static String updateBuildTestReportEndDate(String id, 
+			String name, 
+			String buildId, 
+			String buildName, 
 			Date endDate) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.updateBuildTestReportEndDate(id, endDate);
+		String message = publisher.updateBuildTestReportEndDate(id, name, buildId, buildName, endDate);
 		publisher.endConnection();
 		
 		return message;

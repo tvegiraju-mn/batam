@@ -60,8 +60,7 @@ cat > build.json <<EOF
 		{"name": "Maven Version", "value": "$(mvn -v | grep "Apache Maven")"}
 	],
 	"commits": [
-		$(git log --pretty=format:'{"id": "%H", "author": "%ae", "date": "%cd"}' | sed "s/}/},/g")
-		{"id": "", "author": "", "date": ""}
+		$(git log --pretty=format:'{"build_name": "Build", "commit_id": "%H", "author": "%ae", "date_committed": "%cd"}' | sed "s/}/},/g")
 	]
 }
 EOF

@@ -3,27 +3,43 @@ var util = require('util');
 var mongoskin = require('mongoskin');
 var validator = require('validator');
 var formatter = config = require('../util/formatter.js');
+var PDFKit = require('pdfkit');
 
 /**
  * PAGE path /:build_id/report/:report_id/test/:test_id
  */
-exports.show = function(req, res, next){
-	//Validate inputs.
-	if(!req.params.build_id || !req.params.report_id || !req.params.test_id){
-		return next(new Error('No build_id, report_id or test_id params in url.'));
-	}
-	if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
-	}
-	if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
-	}
-	if(validator.isNull(req.params.test_id) || !validator.isMongoId(req.params.test_id)){
-		return next(new Error('test_id param should not be null and correspond to a MongoDB Id.'));
-	}
+exports.show = showTest;
+
+function showTest(req, res, next){
+	var findBuild = function (error, build){
+		var findReport = function (error, report){
+			var findTest = function (error, test){
+				
+				//Validate query result.
+				if(error){
+					return next(error);
+				}
+				if(_.isEmpty(report) || _.isNull(test)){
+					return next('Test '+req.params.test_id+' for report '+req.params.report_id+' in build '+req.params.build_id+' not found.');
+				}
+				
+				//Render page
+				res.render('build/report/test/view', {build_id: build.id, build_name: build.name, report_id: report.id, report_name: report.name, test_id: test._id});
+			};
+		    
+			//Handle Error.
+			if(error){ 
+				return next(error);
+			}
+			if(_.isEmpty(report) || _.isNull(report)){
+				return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
+			}
+			
+			//Fetch test.
+			req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id), report_id: req.params.report_id}, findTest);
 		
-	//Fetch query result.
-	req.collections.builds.findOne({id: req.params.build_id}, function(error, build){
+		};
+		
 		//Handle Error.
 		if(error){
 			return next(error);
@@ -36,79 +52,52 @@ exports.show = function(req, res, next){
 		}
 		
 		//Fetch build report.
-		req.collections.reports.findOne({id: req.params.report_id, build_id: build.id}, function(error, report){
-		    
-			//Handle Error.
-			if(error){ 
-		    	return next(error);
-		    }
-		    if(_.isEmpty(report) || _.isNull(report)){
-		    	return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
-			}
-		    
-			//Fetch test.
-	    	req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id), report_id: req.params.report_id}, function(error, test){
-	    		
-	    		//Validate query result.
-	    		if(error){
-	    			return next(error);
-	    		}
-	    		if(_.isEmpty(report) || _.isNull(test)){
-	    			return next('Test '+req.params.test_id+' for report '+req.params.report_id+' in build '+req.params.build_id+' not found.');
-	    		}
-	    		
-	    		//Render page
-	    		res.render('build/report/test/view', {build_id: build.id, build_name: build.name, report_id: report.id, report_name: report.name, test_id: test._id});
-	    	});
-		 
-		});
-	});
+		req.collections.reports.findOne({id: req.params.report_id, build_id: build.id}, findReport);
+	};
+	
+	//Validate inputs.
+	if(!req.params.build_id || !req.params.report_id || !req.params.test_id){
+		return next(new Error('No build_id, report_id or test_id params in url.'));
+	}
+	//if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.params.build_id) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	//if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.params.report_id) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	if(validator.isNull(req.params.test_id) || !validator.isMongoId(req.params.test_id)){
+		return next(new Error('test_id param should not be null and correspond to a MongoDB Id.'));
+	}
+		
+	//Fetch query result.
+	req.collections.builds.findOne({id: req.params.build_id}, findBuild);
 }
 
 /**
  * API path /api/tests
  */
-exports.list = function(req, res, next){
-	//Validate inputs.
-	if(!req.query.draw || !req.query.length || !req.query.start || !req.query.build_id || !req.query.report_id){
-		return next(new Error('No draw, length, start, build_id or report_id query params.'));
-	}
-	if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
-	}
-	if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
-	}
-	if(validator.isNull(req.query.draw) || !validator.isInt(req.query.draw)){
-		return next(new Error('draw param should not be null and should be a number.'));
-	}
-	if(validator.isNull(req.query.length) || !validator.isInt(req.query.length)){
-		return next(new Error('length param should not be null and should be a number.'));
-	}
-	if(validator.isNull(req.query.start) || !validator.isInt(req.query.start)){
-		return next(new Error('start param should not be null and should be a numbe.r'));
-	}
-	
-	//Create response object.
-	var result = {};
-	//Set draw value.
-	result.draw = req.query.draw;
-	//Create data obejct array.
-	var data = [];
-	
-	//Fetch all test criterias.
-	req.collections.testcriterias.find().toArray(function(error, criterias){
-		
-		//Handle Error.
-		if(error){
-			return next(error);
-		}
-	
-		//Create searchCriteria object.
-		var searchCriterias = createSearchCriterias(req, criterias);
-		
-		//Fetch tests based on defined searchCriterias
-		req.collections.tests.find(searchCriterias).limit(parseInt(req.query.length)).skip(parseInt(req.query.start)).toArray(function(error, tests){
+exports.list = findTestList; 
+
+function findTestList(req, res, next){
+	var findTestCriterias = function (error, criterias){
+		var findTests = function (error, tests){
+			var countTest = function (error, count){
+				//Validate query result.
+				if(error){
+					return next(error);
+				}
+				if(_.isNull(count)){
+					count = 0;
+				}				
+				
+				result.recordsTotal = count;
+				result.recordsFiltered = count;
+				result.data = data;
+				//Send result.
+				res.send(result);
+			};
 			
 			//Handle Error.
 			if(error){
@@ -129,48 +118,196 @@ exports.list = function(req, res, next){
 			}
 			
 			//Count number of retuned tests and send response.
-			req.collections.tests.count(searchCriterias, function(error, count){
-				//Validate query result.
-				if(error){
-					return next(error);
-				}
-				if(_.isNull(count)){
-					count = 0;
-				}				
-				
-				result.recordsTotal = count;
-				result.recordsFiltered = count;
-				result.data = data;
-				//Send result.
-				res.send(result);
-			});
-		});
-	});
-}
+			req.collections.tests.count(searchCriterias, countTest);
+		};
+		
+		//Handle Error.
+		if(error){
+			return next(error);
+		}
+		
+		//Create searchCriteria object.
+		var searchCriterias = createSearchCriterias(req, criterias);
+		
+		//Fetch tests based on defined searchCriterias
+		req.collections.tests.find(searchCriterias)
+			.limit(parseInt(req.query.length))
+			.skip(parseInt(req.query.start))
+				.toArray(findTests);
+	};
 	
-/**
- * API path /api/tests/stat
- */
-exports.stat = function(req, res, next){
 	//Validate inputs.
-	if(!req.query.build_id || !req.query.report_id || !req.query.graph) {
-		return next(new Error('No build_id, report_id or graph query params.'));
+	if(!req.query.draw || !req.query.length || !req.query.start || !req.query.build_id || !req.query.report_id){
+		return next(new Error('No draw, length, start, build_id or report_id query params.'));
 	}
-	if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+	//if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.query.report_id) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	if(validator.isNull(req.query.graph) || !validator.isLength(req.query.graph, 3, 20) || !validator.matches(req.query.graph, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 3 and 20 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	if(validator.isNull(req.query.draw) || !validator.isInt(req.query.draw)){
+		return next(new Error('draw param should not be null and should be a number.'));
+	}
+	if(validator.isNull(req.query.length) || !validator.isInt(req.query.length)){
+		return next(new Error('length param should not be null and should be a number.'));
+	}
+	if(validator.isNull(req.query.start) || !validator.isInt(req.query.start)){
+		return next(new Error('start param should not be null and should be a numbe.r'));
 	}
 	
 	//Create response object.
 	var result = {};
+	//Set draw value.
+	result.draw = req.query.draw;
+	//Create data obejct array.
+	var data = [];
 	
 	//Fetch all test criterias.
-	req.collections.testcriterias.find().toArray(function(error, criterias){
+	req.collections.testcriterias.find().toArray(findTestCriterias);
+}
+
+/**
+ * PAGE path /:build_id/report/:report_id/download
+ */
+exports.download = downloadPDF; 
+
+function downloadPDF(req, res, next){
+	var findBuild = function(error, build){
+		var findReports = function(error, reports){
+			var findTests = function(error, tests){
+				//Handle Error.
+				if(error){
+					return next(error);
+				}
+				
+				//Create a pdf document
+				var doc = new PDFKit();
+				var stream = doc.pipe(res);
+				
+				//First page (Build infos)
+				doc.fillColor('black').fontSize(30).text('Test Report', 100, 80);
+				doc.moveDown();
+				doc.fontSize(15).text('Build Name', {underline:true, continued: true}).text(': '+build.name, {underline:false});
+				doc.moveDown();
+				doc.fontSize(15).text('Date', {underline:true, continued: true}).text(': '+new Date(), {underline:false});
+				doc.moveDown();
+				doc.fontSize(15).text('Errors', {underline:true, continued: true}).text(': '+build.errors.value, {underline:false});
+				doc.moveDown();
+				doc.fontSize(15).text('Failures', {underline:true, continued: true}).text(': '+build.failures.value, {underline:false});
+		
+				console.log(util.inspect(reports));
+				for(var i = 0; i < reports.length; i++){
+					doc.addPage();	
+					doc.fontSize(15).fillColor('black').text('Report Name', {underline:true, continued: true}).text(': '+reports[i].name, {underline:false});
+					doc.moveDown();
+					doc.fontSize(15).text('Report Description', {underline:true, continued: true}).text(': '+reports[i].description, {underline:false});
+					doc.moveDown();
+					doc.fontSize(15).text('Tests Executed', {underline:true, continued: true}).text(': '+reports[i].tests.all.value, {underline:false});
+					doc.moveDown();
+					doc.fontSize(15).text('Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.regressions.value, {underline:false});
+					doc.moveDown();
+					doc.fontSize(15).text('New Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.new_regressions.value, {underline:false});
+					doc.moveDown();
+					doc.fontSize(15).text('Fixed Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.fixed_regressions.value, {underline:false});
+					
+					for(var j = 0; j < tests.length; j++){
+						//fetch test that belongs to the current report
+						if(tests[j].report_id == reports[i].id){
+							doc.addPage();
+							doc.fontSize(15).fillColor('black').text('Test Name', {underline:true, continued: true}).text(': '+tests[j].name, {underline:false});
+							doc.moveDown();
+							doc.fontSize(15).text('Test Description', {underline:true, continued: true}).text(': '+tests[j].description, {underline:false});
+							doc.moveDown();
+							if(tests[j].status == 'pass'){
+								doc.fontSize(15).text('Status', {underline:true, continued: true}).text(': ', {underline:false, continued: true}).fillColor('green').text(tests[j].status);
+							}else{
+								doc.fontSize(15).text('Status', {underline:true, continued: true}).text(': ', {underline:false, continued: true}).fillColor('red').text(tests[j].status);
+							}
+							doc.moveDown();
+							if(tests[j].status != 'pass'){
+								doc.fontSize(15).fillColor('black').text('Logs', {underline:true, continued: true}).text(': ', {underline:false});
+								doc.moveDown();
+								doc.fontSize(12).text(tests[j].log);
+							}
+						}
+					}
+				}
+				   
+				// end and display the document in the iframe to the right
+				doc.end();
+			};
+			
+			//Handle Error.
+			if(error){
+				return next(error);
+			}
+			
+			if(reports == null){
+				return next(new Error('Reports does not exist.'));
+			}
+			
+			//Fetch all build tests
+			req.collections.tests.find({build_id : build.id}).toArray(findTests);
+		};
+		
+		//Handle Error.
+		if(error){
+			return next(error);
+		}
+		
+		if(build == null){
+			return next(new Error('Build does not exist.'));
+		}
+		
+		//Fetch Reports
+		req.collections.reports.find({build_id : build.id}).toArray(findReports);
+	};
+	
+	//Validate inputs.
+	if(!req.params.build_id){
+		return next(new Error('No build_id param in url.'));
+	}
+	
+	//if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.params.build_id) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	
+	//Fetch Build
+	req.collections.builds.findOne({id : req.params.build_id}, findBuild);
+	
+}
+	
+	
+/**
+ * API path /api/tests/stat
+ */
+exports.stat = findStat; 
+
+function findStat(req, res, next){
+	var findTestCriterias = function (error, criterias){
+		var aggregateTestStat = function (error, stat){
+			//Handle Error.
+			if(error){
+				return next(error);
+			}
+			
+			//Set name
+			result.name = statName;
+			
+			//Set Values
+			var values = [];
+			for(var j = 0; j < stat.length; j++){
+				values[j] = {name: stat[j][req.query.graph] == null? "Others": stat[j][req.query.graph] , value : stat[j].count};
+			}
+			result.values = values;
+			
+			//Send result.
+			res.send({stat: result});
+		};
 		
 		//Handle Error.
 		if(error) {
@@ -202,26 +339,31 @@ exports.stat = function(req, res, next){
 			searchCriterias,
 			{count: 0},
 			"function(curr, prev){prev.count++;}", 
-			function(error, stat){
-				//Handle Error.
-				if(error){
-					return next(error);
-				}
-				
-				//Set name
-				result.name = statName;
-				
-				//Set Values
-				var values = [];
-				for(var j = 0; j < stat.length; j++){
-					values[j] = {name: stat[j][req.query.graph] == null? "Others": stat[j][req.query.graph] , value : stat[j].count};
-				}
-				result.values = values;
-				
-				//Send result.
-				res.send({stat: result});
-		});
-	});
+			aggregateTestStat);
+	};
+	
+	//Validate inputs.
+	if(!req.query.build_id || !req.query.report_id || !req.query.graph) {
+		return next(new Error('No build_id, report_id or graph query params.'));
+	}
+	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	//if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.query.report_id) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	//if(validator.isNull(req.query.graph) || !validator.isLength(req.query.graph, 3, 20) || !validator.matches(req.query.graph, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.query.graph) || !validator.matches(req.query.graph, '[0-9a-zA-Z_-]+')){
+		return next(new Error('report_id param should not be null, between 3 and 20 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	
+	//Create response object.
+	var result = {};
+	
+	//Fetch all test criterias.
+	req.collections.testcriterias.find().toArray(findTestCriterias);
 }
 
 /**
@@ -241,7 +383,7 @@ function createSearchCriterias(req, criterias){
 	if(!_.isNull(req.query.time) && !_.isEmpty(req.query.time)){
 		searchCriterias.time = req.query.time;
 	}
-	console.log("criterias = "+util.inspect(criterias))
+
 	//Add dynamic criterias to searchCriterias Object.
 	//Loop through name criterias and convert name field value into searchCriteria attributes set with value fetched from request query.
 	for(var i = 0; i < criterias.length; i++){
@@ -250,7 +392,7 @@ function createSearchCriterias(req, criterias){
 			searchCriterias[currentCriterias] = req.query[currentCriterias];
 		}
 	}
-	console.log(util.inspect(searchCriterias));
+
 	searchCriterias.report_id = req.query.report_id;	
 	
 	return searchCriterias;
@@ -259,17 +401,10 @@ function createSearchCriterias(req, criterias){
 /**
  * API path /api/tests/:test_id
  */
-exports.view = function(req, res, next){
-	//Validate inputs.
-	if(!req.params.test_id) {
-		return next(new Error('No test_id param in url.'));
-	}
-	if(validator.isNull(req.params.test_id) || !validator.isMongoId(req.params.test_id)){
-		return next(new Error('test_id param should not be null and correspond to a MongoDB Id.'));
-	}
-	
-	//Fetch test requested.
-	req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id)}, function(error, test){
+exports.view = findTest;
+
+function findTest(req, res, next){
+	var fetchTest = function (error, test){
 	    //Handle Error.
 		if(error) {
 			return next(error);
@@ -280,45 +415,28 @@ exports.view = function(req, res, next){
 		test.time = formatter.formatTime(test.time);
 		//Send response.
 	    res.send({test: test});
-	});
+	};
+	
+	//Validate inputs.
+	if(!req.params.test_id) {
+		return next(new Error('No test_id param in url.'));
+	}
+	if(validator.isNull(req.params.test_id) || !validator.isMongoId(req.params.test_id)){
+		return next(new Error('test_id param should not be null and correspond to a MongoDB Id.'));
+	}
+	
+	//Fetch test requested.
+	req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id)}, fetchTest);
 }
 
 /**
  * API path /api/criterias/test/:report_id
  */
-exports.search = function(req, res, next){
-	//Validate inputs.
-	if(!req.params.report_id) {
-		return next(new Error('No report_id param in url.'));
-	}
-	if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
-	}
-	
-	var allCriterias = {};
-	var result = [];
-	var i = 0;
-	
-	//Fetch all tests criterias.
-	req.collections.testcriterias.find().toArray(function(error, criterias){
-		//Handle Error.
-		if(error){
-			return next(error);
-		}
-		
-		//Add static criterias.
-		allCriterias['Status'] = {};
-		allCriterias['Regression'] = {};
-		allCriterias['Time'] = {};
-		
-		//Add dynamic criterias.
-		for(var j = 0; j < criterias.length; j++){
-			var currentCriterias = criterias[j].name;
-			allCriterias[currentCriterias] = {};
-		}
+exports.search = findSearchedTests;
 
-		//Fetch all tests for this report.
-		req.collections.tests.find({report_id: req.params.report_id}).toArray(function(error, tests){
+function findSearchedTests(req, res, next){
+	var findTestCriterias = function (error, criterias){
+		var findTests = function (error, tests){
 			//Handle Error.
 			if(error){
 				return next(error);
@@ -337,12 +455,12 @@ exports.search = function(req, res, next){
 			}
 			
 			//Convert the allCriterias object (Map<String, List>) to the result object (Array of objects with 2 attributes, name and values, values being of type String[])
-			_.each(allCriterias, function(element, index, list){
+			_.each(allCriterias, function addCriteriasNameToResult(element, index, list){
 				result[i] = {};
 				result[i].name = index;
 				var l = 0;
 				result[i].values = [];
-				_.each(element, function(value, index, list){
+				_.each(element, function addCriteriasValueToResult(value, index, list){
 					result[i].values[l] = index;
 					l++;
 				}, result);
@@ -351,8 +469,42 @@ exports.search = function(req, res, next){
 			
 			//Send result.
 			res.send({criterias: result});
-		});
-	});
+		};
+		//Handle Error.
+		if(error){
+			return next(error);
+		}
+		
+		//Add static criterias.
+		allCriterias['Status'] = {};
+		allCriterias['Regression'] = {};
+		allCriterias['Time'] = {};
+		
+		//Add dynamic criterias.
+		for(var j = 0; j < criterias.length; j++){
+			var currentCriterias = criterias[j].name;
+			allCriterias[currentCriterias] = {};
+		}
+
+		//Fetch all tests for this report.
+		req.collections.tests.find({report_id: req.params.report_id}).toArray(findTests);
+	};
+	
+	//Validate inputs.
+	if(!req.params.report_id) {
+		return next(new Error('No report_id param in url.'));
+	}
+	//if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
+	if(validator.isNull(req.params.report_id) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	
+	var allCriterias = {};
+	var result = [];
+	var i = 0;
+	
+	//Fetch all tests criterias.
+	req.collections.testcriterias.find().toArray(findTestCriterias);
 }
 
 function replaceAll(find, replace, str) {

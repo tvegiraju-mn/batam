@@ -358,23 +358,23 @@ public String createBuild(Build build) throws IOException {
 		return createReport(report);
 	}
 
-	public String addBuildTestReportLogs(String id, List<String> logs) throws IOException {
+	public String addBuildTestReportLogs(String id, String name, String buildId, String buildName, List<String> logs) throws IOException {
 		
-		TestReport report = new TestReport(id, null, null, null, null, null, null, null, logs);
+		TestReport report = new TestReport(id, name, buildId, buildName, null, null, null, null, logs);
 		
 		return updateReport(report);
 	}
 
-	public String updateBuildTestReportStatus(String id, String status) throws IOException {
+	public String updateBuildTestReportStatus(String id, String name, String buildId, String buildName, String status) throws IOException {
 		
-		TestReport report = new TestReport(id, null, null, null, null, null, null, status, null);
+		TestReport report = new TestReport(id, name, buildId, buildName, null, null, null, status, null);
 		
 		return updateReport(report);
 	}
 	
-	public String updateBuildTestReportEndDate(String id, Date endDate) throws IOException {
+	public String updateBuildTestReportEndDate(String id, String name, String buildId, String buildName, Date endDate) throws IOException {
 
-		TestReport report = new TestReport(id, null, null, null, null, null, endDate, null, null);
+		TestReport report = new TestReport(id, name, buildId, buildName, null, null, endDate, null, null);
 		
 		return updateReport(report);
 	}

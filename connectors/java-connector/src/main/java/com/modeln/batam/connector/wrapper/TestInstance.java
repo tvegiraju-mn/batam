@@ -71,6 +71,7 @@ public class TestInstance {
 			List<Pair> criterias, String log) {
 		super();
 		this.reportId = reportId;
+		this.reportName = reportName;
 		this.name = name;
 		this.startDate = startDate;
 		this.endDate = endDate;

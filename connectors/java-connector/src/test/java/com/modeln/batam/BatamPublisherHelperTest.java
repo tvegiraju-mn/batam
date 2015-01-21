@@ -178,14 +178,14 @@ public class BatamPublisherHelperTest {
 		logs.add("Foo");
 		logs.add("Bar");
 		
-		SimplePublisherHelper.addBuildTestReportLogs("1", logs);
+		SimplePublisherHelper.addBuildTestReportLogs("1", null, null, null, logs);
 	}
 	
 	@Test
 	public void testUpdateBuildTestReportStatus() throws IOException {
-		SimplePublisherHelper.updateBuildTestReportStatus("1", "11");
+		SimplePublisherHelper.updateBuildTestReportStatus("1", null, null, null, "11");
 		
-		SimplePublisherHelper.updateBuildTestReportStatus("1", null);
+		SimplePublisherHelper.updateBuildTestReportStatus("1", null, null, null, null);
 	}
 	
 	@Test

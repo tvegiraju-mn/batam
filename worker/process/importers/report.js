@@ -1,117 +1,99 @@
 var _ = require('underscore');
 var util = require('util');
 var config = require('../../config.js');
+var e = require('../error/errorHandler.js');
 
 var mongoskin = require('mongoskin'),
 	dbUrl = process.env.MONGOHQ_URL || config.database.URL,
 	db = mongoskin.db(dbUrl, {safe:true}),
 	collections = {
 		builds: db.collection('builds'),
-		reports: db.collection('reports'),
-		ignored: db.collection('ignored')
+		reports: db.collection('reports')
 	};
 	
-//{
-// * 		"id" : "Report Identifier",
-// * 		"build_id" : "build identifier this test belong to",
-// * 		"build_name" : "build name this test belong to",
-// * 		"name" : "Report name",
-// * 		"description" : "Report description",
-// * 		"start_date" : "12341234", // Time in millisecond
-// * 		"end_date" : "12341234", // Time in millisecond
-// * 		"status" : "completed|failed|error| name it",
-// * 		"logs" : ["list of html link to archived log files"]
-// * }
+exports.create = createReportEntrypoint;
 
-//========================
-//{
-//    id: "build_1_201401010000000000200_agile_test_plan",
-//    build_id: "build_1_201401010000000000200",
-//    name : "agile Test Plan",
-//    description: "Agile Test Plan",
-//    date : { "$date": "2014-02-01T00:00:00.000+0200" },
-//    status: "error",
-//    duration : {value: 23, trend: 1},
-//    logs: ['<a href="#">sf1pdcertapp57a</a>'],
-//    tests:{
-//      all:{value: 23433, trend:1},
-//      regressions: {value: 23433, trend:1},
-//      new_regressions: {value: 23, trend:-1},
-//      fixed_regressions: {value: 2, trend:0}
-//    }
-//  } ,
-exports.create = function(data, ack){
+function createReportEntrypoint(data, ack){
+	var findPendingBuildCallback = function (error, builds){
+		if(error){
+			return e.error(data, ack, false, "Find Build Operation failed.");
+		}
+		if(builds.length == 0){
+			return e.error(data, ack, true, "Build doesn't exist.");
+		}
+		if(builds.length  > 1){
+			return e.error(data, ack, true, "Multiple Build were found.");
+		}
+		
+		//Create report.
+		createReport(builds[0], data, ack);
+	};
 	
 	var buildId = data.build_id;
 	var buildName = data.build_name;
 	
 	//Check build exist using buildid and name provided
 	if((_.isUndefined(buildId) || _.isNull(buildId)) && !_.isNull(buildName)){
-		collections.builds.find({name: buildName, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Build were found.'");
-				return -1;
-			}
-			
-			//Create report.
-			createReport(builds[0], data, ack);
-		});
-		
+		collections.builds.find({name: buildName, lifecycle_status : "pending"}).toArray(findPendingBuildCallback);
 	}else if(!_.isNull(buildId) && !_.isNull(buildName)){
-		collections.builds.find({id: buildId, name: buildName, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Build were found.'");
-				return -1;
-			}
-			
-			//Create report.
-			createReport(builds[0], data, ack);
-			
-		});
+		collections.builds.find({id: buildId, name: buildName, lifecycle_status : "pending"}).toArray(findPendingBuildCallback);
 	}else if(!_.isNull(buildId)){
-		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Build were found.'");
-				return -1;
-			}
-			
-			//Create report.
-			createReport(builds[0], data, ack);
-			
-		});
+		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray(findPendingBuildCallback);
 	}else{
-		console.log("Error: build_id or build_name not valid.");
-		return -1;
+		return e.error(data, ack, true, "Build_id or build_name not valid.");
 	}
 }
 
 function createReport(build, data, ack){
-	var id = data.id;
+	var checkReportExistCallback = function (error, count){
+		var findPreviousReportCallback = function (error, previous_reports){
+			var persistReportCallback = function (error, resp){
+				if(error) {
+					return e.error(data, ack, false, "Insert new Report failed.");
+			    }
+				
+			    console.log("-- Create report.");
+			    
+				ack.acknowledge();
+				
+			};
+			
+    		if(error){
+				return e.error(data, ack, false, "Find Report Operation failed.");
+			}
+			
+			if(previous_reports.length > 1){
+				return e.error(data, ack, true, "Multiple Reports were found.");
+			}
+			
+			//If no previous reports were found.
+			if(previous_reports.length == 0){
+				report.previous_id = null;
+		    	//Create report.
+				collections.reports.insert(report, persistReportCallback);
+			}else{
+				//If previous report exist we set the previous_id attribute
+	    		report.previous_id = previous_reports[0].id;
+				//Create report.
+				collections.reports.insert(report, persistReportCallback);
+			}	
+		};
+		
+		//Handle Error.
+    	if(error) {
+    		return e.error(data, ack, false, "Find Report Operation failed.");
+	    }
+    	
+    	//Check if report already exist.
+    	if(count > 0){
+    		return e.error(data, ack, true, "Report already exists.");
+    	}
+    	
+    	//Fetch previous report in order to set previous_id attribute
+    	collections.reports.find({name: report.name, build_id: build.previous_id, lifecycle_status : "completed", next_id : null}).toArray(findPreviousReportCallback);
+	};
 	
+	var id = data.id;	
 	var buildId = data.build_id;
 	var buildName = data.build_name;
 	var name = data.name;
@@ -130,8 +112,7 @@ function createReport(build, data, ack){
 	
 	//Check name
 	if(_.isUndefined(name) || _.isNull(name)){
-		console.log("Error: Name field not found.");
-		return -1;
+		return e.error(data, ack, true, "Name field not found.");
 	}
 	report.name = name;
 	
@@ -146,21 +127,18 @@ function createReport(build, data, ack){
 	}
 	report.id = id;
 	
-	//Check start and end date
+	//Check start date
 	if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
-		console.log("Error: start_date field not valid.");
-		return -1;
+		return e.error(data, ack, true, "Start_date field not valid.");
 	}
 	if(!_.isNull(start_date)){
 		report.date = new Date(parseInt(start_date));
 	}
 	
-	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
-		console.log("Error: end_date field not valid.");
-		return -1;
-	}
-	
 	//Set duration value if possible
+	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
+		return e.error(data, ack, true, "End_date field not valid.");
+	}
 	if(!_.isNull(report.date) && !_.isNull(end_date)){
 		report.duration = {};
 		report.duration.value = parseInt(end_date) - parseInt(start_date);
@@ -169,242 +147,113 @@ function createReport(build, data, ack){
 	
 	//Check logs
 	if(!_.isNull(logs) && !_.isArray(logs)){
-		console.log("Error: logs field not valid.");
-		return -1;
+		return e.error(data, ack, true, "Logs field not valid.");
 	}else{
 		report.logs = [];
 	}
 	if(!_.isNull(logs)){
 		for(var i = 0; i < logs.length; i++){
 			if(!_.isString(logs[i])){
-				console.log("Error: logs field "+i+" not valid.");
-				return -1
+				return e.error(data, ack, true, "Logs field "+i+" not valid.");
 			}
 			report.logs[i] = logs[i];
 		}
 	}
-	//Check if report already exist.
-	collections.reports.count({id: report.id, name: report.name}, function(error, count){
-		//Handle Error.
-    	if(error) {
-    		console.log("Error: find Report Operation failed.");
-    		return -1;
-	    }
-    	
-    	//Check if report already exist.
-    	if(count > 0){
-    		console.log("Error: Report already exists.");
-    		return -1;
-    	}
-    	
-    	//Fetch previous report in order to set previous_id attribute
-    	collections.reports.find({name: report.name, build_id: build.previous_id, lifecycle_status : "completed", next_id : null}).toArray(function(error, previous_reports){
-    		if(error){
-				console.log("Error: find Report Operation failed.");
-				return -1;
-			}
-			
-			if(previous_reports.length > 1){
-				console.log("Error: Multiple Reports were found.'");
-				return -1;
-			}
-			
-			//If no previous reports were found.
-			if(previous_reports.length == 0){
-				report.previous_id = null;
-		    	//Create report.
-				collections.reports.insert(report, function(error, resp){
-					if(error) {
-						console.log("Error: Insert new Report failed.");
-				    	return -1;
-				    }
-					
-					//Acknowledge message.
-					ack.acknowledge();
-					
-				});
-			}else{
-				//If previous report exist we set the previous_id attribute
-	    		report.previous_id = previous_reports[0].id;
-				//Create report.
-				collections.reports.insert(report, function(error, resp){
-					if(error) {
-						console.log("Error: Insert new Report failed.");
-				    	return -1;
-				    }
-					
-					//Acknowledge message.
-					ack.acknowledge();
-					
-				});
-			}	
-		});
-	});
-}
-
-exports.update = function(data){
 	
-	var buildId = data.build_id;
-	var buildName = data.build_name;
-
-	//Check build exist using buildId and name provided
-	if((_.isUndefined(buildId) || _.isNull(buildId)) && !_.isNull(buildName)){
-		collections.builds.find({name: buildName, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return -1;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Builds were found.'");
-				return -1;
-			}
-
-			//Update report.
-			updateBuildReport(builds[0], data);
-		});
-		
-	}else if(!_.isNull(buildId) && !_.isNull(buildName)){
-		collections.builds.find({id: buildId, name: buildName, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return -1;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Builds were found.'");
-				return -1;
-			}
-			
-			//Update report.
-			updateBuildReport(builds[0], data);
-			
-		});
-	}else if(!_.isNull(buildId)){
-		console.log("flag 3 buildId = "+buildId);
-		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray( function(error, builds){
-			if(error){
-				console.log("Error: find Build Operation failed.");
-				return -1;
-			}
-			if(builds.length == 0){
-				console.log("Error: Build doesn't exist.'");
-				return -1;
-			}
-			if(builds.length  > 1){
-				console.log("Error: Multiple Builds were found.'");
-				return -1;
-			}
-			
-			//Update report.
-			updateBuildReport(builds[0], data);
-			
-		});
-	}else{
-		//Update report.
-		updateBuildReport({}, data);
-	}
+	//Check if report already exist.
+	collections.reports.count({id: report.id, name: report.name}, checkReportExistCallback);
 }
 
-function updateBuildReport(build, data){
+exports.update = updateReportEntrypoint;
+
+//function updateReportEntrypoint(data, ack){
+//	var findBuildReportCallback = function (error, builds){
+//		if(error){
+//			return e.error(data, ack, false, "Find Build Operation failed.");
+//		}
+//		if(builds.length == 0){
+//			return e.error(data, ack, true, "Build doesn't exist.");
+//		}
+//		if(builds.length  > 1){
+//			return e.error(data, ack, true, "Multiple Builds were found.");
+//		}
+//
+//		//Update report.
+//		updateBuildReport(builds[0], data, ack);
+//	};
+//	
+//	var reportId = data.id;
+//	var reportName = data.name;
+//
+//	//Check build exist using buildId and name provided
+//	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
+//		collections.re.find({name: buildName, lifecycle_status : "pending"}).toArray(findBuildReportCallback);		
+//	}else if(!_.isNull(buildId) && !_.isNull(buildName)){
+//		collections.builds.find({id: buildId, name: buildName, lifecycle_status : "pending"}).toArray(findBuildReportCallback);
+//	}else if(!_.isNull(buildId)){
+//		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray(findBuildReportCallback);
+//	}else{
+//		return e.error(data, ack, true, "build_id or build_name not valid.");
+//	}
+//}
+
+function updateReportEntrypoint(data, ack){
+	var findReportsCallback = function (error, reports){
+		if(error){
+			return e.error(data, ack, false, "Find Report Operation failed.");
+		}
+		if(reports.length == 0){
+			return e.error(data, ack, true, "Report doesn't exist.");
+		}
+		if(reports.length  > 1){
+			return e.error(data, ack, true, "Multiple Reports were found.");
+		}
+		
+		//Update report.
+		updateReport(reports[0], data, ack);
+	};
+	
 	var id = data.id;
 	var name = data.name;
+	var buildId = data.build_id;
 	
 	//Check Report exist using id and name provided
-	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
+	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name) && !_.isNull(buildId)){
 		var searchCriterias = {};
 		searchCriterias.name = name;
 		searchCriterias.lifecycle_status = "pending";
-		if(!_.isUndefined(build.id) && _.isNull(build.id)){
-			searchCriterias.build_id = build.id;
-		}
+		searchCriterias.build_id = build.id;
 		
-		collections.reports.find(searchCriterias).toArray( function(error, reports){
-			if(error){
-				console.log("Error: find Report Operation failed.");
-				return -1;
-			}
-			if(reports.length == 0){
-				console.log("Error: Report doesn't exist.'");
-				return -1;
-			}
-			if(reports.length  > 1){
-				console.log("Error: Multiple Reports were found.'");
-				return -1;
-			}
-			
-			//Update report.
-			updateReport(reports[0], build, data);
-		});
+		collections.reports.find(searchCriterias).toArray(findReportsCallback);
 		
 	}else if(!_.isNull(id) && !_.isNull(name)){
 		var searchCriterias = {};
 		searchCriterias.name = name;
 		searchCriterias.id = id;
 		searchCriterias.lifecycle_status = "pending";
-		if(!_.isUndefined(build.id) && _.isNull(build.id)){
-			searchCriterias.build_id = build.id;
-		}
 		
-		collections.reports.find(searchCriterias).toArray( function(error, reports){
-			if(error){
-				console.log("Error: find Report Operation failed.");
-				return -1;
-			}
-			if(reports.length == 0){
-				console.log("Error: Report doesn't exist.'");
-				return -1;
-			}
-			if(reports.length  > 1){
-				console.log("Error: Multiple Reports were found.'");
-				return -1;
-			}
-			
-			//Update build.
-			updateReport(reports[0], build, data);
-			
-		});
+		collections.reports.find(searchCriterias).toArray(findReportsCallback);
 	}else if(!_.isNull(id)){
 		var searchCriterias = {};
 		searchCriterias.id = id;
 		searchCriterias.lifecycle_status = "pending";
-		if(!_.isUndefined(build.id) && _.isNull(build.id)){
-			searchCriterias.build_id = build.id;
-		}
 		
-		collections.reports.find(searchCriterias).toArray( function(error, reports){
-			if(error){
-				console.log("Error: find Report Operation failed.");
-				return -1;
-			}
-			if(reports.length == 0){
-				console.log("Error: Report doesn't exist.'");
-				return -1;
-			}
-			if(reports.length  > 1){
-				console.log("Error: Multiple Reports were found.'");
-				return -1;
-			}
-			
-			//Update build.
-			updateReport(reports[0], build, data);
-			
-		});
+		collections.reports.find(searchCriterias).toArray(findReportsCallback);
 	}else{
-		console.log("Error: id or name not valid.");
-		return -1;
+		return e.error(data, ack, true, "Id or name not valid.");
 	}
 	
 }
 
-function updateReport(report, build, data){
-
+function updateReport(report, data, ack){
+	var updateReportInfoCallback = function (error, count){
+		if(error) {
+			return e.error(data, ack, false, "Update Report operation failed.");
+	    }
+		
+		ack.acknowledge();
+	};
+	
 	var description = data.description;
 	var start_date = data.start_date;
 	var end_date = data.end_date;
@@ -419,20 +268,18 @@ function updateReport(report, build, data){
 		report.status = status;
 	}
 
-	//Check start and end date
+	//Check start date
 	if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
-		console.log("Error: start_date field not valid.");
-		return -1;
+		return e.error(data, ack, true, "Start_date field not valid.");
 	}
 	if(!_.isNull(start_date)){
 		report.date = new Date(parseInt(start_date));
 	}
-	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
-		console.log("Error: end_date field not valid.");
-		return -1;
-	}
-
+	
 	//Set duration value if possible
+	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
+		return e.error(data, ack, true, "End_date field not valid.");
+	}
 	if(!_.isNull(report.date) && !_.isNull(end_date) && _.isDate(report.date)){
 		report.duration = {};
 		report.duration.value = parseInt(end_date) - parseInt(report.date.getTime());
@@ -441,8 +288,7 @@ function updateReport(report, build, data){
 
 	//Update logs, 
 	if(!_.isNull(logs) && !_.isArray(logs)){
-		console.log("Error: Logs field not valid.");
-		return -1;
+		return e.error(data, ack, true, "Logs field not valid.");
 	}
 	if(_.isNull(report.logs) || !_.isArray(report.logs)){
 		report.logs = [];
@@ -451,20 +297,14 @@ function updateReport(report, build, data){
 	if(!_.isNull(logs)){
 		for(var i = 0; i < logs.length; i++){
 			if(!_.isString(logs[i])){
-				console.log("Error: Logs object "+i+" not valid.");
-				return -1;
+				return e.error(data, ack, true, "Logs object "+i+" not valid.");
 			}
 			report.logs[logsLength + i] = logs[i];
 		}
 	}
 
 	//Update reports
-	collections.reports.updateById(report._id, {$set: report}, function(error, count){
-		if(error) {
-			console.log("Error: Update Report operation failed.");
-	    	return -1;
-	    }
-	});
+	collections.reports.updateById(report._id, {$set: report}, updateReportInfoCallback);
 }
 
 

@@ -23,6 +23,9 @@
  */
 package com.modeln.batam.connector.wrapper;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.simple.JSONObject;
@@ -119,6 +122,7 @@ public class Commit {
 		obj.put("commit_id", commitId);
 		obj.put("url", url);
 		obj.put("author", author);
+		//To json return date_committed as time in ms
 		obj.put("date_committed", dateCommitted == null ? null : String.valueOf(dateCommitted.getTime()));
 		
 		return obj.toJSONString();
@@ -136,7 +140,14 @@ public class Commit {
 		String url = (String)obj.get("url");
 		String author = (String)obj.get("author");
 		String dateCommitted = (String)obj.get("date_committed");
-		return new Commit(buildId, buildName, commitId, url, author, dateCommitted == null ? null : new Date(Long.valueOf(dateCommitted)));
+		DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+		try {
+			return new Commit(buildId, buildName, commitId, url, author, dateCommitted == null ? null : dateFormat.parse(dateCommitted));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 }

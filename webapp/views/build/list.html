@@ -58,37 +58,23 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript" src="../../js/moment.min.js"></script>
+	<script type="text/javascript" src="../../js/underscore.min.js"></script>
+	<script type="text/javascript" src="../../js/batam.util.js"></script>
     <script type="text/javascript">
-    function formatWithLabel(value, trend, threshold){
-    	if(trend == undefined || trend == null){
-    		trend = 0;
-    	}
-    	if(value <= threshold){
-    		if(trend > 0){
-    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
-    		}else if(trend < 0){
-    			return '<span class="label label-success">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
-    		}else{
-    			return '<span class="label label-success">'+value+' </span>';
-    		}
-    	}
-    	if(value > 0){
-    		if(trend > 0){
-    			return '<span class="label label-danger">'+value+' <span class="glyphicon glyphicon-chevron-up"></span></span>';
-    		}else if(trend < 0){
-    			return '<span class="label label-warning">'+value+' <span class="glyphicon glyphicon-chevron-down"></span></span>';
-    		}else{
-    			return '<span class="label label-warning">'+value+' </span>';
-    		}
-    	}else{
-    		console.log("An unexpected error happenned");
-    	}
-    }
-
+    
     $(document).ready(function(){
     	var criteriasIds = [];
         // Initialize search
-        $.getJSON('/api/criterias/build', function(response){
+        $.getJSON('/api/criterias/build', displayBuildCriterias)
+        	.error(handleError)
+        	.fail(handleFailure);
+         
+        // Display project list 
+        $.getJSON('/api/builds', displayBuildList)
+        	.error(handleError)
+        	.fail(handleFailure);
+         
+        function displayBuildCriterias(response){
         	//If There are no criterias, we remove the form entirely
     	    if(response.criterias.length == 0){
     	    	$('#builds_search_criterias').remove();
@@ -132,47 +118,27 @@
            	} 
            	$('#builds_search_criterias').before(criteriasForm); 
           	//Add action to submit button
-    	    $('#builds_search').click(function(){
-    	       	var query = '';
-    	       	for(var i = 0; i < criteriasIds.length; i++){
-    	         	if(i == 0){
-    	           		query += '?';
-    	         	}else{
-    	           		query += '&';
-    	         	}
-    	         	query += criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
-    	       	}
-    	       	$.getJSON('/api/builds'+query, function(response){
-    	         	displayList(response);
-    	       	}).error(function(){
-    		    	//TODO Handle error better
-    		    	alert("error while fetching /api/builds"); 
-    		    }).fail(function(){
-    		    	//TODO Handle error better
-    		    	alert("fail while fetching /api/builds"); 
-    		    }); 
-    	    });
-        }).error(function(){
-        	//TODO Handle error better
-        	alert("error while fetching /api/criterias/build"); 
-        }).fail(function(){
-        	//TODO Handle error better
-        	alert("fail while fetching /api/criterias/build"); 
-        });
-         
-        // Display project list 
-        $.getJSON('/api/builds', function(response){
-         	displayList(response);
-        }).error(function(){
-        	//TODO Handle error better
-        	alert("error while fetching /api/builds"); 
-        }).fail(function(){
-        	//TODO Handle error better
-        	alert("fail while fetching /api/builds"); 
-        }); 
-         
+    	    $('#builds_search').click(handleSearchClick);
+        }
+        
+        function handleSearchClick(){
+           	var query = '';
+           	for(var i = 0; i < criteriasIds.length; i++){
+             	if(i == 0){
+               		query += '?';
+             	}else{
+               		query += '&';
+             	}
+             	query += criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
+           	}
+           	
+           	$.getJSON('/api/builds'+query, displayBuildList)
+           		.error(handleError)
+           		.fail(handleFailure); 
+        }
+        
         // Function display build list
-        function displayList(response){
+        function displayBuildList(response){
         	$('#builds_count').html(response.builds.length);
         	//If There are no criterias, we remove the form entirely
     		if(response.builds.length == 0){
@@ -192,14 +158,14 @@
     			if(response.builds[i].failures == undefined){
     				buildList += '		<strong> Failures <span class="label label-info">n/a</span></strong>';
     			}else{
-    				buildList += '		<strong> Failures '+formatWithLabel(response.builds[i].failures.value, response.builds[i].failures.trend, 0)+'</strong>';	 
+    				buildList += '		<strong> Failures '+formatWithLabel(response.builds[i].failures.value, response.builds[i].failures.trend, 0, false)+'</strong>';	 
     			}
              	buildList += '    </div>' +
              		'    <div class="col-md-2">';
              	if(response.builds[i].errors == undefined){
              		buildList += '		<strong> Errors <span class="label label-info">n/a</span></strong>';
     			}else{
-             		buildList += '		<strong> Errors '+formatWithLabel(response.builds[i].errors.value, response.builds[i].errors.trend, 0)+'</strong>';
+             		buildList += '		<strong> Errors '+formatWithLabel(response.builds[i].errors.value, response.builds[i].errors.trend, 0, false)+'</strong>';
     			}
              	var description = response.builds[i].description == undefined ? 'n/a' : response.builds[i].description;
              	var updateTime = response.builds[i].date == undefined ? 'n/a' : moment(response.builds[i].date).fromNow();
@@ -212,9 +178,7 @@
             $('#builds_list').html(buildList);
         }
     });
-    function replaceAll(find, replace, str) {
-   		return str.replace(new RegExp(find, 'g'), replace);
-    }
+    
     </script>
   </body>
 </html>

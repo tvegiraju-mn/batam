@@ -75,8 +75,9 @@ public class TestReport {
 			List<String> logs) {
 		super();
 		this.id = id;
-		this.buildId = buildId;
 		this.name = name;
+		this.buildId = buildId;
+		this.buildName = buildName;
 		this.description = description;
 		this.startDate = startDate;
 		this.endDate = endDate;

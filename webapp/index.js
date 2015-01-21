@@ -48,9 +48,10 @@ if('development' == app.get('env')){
 }
 
 //Define Routes and views
-app.get('/', routes.build.show_all);
+app.get('/', routes.build.showAll);
 app.get('/:build_id', routes.build.show);
-app.get('/:build_id/report/:report_id', routes.report.show)
+app.get('/:build_id/download', routes.test.download);
+app.get('/:build_id/report/:report_id', routes.report.show);
 app.get('/:build_id/report/:report_id/test/:test_id', routes.test.show);
 
 //REST API ROUTES

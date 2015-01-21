@@ -1,9 +1,9 @@
 var amqp = require('amqp');
 var util = require('util');
 var config = require('./config.js');
-var importer = require('./process/importer.js');
+var importer = require('./process/importer.js'); 
 
-var connection = amqp.createConnection({ host: config.message_broker.host });
+var connection = amqp.createConnection({url: "amqp://batam:batam2@localhost:5672/batam"});
 
 // Wait for connection to become established.
 connection.on('ready', function () {
