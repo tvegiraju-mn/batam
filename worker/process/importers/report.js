@@ -166,38 +166,39 @@ function createReport(build, data, ack){
 
 exports.update = updateReportEntrypoint;
 
-//function updateReportEntrypoint(data, ack){
-//	var findBuildReportCallback = function (error, builds){
-//		if(error){
-//			return e.error(data, ack, false, "Find Build Operation failed.");
-//		}
-//		if(builds.length == 0){
-//			return e.error(data, ack, true, "Build doesn't exist.");
-//		}
-//		if(builds.length  > 1){
-//			return e.error(data, ack, true, "Multiple Builds were found.");
-//		}
-//
-//		//Update report.
-//		updateBuildReport(builds[0], data, ack);
-//	};
-//	
-//	var reportId = data.id;
-//	var reportName = data.name;
-//
-//	//Check build exist using buildId and name provided
-//	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
-//		collections.re.find({name: buildName, lifecycle_status : "pending"}).toArray(findBuildReportCallback);		
-//	}else if(!_.isNull(buildId) && !_.isNull(buildName)){
-//		collections.builds.find({id: buildId, name: buildName, lifecycle_status : "pending"}).toArray(findBuildReportCallback);
-//	}else if(!_.isNull(buildId)){
-//		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray(findBuildReportCallback);
-//	}else{
-//		return e.error(data, ack, true, "build_id or build_name not valid.");
-//	}
-//}
-
 function updateReportEntrypoint(data, ack){
+	var findBuildReportCallback = function (error, builds){
+		if(error){
+			return e.error(data, ack, false, "Find Build Operation failed.");
+		}
+		if(builds.length == 0){
+			return e.error(data, ack, true, "Build doesn't exist.");
+		}
+		if(builds.length  > 1){
+			return e.error(data, ack, true, "Multiple Builds were found.");
+		}
+
+		//Update report.
+		updateBuildReport(builds[0], data, ack);
+	};
+	
+	var id = data.id;
+	var name = data.name;
+	var buildId = data.build_id;
+	var buildName = data.build_name;
+	
+	//if build_name is defined, we need to fetch buildid
+	if(!_.isNull(buildName)){
+		collections.builds.find({name: buildName, lifecycle_status : "pending"}).toArray(findBuildReportCallback);
+	}else{
+		var build = {};
+		build.id = buildId;
+		
+		updateBuildReport(build, data, ack);
+	}
+}
+
+function updateBuildReport(build, data, ack){
 	var findReportsCallback = function (error, reports){
 		if(error){
 			return e.error(data, ack, false, "Find Report Operation failed.");
@@ -215,33 +216,26 @@ function updateReportEntrypoint(data, ack){
 	
 	var id = data.id;
 	var name = data.name;
-	var buildId = data.build_id;
+	var buildId = build.id;
 	
-	//Check Report exist using id and name provided
-	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name) && !_.isNull(buildId)){
-		var searchCriterias = {};
-		searchCriterias.name = name;
-		searchCriterias.lifecycle_status = "pending";
-		searchCriterias.build_id = build.id;
-		
-		collections.reports.find(searchCriterias).toArray(findReportsCallback);
-		
-	}else if(!_.isNull(id) && !_.isNull(name)){
-		var searchCriterias = {};
-		searchCriterias.name = name;
-		searchCriterias.id = id;
-		searchCriterias.lifecycle_status = "pending";
-		
-		collections.reports.find(searchCriterias).toArray(findReportsCallback);
-	}else if(!_.isNull(id)){
-		var searchCriterias = {};
-		searchCriterias.id = id;
-		searchCriterias.lifecycle_status = "pending";
-		
-		collections.reports.find(searchCriterias).toArray(findReportsCallback);
-	}else{
+	if(_.isNull(name) && _.isNull(id)){
 		return e.error(data, ack, true, "Id or name not valid.");
 	}
+	
+	//Check Report exist using id and name provided
+	var searchCriterias = {};
+	searchCriterias.lifecycle_status = "pending";
+	if(!_.isNull(name)){
+		searchCriterias.name = name;
+	}
+	if(!_.isNull(id)){
+		searchCriterias.id = id;
+	}
+	if(!_.isNull(buildId)){
+		searchCriterias.build_id = buildId;
+	}
+	
+	collections.reports.find(searchCriterias).toArray(findReportsCallback);
 	
 }
 

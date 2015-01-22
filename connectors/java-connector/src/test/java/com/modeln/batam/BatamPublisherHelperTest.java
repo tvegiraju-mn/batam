@@ -151,8 +151,9 @@ public class BatamPublisherHelperTest {
 	
 	@Test
 	public void testRunBuildAnalysis() throws IOException {
-		SimplePublisherHelper.runBuildAnalysis("1");
+		SimplePublisherHelper.runBuildAnalysis("1", "foo", false);
 		
+		SimplePublisherHelper.runBuildAnalysis("1", null, false);
 	}
 	
 	@Test
@@ -193,9 +194,9 @@ public class BatamPublisherHelperTest {
 		List<Pair> criterias = new ArrayList<Pair>();
 		criterias.add(new Pair("foo1", "bar1"));
 		criterias.add(new Pair("foo2", "bar2"));
-		SimplePublisherHelper.submitTest("1", "11", "2", new Date(), new Date(), "111", criterias, "11111");
+		SimplePublisherHelper.submitTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, "11111");
 		
-		SimplePublisherHelper.submitTest("1", "11", "1", new Date(), new Date(), "111", null, null);
+		SimplePublisherHelper.submitTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null);
 	}
 
 }

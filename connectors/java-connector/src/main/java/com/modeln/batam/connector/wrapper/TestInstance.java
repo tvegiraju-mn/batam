@@ -53,6 +53,8 @@ public class TestInstance {
 	
 	private String name; 
 	
+	private String description; 
+	
 	private Date startDate; 
 	
 	private Date endDate;
@@ -67,12 +69,13 @@ public class TestInstance {
 		super();
 	}
 	
-	public TestInstance(String reportId, String reportName, String name, Date startDate, Date endDate, String status,
+	public TestInstance(String reportId, String reportName, String name, String description, Date startDate, Date endDate, String status,
 			List<Pair> criterias, String log) {
 		super();
 		this.reportId = reportId;
 		this.reportName = reportName;
 		this.name = name;
+		this.description = description;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.status = status;
@@ -102,6 +105,14 @@ public class TestInstance {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Date getStartDate() {
@@ -149,6 +160,7 @@ public class TestInstance {
 		obj.put("report_id", reportId);
 		obj.put("report_name", reportName);
 		obj.put("name", name);
+		obj.put("description", description);
 		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("status", status);
@@ -166,6 +178,7 @@ public class TestInstance {
 		String reportId = (String)obj.get("report_id");
 		String reportName = (String)obj.get("report_name");
 		String name = (String)obj.get("name");
+		String description = (String)obj.get("description");
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
 		String status = (String)obj.get("status");
@@ -181,6 +194,6 @@ public class TestInstance {
 		
 		String log = (String)obj.get("log");
 		
-		return new TestInstance(reportId, reportName, name, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, criterias, log);
+		return new TestInstance(reportId, reportName, name, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, criterias, log);
 	}
 }

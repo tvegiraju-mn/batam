@@ -29,7 +29,7 @@ public class AppTest {
 		public void succeeded(Description description) {
 			try {
 				System.out.println("STEP 3.0: SUBMIT TEST");
-				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), startDate, endDate, "pass", null, null);
+				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate, "pass", null, null);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -39,7 +39,7 @@ public class AppTest {
 		public void failed(Throwable e, Description description) {
 			try {
 				System.out.println("STEP 3.0: SUBMIT TEST");
-				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), startDate, endDate,  "fail", null, e.getMessage());
+				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate,  "fail", null, e.getMessage());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

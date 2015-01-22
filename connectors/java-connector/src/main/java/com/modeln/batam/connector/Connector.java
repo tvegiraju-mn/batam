@@ -34,6 +34,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.TestInstance;
 import com.modeln.batam.connector.wrapper.TestReport;
@@ -86,6 +87,20 @@ public class Connector {
 	
 	@Option(name="-f", required=false, usage="File to import (json format)")
 	private String file;
+	
+	private final static String CREATE_BUILD_ACTION = "create_build";
+	
+	private final static String UPDATE_BUILD_ACTION = "update_build";
+	
+	private final static String CREATE_REPORT_ACTION = "create_report";
+	
+	private final static String UPDATE_REPORT_ACTION = "update_report";
+	
+	private final static String CREATE_TEST_ACTION = "create_test";
+	
+	private final static String UPDATE_TEST_ACTION = "update_test";
+	
+	private final static String START_ANALYSIS_ACTION = "start_analysis";
 
 	/**
 	 * Command Line entry point
@@ -112,31 +127,31 @@ public class Connector {
 			Object obj = parser.parse(new FileReader(file));
 			JSONObject jsonObject = (JSONObject) obj;
 			
-			if("create_build".equals(action)){
+			if(CREATE_BUILD_ACTION.equals(action)){
 				Build build = Build.fromJSON(jsonObject);
 				SimplePublisherHelper.createBuild(build);
 				
-			}else if("update_build".equals(action)){
+			}else if(UPDATE_BUILD_ACTION.equals(action)){
 				Build build = Build.fromJSON(jsonObject);
 				SimplePublisherHelper.updateBuild(build);
 				
-			}else if("start_analysis".equals(action)){
-				Build build = Build.fromJSON(jsonObject);
-				SimplePublisherHelper.startBuildAnalysis(build);
+			}else if(START_ANALYSIS_ACTION.equals(action)){
+				Analysis analysis = Analysis.fromJSON(jsonObject);
+				SimplePublisherHelper.startBuildAnalysis(analysis);
 				
-			}else if("create_report".equals(action)){
+			}else if(CREATE_REPORT_ACTION.equals(action)){
 				TestReport report = TestReport.fromJSON(jsonObject);
 				SimplePublisherHelper.createReport(report);
 				
-			}else if("update_report".equals(action)){
+			}else if(UPDATE_REPORT_ACTION.equals(action)){
 				TestReport report = TestReport.fromJSON(jsonObject);
 				SimplePublisherHelper.updateReport(report);
 				
-			}else if("create_test".equals(action)){
+			}else if(CREATE_TEST_ACTION.equals(action)){
 				TestInstance test = TestInstance.fromJSON(jsonObject);
 				SimplePublisherHelper.createTest(test);
 				
-			}else if("update_test".equals(action)){
+			}else if(UPDATE_TEST_ACTION.equals(action)){
 				TestInstance test = TestInstance.fromJSON(jsonObject);
 				SimplePublisherHelper.updateTest(test);
 			}else {
@@ -169,6 +184,7 @@ public class Connector {
             parser.parseArgument(args);
             
             //TODO check params value as well.
+            
         }catch(CmdLineException e) {
         	//TODO log exception.
             e.printStackTrace();            

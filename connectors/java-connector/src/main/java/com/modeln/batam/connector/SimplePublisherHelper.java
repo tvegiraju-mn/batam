@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.modeln.batam.connector.util.ConfigHelper;
+import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.Commit;
 import com.modeln.batam.connector.wrapper.Pair;
@@ -62,10 +63,10 @@ public class SimplePublisherHelper {
 		return message;
 	}
 	
-	public static String startBuildAnalysis(Build build) throws IOException {
+	public static String startBuildAnalysis(Analysis analysis) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.startBuildAnalysis(build);
+		String message = publisher.startBuildAnalysis(analysis);
 		publisher.endConnection();
 		
 		return message;
@@ -202,11 +203,11 @@ public class SimplePublisherHelper {
 		return message;
 	}
 
-	public static String runBuildAnalysis(String id) throws IOException{
+	public static String runBuildAnalysis(String id, String name, Boolean partial) throws IOException{
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.runBuildAnalysis(id);
+		String message = publisher.runBuildAnalysis(id, name, partial);
 		publisher.endConnection();
 		
 		return message;
@@ -290,6 +291,7 @@ public class SimplePublisherHelper {
 	public static String submitTest(String reportId,
 			String reportName,
 			String name, 
+			String description,
 			Date startDate, 
 			Date endDate, 
 			String status, 
@@ -298,7 +300,7 @@ public class SimplePublisherHelper {
 		
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.submitTest(reportId, reportName, name, startDate, endDate, status, criterias, log);
+		String message = publisher.submitTest(reportId, reportName, name, description, startDate, endDate, status, criterias, log);
 		publisher.endConnection();
 		
 		return message;

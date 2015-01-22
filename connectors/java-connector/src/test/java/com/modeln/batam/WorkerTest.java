@@ -29,7 +29,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateBuild(build);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -106,7 +106,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateBuild(build);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -149,7 +149,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateReport(report);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -275,7 +275,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateReport(report);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -304,6 +304,7 @@ public class WorkerTest {
 		test.setReportName("report1");
 		test.setReportId(reportId);
 		test.setName("test1");
+		test.setDescription("desc test1");
 		
 		SimplePublisherHelper.createTest(test);
 		
@@ -312,6 +313,7 @@ public class WorkerTest {
 		test2.setReportName("report1");
 		test2.setReportId(reportId);
 		test2.setName("test2");
+		test2.setDescription("desc test2");
 		
 		SimplePublisherHelper.createTest(test2);
 		
@@ -340,6 +342,7 @@ public class WorkerTest {
 		test3.setReportName("report2");
 		test3.setReportId(report2Id);
 		test3.setName("test3");
+		test3.setDescription("desc test3");
 		
 		SimplePublisherHelper.createTest(test3);
 		
@@ -348,7 +351,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateTest(test2);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -414,6 +417,7 @@ public class WorkerTest {
 		test.setReportId(reportId);
 		test.setReportName("report1");
 		test.setName("test1");
+		test.setDescription("desc test1");
 		test.setLog("log1");
 		test.setStartDate(new Date());
 		test.setEndDate(new Date(System.currentTimeMillis()+1000));
@@ -430,6 +434,7 @@ public class WorkerTest {
 		test2.setReportId(reportId);
 		test2.setReportName("report1");
 		test2.setName("test2");
+		test2.setDescription("desc test2");
 		test2.setLog("log2");
 		test2.setStartDate(new Date());
 		test2.setEndDate(new Date(System.currentTimeMillis()+1000));
@@ -510,6 +515,7 @@ public class WorkerTest {
 		test3.setReportId(report2Id);
 		test3.setReportName("report2");
 		test3.setName("test3");
+		test3.setDescription("desc test3");
 		test3.setLog("log3");
 		test3.setStartDate(new Date());
 		test3.setEndDate(new Date(System.currentTimeMillis()+1000));
@@ -533,7 +539,7 @@ public class WorkerTest {
 		
 		SimplePublisherHelper.updateTest(test2);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -593,6 +599,7 @@ public class WorkerTest {
 			test.setReportId(report1Id);
 			test.setReportName("Test Suite Group One");
 			test.setName("package#test"+i+".java");
+			test.setDescription("desc package#test"+i+".java");
 			test.setStartDate(new Date());
 			if(i<10){
 				test.setLog("Failed because of some exception");
@@ -691,6 +698,7 @@ public class WorkerTest {
 			test.setReportId(report2Id);
 			test.setReportName("Test Suite Group Two");
 			test.setName("package#test"+i+".java");
+			test.setDescription("desc package#test"+i+".java");
 			test.setStartDate(new Date());
 			List<Pair> testCriterias = new ArrayList<Pair>();
 			testCriterias.add(new Pair("Author", "employee@company.com"));
@@ -703,6 +711,7 @@ public class WorkerTest {
 			test.setReportId(report2Id);
 			test.setReportName("Test Suite Group Two");
 			test.setName("package#test"+i+".java");
+			test.setDescription("desc package#test"+i+".java");
 			test.setLog("Success");
 			test.setStatus("pass");
 			test.setEndDate(new Date());
@@ -741,7 +750,7 @@ public class WorkerTest {
 		
 		build = new Build();
 		build.setId(buildId);
-		SimplePublisherHelper.runBuildAnalysis(build.getId());
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 	}
 	
 	

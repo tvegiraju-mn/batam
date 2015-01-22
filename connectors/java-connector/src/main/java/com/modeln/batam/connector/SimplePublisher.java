@@ -31,6 +31,7 @@ import java.util.Map;
 import com.modeln.batam.connector.exception.InvalidArgumentException;
 import com.modeln.batam.connector.exception.NoConnectionFoundException;
 import com.modeln.batam.connector.util.ConfigHelper;
+import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.Commit;
 import com.modeln.batam.connector.wrapper.Pair;
@@ -161,11 +162,11 @@ public String createBuild(Build build) throws IOException {
 		return message;
 	}
 	
-	public String startBuildAnalysis(Build build) throws IOException {
+	public String startBuildAnalysis(Analysis analysis) throws IOException {
 		
 		checkConnection();
 		
-		String message = "{\"action\": \"start_analysis\", \"data\": "+build.toJSONString()+"}";
+		String message = "{\"action\": \"start_analysis\", \"data\": "+analysis.toJSONString()+"}";
 		if(!testModeEnable){
 			channel.basicPublish("", queue, null, message.getBytes());
 		}else{
@@ -316,11 +317,11 @@ public String createBuild(Build build) throws IOException {
 		return updateBuild(build);
 	}
 
-	public String runBuildAnalysis(String id) throws IOException {
+	public String runBuildAnalysis(String id, String name, Boolean partial) throws IOException {
 		
-		Build build = new Build(id, null, null, null, null, null, null, null, null, null, null);
+		Analysis analysis = new Analysis(id, name, partial);
 		
-		return startBuildAnalysis(build);
+		return startBuildAnalysis(analysis);
 	}
 
 	public String createNewBuildTestReport(String id, 
@@ -382,13 +383,14 @@ public String createBuild(Build build) throws IOException {
 	public String submitTest(String reportId,
 			String reportName,
 			String name, 
+			String description, 
 			Date startDate, 
 			Date endDate, 
 			String status, 
 			List<Pair> criterias,
 			String log) throws IOException {
 		
-		TestInstance test = new TestInstance(reportId, reportName, name, startDate, endDate, status, criterias, log);
+		TestInstance test = new TestInstance(reportId, reportName, name, description, startDate, endDate, status, criterias, log);
 		
 		return createTest(test);
 	}
