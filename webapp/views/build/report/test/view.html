@@ -148,8 +148,11 @@
 	      		}
 	      	}
 	      	$('#dynamic_fields').html(dynamicFields);
-	      	
-	      	$('#test_log').html(response.test.log);
+	      	if(response.test.log == null){
+	      		$('#test_log').html("Not logs available.");
+	      	}else{
+	      		$('#test_log').html(response.test.log);
+	      	}
 	    }
 	});
     </script>

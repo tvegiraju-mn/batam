@@ -188,53 +188,117 @@ function downloadPDF(req, res, next){
 				var stream = doc.pipe(res);
 				
 				//First page (Build infos)
-				doc.fillColor('black').fontSize(30).text('Test Report', 100, 80);
+				doc.fillColor('black').fontSize(30).text('Build Report', 100, 80);
 				doc.moveDown();
 				doc.fontSize(15).text('Build Name', {underline:true, continued: true}).text(': '+build.name, {underline:false});
 				doc.moveDown();
-				doc.fontSize(15).text('Date', {underline:true, continued: true}).text(': '+new Date(), {underline:false});
+				doc.fontSize(15).text('Date', {underline:true, continued: true}).text(': '+build.date, {underline:false});
 				doc.moveDown();
-				doc.fontSize(15).text('Errors', {underline:true, continued: true}).text(': '+build.errors.value, {underline:false});
+				if(!_.isNull(build.duration.value)){
+					doc.fontSize(15).text('Duration', {underline:true, continued: true}).text(': '+durationToStr(build.duration.value), {underline:false});
+				}else{
+					doc.fontSize(15).text('Duration', {underline:true, continued: true}).text(': Not Available', {underline:false});
+				}	
 				doc.moveDown();
-				doc.fontSize(15).text('Failures', {underline:true, continued: true}).text(': '+build.failures.value, {underline:false});
-		
-				console.log(util.inspect(reports));
+				doc.fontSize(15).text('Failures', {underline:true, continued: true}).text(': '+(parseInt(build.failures.value) + parseInt(build.errors.value)), {underline:false});
+				
+				doc.rect(60, 350, 350, 25).fillAndStroke("#F0F0F0", "black");
+				doc.rect(410, 350, 60, 25).fillAndStroke("#F0F0F0", "black");
+				doc.rect(470, 350, 60, 25).fillAndStroke("#F0F0F0", "black");
+				doc.fontSize(12).fillColor('black').text('Report Name', 65, 355);
+				doc.fontSize(12).fillColor('black').text('Tests', 415, 355);
+				doc.fontSize(12).fillColor('black').text('Failures', 475, 355);
+				for(var i = 1; i <= reports.length; i++){
+					doc.rect(60, 350+(i*25), 350, 25).fillAndStroke("white", "black");
+					doc.rect(410, 350+(i*25), 60, 25).fillAndStroke("white", "black");
+					if(reports[i-1].tests.regressions.value != 0){
+						doc.rect(470, 350+(i*25), 60, 25).fillAndStroke("#990000", "black");
+					}else{
+						doc.rect(470, 350+(i*25), 60, 25).fillAndStroke("#669966", "black");
+					}
+					
+					doc.fontSize(12).fillColor('black').text(reports[i-1].name, 65, 350+(i*25)+5);
+					doc.fontSize(12).fillColor('black').text(reports[i-1].tests.all.value, 415, 350+(i*25)+5);
+					doc.fontSize(12).fillColor('black').text(reports[i-1].tests.regressions.value, 475, 350+(i*25)+5);
+				}
+			
 				for(var i = 0; i < reports.length; i++){
 					doc.addPage();	
 					doc.fontSize(15).fillColor('black').text('Report Name', {underline:true, continued: true}).text(': '+reports[i].name, {underline:false});
 					doc.moveDown();
-					doc.fontSize(15).text('Report Description', {underline:true, continued: true}).text(': '+reports[i].description, {underline:false});
-					doc.moveDown();
-					doc.fontSize(15).text('Tests Executed', {underline:true, continued: true}).text(': '+reports[i].tests.all.value, {underline:false});
-					doc.moveDown();
-					doc.fontSize(15).text('Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.regressions.value, {underline:false});
-					doc.moveDown();
-					doc.fontSize(15).text('New Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.new_regressions.value, {underline:false});
-					doc.moveDown();
-					doc.fontSize(15).text('Fixed Regressions', {underline:true, continued: true}).text(': '+reports[i].tests.fixed_regressions.value, {underline:false});
+					doc.fontSize(12).text(reports[i].description, {underline:false});
 					
+					doc.rect(60, 150, 410, 25).fillAndStroke("#F0F0F0", "black");
+					doc.rect(470, 150, 60, 25).fillAndStroke("#F0F0F0", "black");
+					doc.fontSize(12).fillColor('black').text('Test Name', 65, 155);
+					doc.fontSize(12).fillColor('black').text('Status', 475, 155);
+					var rowPerPage = 22;
+					var initialYAxis = 150;
+					var pageIndex = 1;
+					for(var j = 0; j < tests.length; j++){
+						//fetch test that belongs to the current report
+						if(tests[j].report_id == reports[i].id){
+							if(pageIndex % rowPerPage == 0){
+								doc.addPage();
+								pageIndex = 1;
+								rowPerPage = 26;
+								initialYAxis = 50;
+							}
+						
+						
+							doc.rect(60, initialYAxis+(pageIndex * 25), 410, 25).fillAndStroke("white", "black");
+							if(tests[j].status != 'pass'){
+								doc.rect(470, initialYAxis+(pageIndex * 25), 60, 25).fillAndStroke("#990000", "black");
+							}else{
+								doc.rect(470, initialYAxis+(pageIndex * 25), 60, 25).fillAndStroke("#669966", "black");
+							}
+							
+							doc.fontSize(12).fillColor('black').text(tests[j].name, 65, initialYAxis + (pageIndex * 25) + 5);
+							doc.fontSize(12).fillColor('black').text(tests[j].status, 475, initialYAxis + (pageIndex * 25) + 5);
+							pageIndex++;
+						}
+					}
+				}
+				
+				for(var i = 0; i < reports.length; i++){
+					doc.addPage();	
+					doc.fontSize(15).fillColor('black').text('Report Name', {underline:true, continued: true}).text(': '+reports[i].name, {underline:false});
+					doc.moveDown();
+					doc.fontSize(12).text(reports[i].description, {underline:false});
 					for(var j = 0; j < tests.length; j++){
 						//fetch test that belongs to the current report
 						if(tests[j].report_id == reports[i].id){
 							doc.addPage();
 							doc.fontSize(15).fillColor('black').text('Test Name', {underline:true, continued: true}).text(': '+tests[j].name, {underline:false});
 							doc.moveDown();
-							doc.fontSize(15).text('Test Description', {underline:true, continued: true}).text(': '+tests[j].description, {underline:false});
-							doc.moveDown();
-							if(tests[j].status == 'pass'){
-								doc.fontSize(15).text('Status', {underline:true, continued: true}).text(': ', {underline:false, continued: true}).fillColor('green').text(tests[j].status);
-							}else{
-								doc.fontSize(15).text('Status', {underline:true, continued: true}).text(': ', {underline:false, continued: true}).fillColor('red').text(tests[j].status);
-							}
-							doc.moveDown();
+							doc.fontSize(12).text(tests[j].description == null ? "No description available" : tests[j].description, {underline:false});
+							
+							doc.rect(100, initialYAxis+(0 * 25), 100, 25).fillAndStroke("#F0F0F0", "black");
 							if(tests[j].status != 'pass'){
-								doc.fontSize(15).fillColor('black').text('Logs', {underline:true, continued: true}).text(': ', {underline:false});
-								doc.moveDown();
-								doc.fontSize(12).text(tests[j].log);
-							}
+								doc.rect(200, initialYAxis+(0 * 25), 300, 25).fillAndStroke("#990000", "black");
+							}else{
+								doc.rect(200, initialYAxis+(0 * 25), 300, 25).fillAndStroke("#669966", "black");
+							}			
+							doc.fontSize(12).fillColor('black').text("Status", 105, 150 + (0 * 25) + 5);
+							doc.fontSize(12).fillColor('black').text(tests[j].status, 205, 150 + (0 * 25) + 5);
+							
+							doc.rect(100, initialYAxis+(1 * 25), 100, 25).fillAndStroke("#F0F0F0", "black");
+							doc.rect(200, initialYAxis+(1 * 25), 300, 25).fillAndStroke("white", "black");			
+							doc.fontSize(12).fillColor('black').text("Start Time", 105, 150 + (1 * 25) + 5);
+							doc.fontSize(12).fillColor('black').text(tests[j].date+" ms", 205, 150 + (1 * 25) + 5);
+							
+							doc.rect(100, initialYAxis+(2 * 25), 100, 25).fillAndStroke("#F0F0F0", "black");
+							doc.rect(200, initialYAxis+(2 * 25), 300, 25).fillAndStroke("white", "black");			
+							doc.fontSize(12).fillColor('black').text("Duration", 105, 150 + (2 * 25) + 5);
+							doc.fontSize(12).fillColor('black').text(tests[j].duration.value+" ms", 205, 150 + (2 * 25) + 5);
+							
+							doc.moveDown();
+							doc.fontSize(15).fillColor('black').text("Logs", 105, 250);
+							doc.fontSize(12).text(tests[j].log);
 						}
 					}
 				}
+					
 				   
 				// end and display the document in the iframe to the right
 				doc.end();
@@ -281,6 +345,31 @@ function downloadPDF(req, res, next){
 	
 }
 	
+function durationToStr (milliseconds) {
+	var result = '';
+    var temp = Math.floor(milliseconds / 1000);
+
+    var days = Math.floor((temp %= 31536000) / 86400);
+    if (days) {
+    	result += days + ' d ';
+    }
+    var hours = Math.floor((temp %= 86400) / 3600);
+    if (hours) {
+    	result += hours + ' h ';
+    }
+    var minutes = Math.floor((temp %= 3600) / 60);
+    if (minutes) {
+    	result += minutes + ' m ';
+    }
+    var seconds = temp % 60;
+    if (seconds) {
+    	result += seconds + ' sec ';
+    }
+    if(result == 0){
+    	return milliseconds + ' ms ';
+    }
+    return result; 
+}
 	
 /**
  * API path /api/tests/stat
