@@ -58,8 +58,11 @@
                     <dt>Description</dt>
                     <dd id="build_description"></dd>
 
-                    <dt>Build Date</dt>
+                    <dt>Build Start Date</dt>
                     <dd id="build_date"></dd>
+                    
+                    <dt>Build End Date</dt>
+                    <dd id="build_end_date"></dd>
 
                     <dt>Build Status</dt>
                     <dd id="build_status"></dd>
@@ -157,6 +160,8 @@
 	    	$('#build_description').html(description);
 	    	var date = response.build.date == undefined ? 'n/a' : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
 	    	$('#build_date').html(date);
+	    	var end_date = response.build.end_date == undefined ? 'n/a' : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss a');
+	    	$('#build_end_date').html(end_date);
 	    	if(response.build.status == undefined){
 	    		$('#build_status').html('<span class="label label-default">N/A</span>');	
 	    	}else{

@@ -322,6 +322,7 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 		collections.builds.updateById(previous_builds[0]._id, {$set: {next_id : build.id}}, updatePreviousBuildInfoCallback);
 	}
 	
+	build.end_date = new Date();
 	build.lifecycle_status = "completed";
 
 	//Update build

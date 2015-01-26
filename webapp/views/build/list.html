@@ -168,7 +168,7 @@
              		buildList += '		<strong> Errors '+formatWithLabel(response.builds[i].errors.value, response.builds[i].errors.trend, 0, false)+'</strong>';
     			}
              	var description = response.builds[i].description == undefined ? 'n/a' : response.builds[i].description;
-             	var updateTime = response.builds[i].date == undefined ? 'n/a' : moment(response.builds[i].date).fromNow();
+             	var updateTime = response.builds[i].end_date == undefined ? 'n/a' : moment(response.builds[i].end_date).fromNow();
              	buildList += '    </div>' +
              		'    </div>' +
              	'    <div class="list-group-item-text">'+description+'<div class="pull-right">Last update : '+updateTime+'</div></div></a>';
