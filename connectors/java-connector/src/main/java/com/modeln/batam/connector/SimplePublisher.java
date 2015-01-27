@@ -26,7 +26,6 @@ package com.modeln.batam.connector;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import com.modeln.batam.connector.exception.InvalidArgumentException;
 import com.modeln.batam.connector.exception.NoConnectionFoundException;

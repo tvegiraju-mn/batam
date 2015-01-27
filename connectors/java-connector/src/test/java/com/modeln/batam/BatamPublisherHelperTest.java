@@ -154,6 +154,7 @@ public class BatamPublisherHelperTest {
 		SimplePublisherHelper.runBuildAnalysis("1", "foo", false);
 		
 		SimplePublisherHelper.runBuildAnalysis("1", null, false);
+		
 	}
 	
 	@Test

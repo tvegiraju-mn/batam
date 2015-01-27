@@ -265,11 +265,14 @@ function updateTestEntrypoint(data, ack){
 	
 	//Check build exist using reportId and name provided
 	if((_.isUndefined(reportId) || _.isNull(reportId)) && !_.isNull(reportName)){
-		collections.reports.find({name: reportName, lifecycle_status : "pending"}).toArray(findReportCallback);		
+		//Can only be the latest pending build
+		collections.reports.find({name: reportName,  lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);		
 	}else if(!_.isNull(reportId) && !_.isNull(reportName)){
-		collections.reports.find({id: reportId, name: reportName, lifecycle_status : "pending"}).toArray(findReportCallback);
+		//Depending on the Id, it can either be the latest completed or the latest pending report (allow override)
+		collections.reports.find({id: reportId, name: reportName, next_id : null}).toArray(findReportCallback);
 	}else if(!_.isNull(reportId)){
-		collections.reports.find({id: reportId, lifecycle_status : "pending"}).toArray(findReportCallback);
+		//Depending on the Id, it can either be the latest completed or the latest pending report (allow override)
+		collections.reports.find({id: reportId, next_id : null}).toArray(findReportCallback);
 	}else{
 		return e.error(data, ack, true, "Report_id or report_name not valid.");
 	}
@@ -450,4 +453,5 @@ function updateTest(report, data, ack){
 	//Check test exist
 	collections.tests.find({report_id: report.id, name: name}).toArray(checkTestExistCallback);
 }
+
 

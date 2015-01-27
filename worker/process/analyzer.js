@@ -34,22 +34,31 @@ function runAnalysisEntrypoint(data, ack){
 	//fetch build
 	var id = data.id;
 	var name = data.name;
-
-	//Check build exist using id and name provided
-	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
-		collections.builds.find({name: name, lifecycle_status : "pending"}).toArray(findBuildCallback);	
-	}else if(!_.isNull(id) && !_.isNull(name)){
-		collections.builds.find({id: id, name: name, lifecycle_status : "pending"}).toArray(findBuildCallback);
-	}else if(!_.isNull(id)){
-		collections.builds.find({id: id, lifecycle_status : "pending"}).toArray(findBuildCallback);
+	var partial = data.partial;
+	
+	if(partial){
+		//Checking for lifecycle_status being completed and next_id null in order to re analyze the latest completed build.
+		if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
+			collections.builds.find({name: name, lifecycle_status : "completed", next_id : null}).toArray(findBuildCallback);	
+		}else if(!_.isNull(id) && !_.isNull(name)){
+			collections.builds.find({id: id, name: name, lifecycle_status : "completed", next_id : null}).toArray(findBuildCallback);
+		}else if(!_.isNull(id)){
+			collections.builds.find({id: id, lifecycle_status : "completed", next_id : null}).toArray(findBuildCallback);
+		}else{
+			return e.error(data, ack, true, "build_id or build_name not valid.");
+		}
 	}else{
-		return e.error(data, ack, true, "build_id or build_name not valid.");
+		//Checking for lifecycle_status being pending doesn't allows re analysis of existing build.
+		if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
+			collections.builds.find({name: name, lifecycle_status : "pending"}).toArray(findBuildCallback);	
+		}else if(!_.isNull(id) && !_.isNull(name)){
+			collections.builds.find({id: id, name: name, lifecycle_status : "pending"}).toArray(findBuildCallback);
+		}else if(!_.isNull(id)){
+			collections.builds.find({id: id, lifecycle_status : "pending"}).toArray(findBuildCallback);
+		}else{
+			return e.error(data, ack, true, "build_id or build_name not valid.");
+		}
 	}
-}
-function findBuilds(criterias, callback){
-	collections.builds.find({name: name, lifecycle_status : "pending"}).toArray(function(error, builds){
-		callback(error, builds);
-	});	
 }
 
 function fetchAll(build, data, ack){
@@ -61,7 +70,7 @@ function fetchAll(build, data, ack){
 					if(error){
 						return e.error(data, ack, false, "Find Tests Operation failed.");
 					}
-
+					
 					processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack);
 				};
 				
@@ -93,7 +102,13 @@ function fetchAll(build, data, ack){
 		}
 		
 		//Fetch reports
-		collections.reports.find({build_id: build.id, lifecycle_status : "pending", next_id : null}).toArray(findReportsCallback);
+		var partial = data.partial;
+		if(partial){
+			collections.reports.find({build_id: build.id, lifecycle_status : "completed", next_id : null}).toArray(findReportsCallback);
+		}else{
+			collections.reports.find({build_id: build.id, lifecycle_status : "pending", next_id : null}).toArray(findReportsCallback);	
+		}
+		
 	};
 
 	//Fetch previous build
@@ -119,9 +134,7 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 	    }
 		console.log("-- "+count+ " report updated.");
 	};
-	
-	var partial = data.partial;
-	
+
 	var total_failures = 0;
 	var total_errors = 0;
 	//If build has no report.

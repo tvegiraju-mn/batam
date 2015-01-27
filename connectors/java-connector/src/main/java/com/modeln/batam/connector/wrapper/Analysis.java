@@ -1,8 +1,5 @@
 package com.modeln.batam.connector.wrapper;
 
-import java.util.Date;
-import java.util.List;
-
 import org.json.simple.JSONObject;
 
 public class Analysis {
@@ -11,14 +8,14 @@ public class Analysis {
 	private String name;
 	
 	private Boolean partial;
-	
+
 	public Analysis(String id, String name, Boolean partial) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.partial = partial;
 	}
-
+	
 	public String getId() {
 		return id;
 	}
@@ -61,8 +58,6 @@ public class Analysis {
 		String id = (String)obj.get("id");
 		String name = (String)obj.get("name");
 		Boolean partial = (Boolean)obj.get("partial");
-		
 		return new Analysis(id, name, partial);
 	}
-	
 }

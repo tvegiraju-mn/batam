@@ -845,26 +845,6 @@ public class WorkerTest {
 		build.setId(buildId);
 		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 		
-		//Create partial build
-		buildId = "8_"+System.currentTimeMillis();
-		build = new Build();
-		build.setName(buildName);
-		build.setId(buildId);
-		build.setStartDate(new Date());
-		SimplePublisherHelper.createBuild(build);
-		
-		//Create report 1
-		report = new TestReport();
-		report1Id = "8_1_"+System.currentTimeMillis();
-		report.setBuildName(buildName);
-		report.setBuildId(buildId);
-		report.setName("Test Suite Group One");
-		report.setId(report1Id);
-		report.setDescription("Test suite associated to module one");
-		report1StartDate = new Date();
-		report.setStartDate(report1StartDate);
-		SimplePublisherHelper.createReport(report);
-		
 		test12 = new TestInstance();
 		test12.setReportId(report1Id);
 		test12.setReportName("Test Suite Group One");
@@ -872,23 +852,7 @@ public class WorkerTest {
 		test12.setStartDate(new Date());
 		test12.setStatus("pass");
 		test12.setEndDate(new Date());
-		SimplePublisherHelper.createTest(test12);
-		
-		//Update report 1
-		report = new TestReport();
-		report.setId(report1Id);
-		
-		report1EndDate = new Date();
-		report.setEndDate(report1EndDate);
-		report.setStatus("completed");
-		SimplePublisherHelper.updateReport(report);
-				
-		//update build	
-		build = new Build();
-		build.setId(buildId);
-		build.setEndDate(new Date());
-		build.setStatus("completed");
-		SimplePublisherHelper.updateBuild(build);
+		SimplePublisherHelper.updateTest(test12);
 		
 		build = new Build();
 		build.setId(buildId);
