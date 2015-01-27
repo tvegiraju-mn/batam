@@ -34,7 +34,6 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.TestInstance;
 import com.modeln.batam.connector.wrapper.TestReport;
@@ -136,8 +135,8 @@ public class Connector {
 				SimplePublisherHelper.updateBuild(build);
 				
 			}else if(START_ANALYSIS_ACTION.equals(action)){
-				Analysis analysis = Analysis.fromJSON(jsonObject);
-				SimplePublisherHelper.startBuildAnalysis(analysis);
+				Build build = Build.fromJSON(jsonObject);
+				SimplePublisherHelper.startBuildAnalysis(build);
 				
 			}else if(CREATE_REPORT_ACTION.equals(action)){
 				TestReport report = TestReport.fromJSON(jsonObject);

@@ -34,9 +34,9 @@ function runAnalysisEntrypoint(data, ack){
 	//fetch build
 	var id = data.id;
 	var name = data.name;
-	var partial = data.partial;
+	var override = data.override;
 	
-	if(partial){
+	if(override){
 		//Checking for lifecycle_status being completed and next_id null in order to re analyze the latest completed build.
 		if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
 			collections.builds.find({name: name, lifecycle_status : "completed", next_id : null}).toArray(findBuildCallback);	
@@ -102,8 +102,8 @@ function fetchAll(build, data, ack){
 		}
 		
 		//Fetch reports
-		var partial = data.partial;
-		if(partial){
+		var override = data.override;
+		if(override){
 			collections.reports.find({build_id: build.id, lifecycle_status : "completed", next_id : null}).toArray(findReportsCallback);
 		}else{
 			collections.reports.find({build_id: build.id, lifecycle_status : "pending", next_id : null}).toArray(findReportsCallback);	

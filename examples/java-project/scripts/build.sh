@@ -187,7 +187,7 @@ echo 'Final Step : RUN ANALYSIS'
 cat > build.json <<EOF
 {
 	"name": "$BUILD_NAME",
-	"partial": false
+	"override": false
 }
 EOF
 ## Send json file with action StartAnalysis.

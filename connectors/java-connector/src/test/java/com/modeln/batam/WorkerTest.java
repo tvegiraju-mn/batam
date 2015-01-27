@@ -852,6 +852,7 @@ public class WorkerTest {
 		test12.setStartDate(new Date());
 		test12.setStatus("pass");
 		test12.setEndDate(new Date());
+		test12.setOverride(true);
 		SimplePublisherHelper.updateTest(test12);
 		
 		build = new Build();

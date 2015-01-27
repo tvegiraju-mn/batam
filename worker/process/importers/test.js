@@ -262,19 +262,30 @@ function updateTestEntrypoint(data, ack){
 	
 	var reportId = data.report_id;
 	var reportName = data.report_name;
+	var override = data.override;
 	
 	//Check build exist using reportId and name provided
-	if((_.isUndefined(reportId) || _.isNull(reportId)) && !_.isNull(reportName)){
-		//Can only be the latest pending build
-		collections.reports.find({name: reportName,  lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);		
-	}else if(!_.isNull(reportId) && !_.isNull(reportName)){
-		//Depending on the Id, it can either be the latest completed or the latest pending report (allow override)
-		collections.reports.find({id: reportId, name: reportName, next_id : null}).toArray(findReportCallback);
-	}else if(!_.isNull(reportId)){
-		//Depending on the Id, it can either be the latest completed or the latest pending report (allow override)
-		collections.reports.find({id: reportId, next_id : null}).toArray(findReportCallback);
+	if(override){
+		if((_.isUndefined(reportId) || _.isNull(reportId)) && !_.isNull(reportName)){
+			collections.reports.find({name: reportName,  lifecycle_status : "completed", next_id : null}).toArray(findReportCallback);		
+		}else if(!_.isNull(reportId) && !_.isNull(reportName)){
+			collections.reports.find({id: reportId, name: reportName, lifecycle_status : "completed", next_id : null}).toArray(findReportCallback);
+		}else if(!_.isNull(reportId)){
+			collections.reports.find({id: reportId, lifecycle_status : "completed", next_id : null}).toArray(findReportCallback);
+		}else{
+			return e.error(data, ack, true, "Report_id or report_name not valid.");
+		}
 	}else{
-		return e.error(data, ack, true, "Report_id or report_name not valid.");
+		if((_.isUndefined(reportId) || _.isNull(reportId)) && !_.isNull(reportName)){
+			collections.reports.find({name: reportName,  lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);		
+		}else if(!_.isNull(reportId) && !_.isNull(reportName)){
+			collections.reports.find({id: reportId, name: reportName, lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);
+		}else if(!_.isNull(reportId)){
+			
+			collections.reports.find({id: reportId, lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);
+		}else{
+			return e.error(data, ack, true, "Report_id or report_name not valid.");
+		}
 	}
 }
 

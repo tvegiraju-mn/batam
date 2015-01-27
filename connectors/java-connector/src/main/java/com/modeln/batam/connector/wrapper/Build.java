@@ -72,13 +72,15 @@ public class Build {
 	private List<Step> steps; 
 	
 	private List<Commit> commits;
+	
+	private boolean override = false;
 
 	public Build(){}
 	
 	public Build(String id, String name, Date startDate, Date endDate, String status,
 			String description, List<Pair> criterias,
 			List<Pair> infos, List<Pair> reports,
-			List<Step> steps, List<Commit> commits) {
+			List<Step> steps, List<Commit> commits, boolean override) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -91,6 +93,7 @@ public class Build {
 		this.reports = reports;
 		this.steps = steps;
 		this.commits = commits;
+		this.override = override;
 	}
 
 	public String getId() {
@@ -181,6 +184,14 @@ public class Build {
 		this.commits = commits;
 	}
 	
+	public boolean isOverride() {
+		return override;
+	}
+
+	public void setOverride(boolean override) {
+		this.override = override;
+	}
+
 	@Override
 	public String toString() {
 		return toJSONString();
@@ -199,6 +210,7 @@ public class Build {
 		obj.put("reports", reports);
 		obj.put("steps", steps);
 		obj.put("commits", commits);
+		obj.put("override", override);
 		
 		return obj.toJSONString();
 	}
@@ -210,6 +222,7 @@ public class Build {
 		String endDate = (String)obj.get("end_date");
 		String status = (String)obj.get("status");
 		String description = (String)obj.get("description");
+		boolean override = (Boolean)obj.get("override") == null? false:(Boolean)obj.get("override");
 		
 		List<Pair> criterias = new ArrayList<Pair>();
 		JSONArray criteriasArray = (JSONArray)obj.get("criterias");
@@ -256,6 +269,9 @@ public class Build {
 			}
 		}
 		
-		return new Build(id, name, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, description, criterias, infos, reports, steps, commits);
+		return new Build(id, name, 
+					startDate == null ? null : new Date(Long.valueOf(startDate)), 
+					endDate == null ? null : new Date(Long.valueOf(endDate)), 
+					status, description, criterias, infos, reports, steps, commits, override);
 	}
 }

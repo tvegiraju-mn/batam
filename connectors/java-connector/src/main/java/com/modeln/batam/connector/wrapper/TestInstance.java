@@ -65,12 +65,14 @@ public class TestInstance {
 	
 	private List<Pair> criterias;
 	
+	private boolean override = false;
+	
 	public TestInstance() {
 		super();
 	}
 	
 	public TestInstance(String reportId, String reportName, String name, String description, Date startDate, Date endDate, String status,
-			List<Pair> criterias, String log) {
+			List<Pair> criterias, String log, boolean override) {
 		super();
 		this.reportId = reportId;
 		this.reportName = reportName;
@@ -81,6 +83,7 @@ public class TestInstance {
 		this.status = status;
 		this.criterias = criterias;
 		this.log = log;
+		this.override = override;
 	}
 
 	public String getReportId() {
@@ -155,6 +158,14 @@ public class TestInstance {
 		this.criterias = criterias;
 	}
 
+	public boolean isOverride() {
+		return override;
+	}
+
+	public void setOverride(boolean override) {
+		this.override = override;
+	}
+
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
 		obj.put("report_id", reportId);
@@ -166,6 +177,8 @@ public class TestInstance {
 		obj.put("status", status);
 		obj.put("criterias", criterias);
 		obj.put("log", log);
+		obj.put("override", override);
+		
 		return obj.toJSONString();
 	}
 	
@@ -182,6 +195,7 @@ public class TestInstance {
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
 		String status = (String)obj.get("status");
+		boolean override = (Boolean)obj.get("override");
 		
 		List<Pair> criterias = new ArrayList<Pair>();
 		JSONArray criteriasArray = (JSONArray)obj.get("criterias");
@@ -194,6 +208,9 @@ public class TestInstance {
 		
 		String log = (String)obj.get("log");
 		
-		return new TestInstance(reportId, reportName, name, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, criterias, log);
+		return new TestInstance(reportId, reportName, name, description, 
+				startDate == null ? null : new Date(Long.valueOf(startDate)), 
+				endDate == null ? null : new Date(Long.valueOf(endDate)), 
+				status, criterias, log, override);
 	}
 }

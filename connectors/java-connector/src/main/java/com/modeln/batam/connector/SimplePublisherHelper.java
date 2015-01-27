@@ -26,10 +26,8 @@ package com.modeln.batam.connector;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import com.modeln.batam.connector.util.ConfigHelper;
-import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.Commit;
 import com.modeln.batam.connector.wrapper.Pair;
@@ -63,10 +61,10 @@ public class SimplePublisherHelper {
 		return message;
 	}
 	
-	public static String startBuildAnalysis(Analysis analysis) throws IOException {
+	public static String startBuildAnalysis(Build build) throws IOException {
 		SimplePublisher publisher = SimplePublisher.getInstance();
 		publisher.beginConnection(ConfigHelper.HOST, ConfigHelper.USER, ConfigHelper.PASSWORD, ConfigHelper.PORT, ConfigHelper.VHOST, ConfigHelper.QUEUE_NAME, ConfigHelper.TEST_MODE);
-		String message = publisher.startBuildAnalysis(analysis);
+		String message = publisher.startBuildAnalysis(build);
 		publisher.endConnection();
 		
 		return message;

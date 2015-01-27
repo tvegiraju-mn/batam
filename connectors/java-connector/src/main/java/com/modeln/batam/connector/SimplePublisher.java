@@ -30,7 +30,6 @@ import java.util.List;
 import com.modeln.batam.connector.exception.InvalidArgumentException;
 import com.modeln.batam.connector.exception.NoConnectionFoundException;
 import com.modeln.batam.connector.util.ConfigHelper;
-import com.modeln.batam.connector.wrapper.Analysis;
 import com.modeln.batam.connector.wrapper.Build;
 import com.modeln.batam.connector.wrapper.Commit;
 import com.modeln.batam.connector.wrapper.Pair;
@@ -161,11 +160,11 @@ public String createBuild(Build build) throws IOException {
 		return message;
 	}
 	
-	public String startBuildAnalysis(Analysis analysis) throws IOException {
+	public String startBuildAnalysis(Build build) throws IOException {
 		
 		checkConnection();
 		
-		String message = "{\"action\": \"start_analysis\", \"data\": "+analysis.toJSONString()+"}";
+		String message = "{\"action\": \"start_analysis\", \"data\": "+build.toJSONString()+"}";
 		if(!testModeEnable){
 			channel.basicPublish("", queue, null, message.getBytes());
 		}else{
@@ -250,7 +249,7 @@ public String createBuild(Build build) throws IOException {
 			throw new InvalidArgumentException("startDate argument should not be null. ");
 		}
 		
-		Build build = new Build(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits);
+		Build build = new Build(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, false);
 		
 		return createBuild(build);
 	}
@@ -269,58 +268,58 @@ public String createBuild(Build build) throws IOException {
 			throw new InvalidArgumentException("startDate argument should not be null. ");
 		}
 		
-		Build build = new Build(id, name, startDate, null, null, description, criterias, infos, null, null, null);
+		Build build = new Build(id, name, startDate, null, null, description, criterias, infos, null, null, null, false);
 		
 		return createBuild(build);
 	}
 
 	public String addBuildCommits(String id, List<Commit> commits) throws IOException {
 		
-		Build build = new Build(id, null, null, null, null, null, null, null, null, null, commits);
+		Build build = new Build(id, null, null, null, null, null, null, null, null, null, commits, false);
 		
 		return updateBuild(build);
 	}
 
 	public String addBuildInfos(String id, List<Pair> infos) throws IOException {
 		
-		Build build = new Build(id, null, null, null, null, null, null, infos, null, null, null);
+		Build build = new Build(id, null, null, null, null, null, null, infos, null, null, null, false);
 		
 		return updateBuild(build);
 	}
 
 	public String addBuildReports(String id, List<Pair> reports) throws IOException {
 		
-		Build build = new Build(id, null, null, null, null, null, null, null, reports, null, null);
+		Build build = new Build(id, null, null, null, null, null, null, null, reports, null, null, false);
 		
 		return updateBuild(build);
 	}
 
 	public String addBuildSteps(String id, List<Step> steps) throws IOException {
 		
-		Build build = new Build(id, null, null, null, null, null, null, null, null, steps, null);
+		Build build = new Build(id, null, null, null, null, null, null, null, null, steps, null, false);
 		
 		return updateBuild(build);
 	}
 
 	public String updateBuildEndDate(String id, Date endDate) throws IOException {
 	
-		Build build = new Build(id, null, null, endDate, null, null, null, null, null, null, null);
+		Build build = new Build(id, null, null, endDate, null, null, null, null, null, null, null, false);
 		
 		return updateBuild(build);
 	}
 
 	public String updateBuildStatus(String id, String status) throws IOException {
 		
-		Build build = new Build(id, null, null, null, status, null, null, null, null, null, null);
+		Build build = new Build(id, null, null, null, status, null, null, null, null, null, null, false);
 		
 		return updateBuild(build);
 	}
 
-	public String runBuildAnalysis(String id, String name, Boolean partial) throws IOException {
+	public String runBuildAnalysis(String id, String name, boolean override) throws IOException {
 		
-		Analysis analysis = new Analysis(id, name, partial);
+		Build build = new Build(id, name, null, null, null, null, null, null, null, null, null, override);
 		
-		return startBuildAnalysis(analysis);
+		return startBuildAnalysis(build);
 	}
 
 	public String createNewBuildTestReport(String id, 
@@ -389,7 +388,7 @@ public String createBuild(Build build) throws IOException {
 			List<Pair> criterias,
 			String log) throws IOException {
 		
-		TestInstance test = new TestInstance(reportId, reportName, name, description, startDate, endDate, status, criterias, log);
+		TestInstance test = new TestInstance(reportId, reportName, name, description, startDate, endDate, status, criterias, log, false);
 		
 		return createTest(test);
 	}
