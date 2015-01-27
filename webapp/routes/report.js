@@ -114,6 +114,15 @@ exports.list = findReportList;
 
 function findReportList(req, res, next){
 	var validateBuild = function (error, build){
+		var findReport = function (error, reports){
+	    	//Handle Error.
+	    	if(error) {
+		    	return next(error);
+		    }
+	    	
+		    res.send({reports: reports});
+		};
+		
 		//Handle Error.
     	if(error) {
 	    	return next(error);
@@ -122,16 +131,11 @@ function findReportList(req, res, next){
 	    if(_.isNull(build) || build.lifecycle_status != 'completed'){
 	    	res.send({reports: []});
 	    }
+	    
+	    req.collections.reports.find({build_id: req.query.build_id}, 
+    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, tests: 1})
+    		.toArray(findReport);
     };
-    
-    var findReport = function (error, reports){
-    	//Handle Error.
-    	if(error) {
-	    	return next(error);
-	    }
-    	
-	    res.send({reports: reports});
-	};
     
 	//Validate inputs
 	if(!req.query.build_id) {
@@ -143,10 +147,7 @@ function findReportList(req, res, next){
 	}
 	
 	req.collections.builds.findOne({id: req.query.build_id}, validateBuild);
-	
-    req.collections.reports.find({build_id: req.query.build_id}, 
-    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, tests: 1})
-    		.toArray(findReport);
+    
 }
 
 

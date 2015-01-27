@@ -753,8 +753,147 @@ public class WorkerTest {
 		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
 	}
 	
-	
-	
-	
+	@Test
+	public void partialBuild() throws IOException {
+		//Create build
+		String buildName = "partial_build";
+		String buildId = "8_"+System.currentTimeMillis();
+		Build build = new Build();
+		build.setName(buildName);
+		build.setId(buildId);
+		build.setStartDate(new Date());
+		SimplePublisherHelper.createBuild(build);
+		
+		//Create report 1
+		TestReport report = new TestReport();
+		String report1Id = "8_1_"+System.currentTimeMillis();
+		report.setBuildName(buildName);
+		report.setBuildId(buildId);
+		report.setName("Test Suite Group One");
+		report.setId(report1Id);
+		report.setDescription("Test suite associated to module one");
+		Date report1StartDate = new Date();
+		report.setStartDate(report1StartDate);
+		SimplePublisherHelper.createReport(report);
+		
+		//create tests for report 1
+		TestInstance test11 = new TestInstance();
+		test11.setReportId(report1Id);
+		test11.setReportName("Test Suite Group One");
+		test11.setName("report 1 test 1");
+		test11.setStartDate(new Date());
+		test11.setStatus("pass");
+		test11.setEndDate(new Date());
+		SimplePublisherHelper.createTest(test11);
+		
+		TestInstance test12 = new TestInstance();
+		test12.setReportId(report1Id);
+		test12.setReportName("Test Suite Group One");
+		test12.setName("report 1 test 2");
+		test12.setStartDate(new Date());
+		test12.setStatus("fail");
+		test12.setLog("test logs here");
+		test12.setEndDate(new Date());
+		SimplePublisherHelper.createTest(test12);
+		
+		//Update report 1
+		report = new TestReport();
+		report.setId(report1Id);
+		
+		Date report1EndDate = new Date();
+		report.setEndDate(report1EndDate);
+		report.setStatus("completed");
+		SimplePublisherHelper.updateReport(report);
+		
+		//Create report 2
+		TestReport report2 = new TestReport();
+		String report2Id = "8_1_"+System.currentTimeMillis();
+		report2.setBuildName(buildName);
+		report2.setBuildId(buildId);
+		report2.setName("Test Suite Group Two");
+		report2.setId(report2Id);
+		Date report2StartDate = new Date();
+		report2.setStartDate(report2StartDate);
+		SimplePublisherHelper.createReport(report2);
+		
+		//Create tests for report 2
+		TestInstance test21 = new TestInstance();
+		test21.setReportId(report2Id);
+		test21.setReportName("Test Suite Group Two");
+		test21.setName("report 2 test 1");
+		test21.setStartDate(new Date());
+		test21.setStatus("pass");
+		test21.setEndDate(new Date());
+		SimplePublisherHelper.createTest(test21);
+		
+		//Update report 2
+		report2 = new TestReport();
+		report2.setId(report2Id);
+		Date report2EndDate = new Date();
+		report2.setEndDate(report2EndDate);
+		report2.setStatus("completed");
+		SimplePublisherHelper.updateReport(report2);
+				
+		//update build	
+		build = new Build();
+		build.setId(buildId);
+		build.setEndDate(new Date());
+		build.setStatus("completed");
+		SimplePublisherHelper.updateBuild(build);
+		
+		build = new Build();
+		build.setId(buildId);
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		
+		//Create partial build
+		buildId = "8_"+System.currentTimeMillis();
+		build = new Build();
+		build.setName(buildName);
+		build.setId(buildId);
+		build.setStartDate(new Date());
+		SimplePublisherHelper.createBuild(build);
+		
+		//Create report 1
+		report = new TestReport();
+		report1Id = "8_1_"+System.currentTimeMillis();
+		report.setBuildName(buildName);
+		report.setBuildId(buildId);
+		report.setName("Test Suite Group One");
+		report.setId(report1Id);
+		report.setDescription("Test suite associated to module one");
+		report1StartDate = new Date();
+		report.setStartDate(report1StartDate);
+		SimplePublisherHelper.createReport(report);
+		
+		test12 = new TestInstance();
+		test12.setReportId(report1Id);
+		test12.setReportName("Test Suite Group One");
+		test12.setName("report 1 test 2");
+		test12.setStartDate(new Date());
+		test12.setStatus("pass");
+		test12.setEndDate(new Date());
+		SimplePublisherHelper.createTest(test12);
+		
+		//Update report 1
+		report = new TestReport();
+		report.setId(report1Id);
+		
+		report1EndDate = new Date();
+		report.setEndDate(report1EndDate);
+		report.setStatus("completed");
+		SimplePublisherHelper.updateReport(report);
+				
+		//update build	
+		build = new Build();
+		build.setId(buildId);
+		build.setEndDate(new Date());
+		build.setStatus("completed");
+		SimplePublisherHelper.updateBuild(build);
+		
+		build = new Build();
+		build.setId(buildId);
+		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, true);
+		
+	}
 
 }

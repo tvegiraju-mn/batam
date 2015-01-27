@@ -128,7 +128,7 @@ function findTestList(req, res, next){
 		
 		//Create searchCriteria object.
 		var searchCriterias = createSearchCriterias(req, criterias);
-		
+		console.log("search criterias : "+ util.inspect(searchCriterias));
 		//Fetch tests based on defined searchCriterias
 		req.collections.tests.find(searchCriterias)
 			.limit(parseInt(req.query.length))

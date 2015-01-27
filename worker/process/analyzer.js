@@ -79,7 +79,7 @@ function fetchAll(build, data, ack){
 			
 			var previous_build_id = -1; // -1 should return nothing
 			if(previous_builds.length  == 1){
-				previous_build_id = previous_builds.id;
+				previous_build_id = previous_builds[0].id;
 			}
 			collections.reports.find({build_id: previous_build_id}).toArray(findPreviousReportsCallback);
 		};
@@ -195,54 +195,67 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 			reports[index].tests.fixed_regressions = {};
 			reports[index].tests.fixed_regressions.value = total_fixed_regression;
 			reports[index].tests.fixed_regressions.trend = 0;
-			//If there is a previous report, we can set the trend
-			if(previous_reports.length == 1){
-				reports[index].tests.new_regressions.value = total_new_regression;
-				if(previous_reports[0].tests.all.value == total_test){
-					reports[index].tests.all.trend = 0;
-				}else if(previous_reports[0].tests.all.value > total_test){
-					reports[index].tests.all.trend = -1;
-				}else{
-					reports[index].tests.all.trend = 1;
+			//If there is are previous reports, we look for the one with same name then we set the trend
+			if(previous_reports.length != 0){
+				var previousIndex = -1;
+				for(i = 0; i < previous_reports.length; i++){
+					if(reports[index].name == previous_reports[i].name){
+						if(previousIndex != -1){
+							return e.error(data, ack, true, "Multiple previous report found with same name.");
+						}
+						
+						previousIndex = i;
+					}
 				}
+				if(previousIndex != -1){
+					reports[index].tests.new_regressions.value = total_new_regression;
+					if(previous_reports[previousIndex].tests.all.value == total_test){
+						reports[index].tests.all.trend = 0;
+					}else if(previous_reports[previousIndex].tests.all.value > total_test){
+						reports[index].tests.all.trend = -1;
+					}else{
+						reports[index].tests.all.trend = 1;
+					}
+				
+					if(previous_reports[previousIndex].tests.regressions.value == total_regressions){
+						reports[index].tests.regressions.trend = 0;
+					}else if(previous_reports[previousIndex].tests.regressions.value > total_regressions){
+						reports[index].tests.regressions.trend = -1;
+					}else{
+						reports[index].tests.regressions.trend = 1;
+					}
+					
+					if(previous_reports[previousIndex].tests.new_regressions.value == total_new_regression){
+						reports[index].tests.new_regressions.trend = 0;
+					}else if(previous_reports[previousIndex].tests.new_regressions.value > total_new_regression){
+						reports[index].tests.new_regressions.trend = -1;
+					}else{
+						reports[index].tests.new_regressions.trend = 1;
+					}
 			
-				if(previous_reports[0].tests.regressions.value == total_regressions){
-					reports[index].tests.regressions.trend = 0;
-				}else if(previous_reports[0].tests.regressions.value > total_regressions){
-					reports[index].tests.regressions.trend = -1;
-				}else{
-					reports[index].tests.regressions.trend = 1;
+					if(previous_reports[previousIndex].tests.fixed_regressions.value == total_fixed_regression){
+						reports[index].tests.fixed_regressions.trend = 0;
+					}else if(previous_reports[previousIndex].tests.fixed_regressions.value > total_fixed_regression){
+						reports[index].tests.fixed_regressions.trend = -1;
+					}else{
+						reports[index].tests.fixed_regressions.trend = 1;
+					}
+					
+					//set duration info to report
+					if(previous_reports[previousIndex].duration.value == reports[index].duration.value){
+						reports[index].duration.trend = 0;
+					}else if(previous_reports[previousIndex].duration.value > reports[index].duration.value){
+						reports[index].duration.trend = -1;
+					}else{
+						reports[index].duration.trend = 1;
+					}
+			
+					//Update previous report next_id
+					//This step can be done async
+					collections.reports.updateById(previous_reports[previousIndex]._id, {$set: {next_id : reports[index].id}}, updatePreviousReportInfoCallback);
 				}
-				
-				if(previous_reports[0].tests.new_regressions.value == total_new_regression){
-					reports[index].tests.new_regressions.trend = 0;
-				}else if(previous_reports[0].tests.new_regressions.value > total_new_regression){
-					reports[index].tests.new_regressions.trend = -1;
-				}else{
-					reports[index].tests.new_regressions.trend = 1;
-				}
-		
-				if(previous_reports[0].tests.fixed_regressions.value == total_fixed_regression){
-					reports[index].tests.fixed_regressions.trend = 0;
-				}else if(previous_reports[0].tests.fixed_regressions.value > total_fixed_regression){
-					reports[index].tests.fixed_regressions.trend = -1;
-				}else{
-					reports[index].tests.fixed_regressions.trend = 1;
-				}
-				
-				//set duration info to report
-				if(previous_reports[0].duration.value == reports[index].duration.value){
-					reports[index].duration.trend = 0;
-				}else if(previous_reports[0].duration.value > reports[index].duration.value){
-					reports[index].duration.trend = -1;
-				}else{
-					reports[index].duration.trend = 1;
-				}
-		
-				//Update previous report next_id
-				//This step can be done async
-				collections.reports.updateById(previous_reports[0]._id, {$set: {next_id : reports[index].id}}, updatePreviousReportInfoCallback);
 			}
+				
 			
 			reports[index].lifecycle_status = "completed";
 		

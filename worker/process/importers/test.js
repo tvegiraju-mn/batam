@@ -97,7 +97,7 @@ function createTest(report, data, ack){
 			if(tests.length  > 1){
 				return e.error(data, ack, true, "Multiple Tests were found.");
 			}
-			
+
 			//If previous test doesn't exist
 			if(tests.length == 0 ){
 				//everything that is not passing is a new regression.
@@ -138,7 +138,7 @@ function createTest(report, data, ack){
     			test.previous_id = previous_test._id;
     				
 				//Create test
-				collections.tests.insert(insertTestCallback);
+				collections.tests.insert(test, insertTestCallback);
 			}
     	};
 		
@@ -153,7 +153,7 @@ function createTest(report, data, ack){
     	}
     	var previous_report_id = -1 //-1 should return nothing.
     	//If there is no previous report then there is no previous tests.
-    	if(_.isUndefined(report.previous_id) || _.isNull(report.previous_id)){
+    	if(!_.isUndefined(report.previous_id) && !_.isNull(report.previous_id)){
     		previous_report_id = report.previous_id;
     	}
     	collections.tests.find({report_id: previous_report_id, name: test.name}).toArray(findPriorTestCallback);
@@ -295,7 +295,6 @@ function updateTest(report, data, ack){
 			
 			//If previous test doesn't exist
 			if(tests.length == 0 ){
-
 				test.regression = "n/a";
 				test.duration.trend = 1;
 				
@@ -436,7 +435,6 @@ function updateTest(report, data, ack){
 			}
 			//If there is no previous test or status is not defined.
 			if(_.isUndefined(test.previous_id) || _.isNull(test.previous_id)){  
-				
 				test.regression = "n/a"	
 				//Update test
 				collections.tests.updateById(test._id, {$set: test}, updateTestInfoCallback);

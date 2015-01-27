@@ -207,7 +207,7 @@
 	    		$('#report_tests').html('<span class="label label-default">N/A</span>');	
 	    	}else{
 	    		if(response.report.tests.all.trend == -1){
-	    			$('#report_tests').html(response.tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span>');
+	    			$('#report_tests').html(response.report.tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span>');
 	    		}else if(response.report.tests.all.trend == 1){
 	    			$('#report_tests').html(response.report.tests.all.value+' <span class="glyphicon glyphicon-chevron-up"></span>');
 	    		}else{
