@@ -242,9 +242,6 @@ public String createBuild(Build build) throws IOException {
 			List<Step> steps, 
 			List<Commit> commits) throws IOException {
 
-		if(!(name != null && name.matches("([0-9a-zA-z-_])*"))){
-			throw new InvalidArgumentException("name argument should not be null and match the following regex \"([0-9a-zA-z-_])*\". ");
-		}
 		if(!(startDate != null)){
 			throw new InvalidArgumentException("startDate argument should not be null. ");
 		}
@@ -261,9 +258,6 @@ public String createBuild(Build build) throws IOException {
 			List<Pair> criterias, 
 			List<Pair> infos) throws IOException {
 
-		if(!(name != null && name.matches("([0-9a-zA-z-_])*"))){
-			throw new InvalidArgumentException("name argument should not be null and match the following regex \"([0-9a-zA-z-_])*\". ");
-		}
 		if(!(startDate != null)){
 			throw new InvalidArgumentException("startDate argument should not be null. ");
 		}
@@ -332,10 +326,6 @@ public String createBuild(Build build) throws IOException {
 			String status, 
 			List<String> logs) throws IOException {
 		
-		if(!(name != null && name.matches("([0-9a-zA-z-_])*"))){
-			throw new InvalidArgumentException("name argument should not be null and match the following regex \"([0-9a-zA-z-_])*\". ");
-		}
-		
 		TestReport report = new TestReport(id, name, buildId, buildName, description, startDate, endDate, status, logs);
 		
 		return createReport(report);
@@ -348,10 +338,6 @@ public String createBuild(Build build) throws IOException {
 			String description, 
 			Date startDate) throws IOException {
 
-		if(!(name != null && name.matches("([0-9a-zA-z-_])*"))){
-			throw new InvalidArgumentException("name argument should not be null and match the following regex \"([0-9a-zA-z-_])*\". ");
-		}
-		
 		TestReport report = new TestReport(id, name, buildId, buildName, description, startDate, null, null, null);
 		
 		return createReport(report);

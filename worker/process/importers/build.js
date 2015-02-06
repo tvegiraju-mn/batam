@@ -140,7 +140,7 @@ function createBuildEntrypoint(data, ack){
 		var time = d.getTime();
 		id = name+"_"+time;
 	}else{
-		id = id.replace(" ","_");
+		//id = id.replace(" ","_");
 	}
 	build.id = id;
 
