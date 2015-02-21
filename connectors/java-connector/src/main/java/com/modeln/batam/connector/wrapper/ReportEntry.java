@@ -33,73 +33,64 @@ import org.json.simple.JSONObject;
 
 /**
  * {
- * 		"report_id" : "report identifier this test belong to",
- * 		"report_name" : "report name this test belong to",
- * 		"name" : "package#testname()",
+ * 		"id" : "Report Identifier",
+ * 		"build_id" : "build identifier this test belong to",
+ * 		"build_name" : "build name this test belong to",
+ * 		"name" : "Report name",
+ * 		"description" : "Report description",
  * 		"start_date" : "12341234", // Time in millisecond
  * 		"end_date" : "12341234", // Time in millisecond
- * 		"status" : "pass|failed|error| name it",
- * 		"log" : "test logs",
- * 		"criterias" : [{@link com.modeln.batam.connector.wrapper.Pair}]
+ * 		"status" : "completed|failed|error| name it",
+ * 		"logs" : ["list of html link to archived log files"]
  * }
  * 
  * @author gzussa
  *
  */
-public class TestInstance {
-	private String reportId; 
+public class ReportEntry {
+	private String id;
 	
-	private String reportName; 
+	private String buildId; 
+	
+	private String buildName;
 	
 	private String name; 
 	
-	private String description; 
+	private String description;
 	
-	private Date startDate; 
+	private Date startDate;
 	
 	private Date endDate;
 	
-	private String status; 
+	private String status;
 	
-	private String log; 
-	
-	private List<Pair> criterias;
-	
-	private boolean override = false;
-	
-	public TestInstance() {
+	private List<String> logs;
+
+	public ReportEntry() {
 		super();
 	}
 	
-	public TestInstance(String reportId, String reportName, String name, String description, Date startDate, Date endDate, String status,
-			List<Pair> criterias, String log, boolean override) {
+	public ReportEntry(String id, String name, String buildId, String buildName, 
+			String description, Date startDate, Date endDate, String status,
+			List<String> logs) {
 		super();
-		this.reportId = reportId;
-		this.reportName = reportName;
+		this.id = id;
 		this.name = name;
+		this.buildId = buildId;
+		this.buildName = buildName;
 		this.description = description;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.status = status;
-		this.criterias = criterias;
-		this.log = log;
-		this.override = override;
+		this.logs = logs;
 	}
 
-	public String getReportId() {
-		return reportId;
+	public String getId() {
+		return id;
 	}
 
-	public void setReportId(String reportId) {
-		this.reportId = reportId;
-	}
-
-	public String getReportName() {
-		return reportName;
-	}
-
-	public void setReportName(String reportName) {
-		this.reportName = reportName;
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	public String getName() {
@@ -108,6 +99,22 @@ public class TestInstance {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+	
+	public String getBuildName() {
+		return buildName;
+	}
+
+	public void setBuildName(String buildName) {
+		this.buildName = buildName;
 	}
 
 	public String getDescription() {
@@ -142,43 +149,26 @@ public class TestInstance {
 		this.status = status;
 	}
 
-	public String getLog() {
-		return log;
+	public List<String> getLogs() {
+		return logs;
 	}
 
-	public void setLog(String log) {
-		this.log = log;
+	public void setLogs(List<String> logs) {
+		this.logs = logs;
 	}
-
-	public List<Pair> getCriterias() {
-		return criterias;
-	}
-
-	public void setCriterias(List<Pair> criterias) {
-		this.criterias = criterias;
-	}
-
-	public boolean isOverride() {
-		return override;
-	}
-
-	public void setOverride(boolean override) {
-		this.override = override;
-	}
-
-	public String toJSONString() {
+	
+	@SuppressWarnings("unchecked")
+	public String toJSONString(){
 		JSONObject obj = new JSONObject();
-		obj.put("report_id", reportId);
-		obj.put("report_name", reportName);
+		obj.put("id", id);
 		obj.put("name", name);
+		obj.put("build_id", buildId);
+		obj.put("build_name", buildName);
 		obj.put("description", description);
 		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("status", status);
-		obj.put("criterias", criterias);
-		obj.put("log", log);
-		obj.put("override", override);
-		
+		obj.put("logs", logs);
 		return obj.toJSONString();
 	}
 	
@@ -187,30 +177,26 @@ public class TestInstance {
 		return toJSONString();
 	}
 	
-	public static TestInstance fromJSON(JSONObject obj){
-		String reportId = (String)obj.get("report_id");
-		String reportName = (String)obj.get("report_name");
+	@SuppressWarnings("unchecked")
+	public static ReportEntry fromJSON(JSONObject obj){
+		String id = (String)obj.get("id");
 		String name = (String)obj.get("name");
+		String buildId = (String)obj.get("build_id");
+		String buildName = (String)obj.get("build_name");
 		String description = (String)obj.get("description");
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
 		String status = (String)obj.get("status");
-		boolean override = (Boolean)obj.get("override");
 		
-		List<Pair> criterias = new ArrayList<Pair>();
-		JSONArray criteriasArray = (JSONArray)obj.get("criterias");
-		if(criteriasArray != null){
-			for(Iterator<JSONObject> it = criteriasArray.iterator(); it.hasNext();){
-				JSONObject criteria = it.next();
-				criterias.add(Pair.fromJSON(criteria));
+		List<String> logs = new ArrayList<String>();
+		JSONArray logsArray = (JSONArray)obj.get("logs");
+		if(logsArray != null){
+			for(Iterator<String> it = logsArray.iterator();it.hasNext();){
+				String log = (String)it.next();
+				logs.add(log);
 			}
 		}
 		
-		String log = (String)obj.get("log");
-		
-		return new TestInstance(reportId, reportName, name, description, 
-				startDate == null ? null : new Date(Long.valueOf(startDate)), 
-				endDate == null ? null : new Date(Long.valueOf(endDate)), 
-				status, criterias, log, override);
+		return new ReportEntry(id, name, buildId, buildName, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, logs);
 	}
 }

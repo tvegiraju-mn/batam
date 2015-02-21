@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -45,12 +44,13 @@ import org.json.simple.JSONObject;
  * 		"reports" : [{@link com.modeln.batam.connector.wrapper.Pair}],
  * 		"steps" : [{@link com.modeln.batam.connector.wrapper.Step}],
  * 		"commits" : [{@link com.modeln.batam.connector.wrapper.Commit}],
+ * 		"override" : false
  * }
  * 
  * @author gzussa
  *
  */
-public class Build {
+public class BuildEntry {
 	private String id;
 	
 	private String name;
@@ -75,9 +75,9 @@ public class Build {
 	
 	private boolean override = false;
 
-	public Build(){}
+	public BuildEntry(){}
 	
-	public Build(String id, String name, Date startDate, Date endDate, String status,
+	public BuildEntry(String id, String name, Date startDate, Date endDate, String status,
 			String description, List<Pair> criterias,
 			List<Pair> infos, List<Pair> reports,
 			List<Step> steps, List<Commit> commits, boolean override) {
@@ -197,6 +197,7 @@ public class Build {
 		return toJSONString();
 	}
 
+	@SuppressWarnings("unchecked")
 	public String toJSONString(){
 		JSONObject obj = new JSONObject();
 		obj.put("id", id);
@@ -215,7 +216,8 @@ public class Build {
 		return obj.toJSONString();
 	}
 	
-	public static Build fromJSON(JSONObject obj){
+	@SuppressWarnings("unchecked")
+	public static BuildEntry fromJSON(JSONObject obj){
 		String id = (String)obj.get("id");
 		String name = (String)obj.get("name");
 		String startDate = (String)obj.get("start_date");
@@ -269,7 +271,7 @@ public class Build {
 			}
 		}
 		
-		return new Build(id, name, 
+		return new BuildEntry(id, name, 
 					startDate == null ? null : new Date(Long.valueOf(startDate)), 
 					endDate == null ? null : new Date(Long.valueOf(endDate)), 
 					status, description, criterias, infos, reports, steps, commits, override);

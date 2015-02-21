@@ -81,6 +81,7 @@ public class Step {
 		return toJSONString();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
 		obj.put("name", name);

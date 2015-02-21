@@ -104,7 +104,7 @@ EOF
 	}
 EOF
     ## Send json file with action StartAnalysis.
-	java -jar $CONNECTOR -a "start_analysis" -f build.json
+	java -jar $CONNECTOR -a "run_analysis" -f build.json
 	rm build.json
 	return
 fi
@@ -149,7 +149,7 @@ EOF
 	}
 EOF
     ## Send json file with action StartAnalysis.
-	java -jar $CONNECTOR -a "start_analysis" -f build.json
+	java -jar $CONNECTOR -a "run_analysis" -f build.json
 	rm build.json
 	return
 fi
@@ -191,5 +191,5 @@ cat > build.json <<EOF
 }
 EOF
 ## Send json file with action StartAnalysis.
-java -jar $CONNECTOR -a "start_analysis" -f build.json
+java -jar $CONNECTOR -a "run_analysis" -f build.json
 rm build.json

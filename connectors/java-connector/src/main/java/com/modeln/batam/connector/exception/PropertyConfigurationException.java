@@ -23,13 +23,13 @@
  */
 package com.modeln.batam.connector.exception;
 
-public class InvalidArgumentException extends RuntimeException {
+public class PropertyConfigurationException extends RuntimeException {
 
-	public InvalidArgumentException(String message) {
+	public PropertyConfigurationException(String message) {
 		super(message);
 	}
 	
-	public InvalidArgumentException(String message, Throwable e) {
+	public PropertyConfigurationException(String message, Throwable e) {
 		super(message, e);
 	}
 

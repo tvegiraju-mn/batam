@@ -28,4 +28,8 @@ public class NoConnectionFoundException extends RuntimeException {
 	public NoConnectionFoundException(String message) {
 		super(message);
 	}
+	
+	public NoConnectionFoundException(String message, Throwable e) {
+		super(message, e);
+	}
 }

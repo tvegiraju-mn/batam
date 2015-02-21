@@ -58,7 +58,7 @@
 						<archive>
 							<manifest>
 								<addClasspath>true</addClasspath>
-								<mainClass>com.modeln.batam.connector.Connector</mainClass>
+								<mainClass>com.modeln.batam.connector.ConnectorCml</mainClass>
 							</manifest>
 						</archive>
 					</configuration>

@@ -51,8 +51,8 @@ function startImport(message, ack){
 					console.log("update_test action.");
 					testImporter.update(data, ack);
 				break;
-				case "start_analysis":
-					console.log("start_analysis action.");
+				case "run_analysis":
+					console.log("run_analysis action.");
 					analyzer.run(data, ack);
 				break;
 				default:

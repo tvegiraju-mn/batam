@@ -1,7 +1,5 @@
 package com.modeln.batam;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.modeln.batam.connector.SimplePublisherHelper;
+import com.modeln.batam.connector.ConnectorHelper;
 import com.modeln.batam.connector.wrapper.*;
 
 public class WorkerTest {
@@ -18,18 +16,18 @@ public class WorkerTest {
 	public void createNewBuildAndUpdate() throws IOException {
 		//Create build
 		String name = "build "+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setId("1_"+System.currentTimeMillis());
 		build.setName(name);
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create update
 		build.setDescription("desc");
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -38,7 +36,7 @@ public class WorkerTest {
 		//Create build
 		String name = "build "+System.currentTimeMillis();
 		String id = "2_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setId(id);
 		build.setName(name);
 		build.setDescription("desc");
@@ -71,7 +69,7 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "2", "20", "200", new Date(System.currentTimeMillis()+1000)));
 		build.setCommits(commits);
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create update
 		build.setDescription("desc 2");
@@ -104,9 +102,9 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "4", "40", "400", new Date(System.currentTimeMillis()+1000)));
 		build.setCommits(commits);
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -115,41 +113,41 @@ public class WorkerTest {
 		//Create build
 		String buildName = "build "+System.currentTimeMillis();
 		String buildId = "3_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setId(buildId);
 		build.setName(buildName);
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create report 1
 		String reportId = "3_1_"+System.currentTimeMillis();
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		report.setBuildName(buildName);
 		report.setId(reportId);
 		report.setName("report1");
 		
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//Create update
 		build.setDescription("desc");
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
 		//Create report 2
 		String report2Id = "3_2_"+System.currentTimeMillis();
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		report2.setBuildName(buildName);
 		report2.setName("report2");
 		report2.setId(report2Id);
 		
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Update report 1
 		report.setStatus("test");
 		
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
 	}
 	
@@ -158,7 +156,7 @@ public class WorkerTest {
 		//Create build
 		String buildName = "build "+System.currentTimeMillis();
 		String buildId = "4_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
 		build.setDescription("desc");
@@ -190,11 +188,11 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "1", "10", "100", new Date()));
 		commits.add(new Commit(null, null, "2", "20", "200", new Date(System.currentTimeMillis()+1000)));
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create Report 1
 		String reportId = "4_1_"+System.currentTimeMillis();
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		report.setBuildName(buildName);
 		report.setBuildId(buildId);
 		report.setId(reportId);
@@ -209,7 +207,7 @@ public class WorkerTest {
 		logs.add("logs 2");
 		report.setLogs(logs);
 		
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//Update build
 		build.setDescription("desc 2");
@@ -241,11 +239,11 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "3", "30", "300", new Date()));
 		commits.add(new Commit(null, null, "4", "40", "400", new Date(System.currentTimeMillis()+1000)));
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
 		//Create Report 2
 		String report2Id = "4_2_"+System.currentTimeMillis();
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
 		report2.setName("report2");
@@ -260,7 +258,7 @@ public class WorkerTest {
 		logs.add("logs 20");
 		report2.setLogs(logs);
 		
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Update Report 1
 		report.setDescription("report desc 1");
@@ -273,9 +271,9 @@ public class WorkerTest {
 		logs.add("logs 4");
 		report.setLogs(logs);
 		
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -283,75 +281,75 @@ public class WorkerTest {
 		//Create build
 		String buildId = "5_"+System.currentTimeMillis();
 		String buildName = "build "+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create report 1
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		String reportId = "5_1_"+System.currentTimeMillis();
 		report.setBuildId(buildId);
 		report.setBuildName(buildName);
 		report.setName("report1");
 		report.setId(reportId);
 		
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//Create test
-		TestInstance test = new TestInstance();
+		TestEntry test = new TestEntry();
 		test.setReportName("report1");
 		test.setReportId(reportId);
 		test.setName("test1");
 		test.setDescription("desc test1");
 		
-		SimplePublisherHelper.createTest(test);
+		ConnectorHelper.createTest(test);
 		
 		//Create test
-		TestInstance test2 = new TestInstance();
+		TestEntry test2 = new TestEntry();
 		test2.setReportName("report1");
 		test2.setReportId(reportId);
 		test2.setName("test2");
 		test2.setDescription("desc test2");
 		
-		SimplePublisherHelper.createTest(test2);
+		ConnectorHelper.createTest(test2);
 		
 		//Create update
 		build.setDescription("desc");
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
 		//Create report 2
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		String report2Id = "5_2_"+System.currentTimeMillis();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
 		report2.setName("report2");
 		report2.setId(report2Id);
 		
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Update report 1
 		report.setStatus("test");
 		
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
 		//Create test
-		TestInstance test3 = new TestInstance();
+		TestEntry test3 = new TestEntry();
 		test3.setReportName("report2");
 		test3.setReportId(report2Id);
 		test3.setName("test3");
 		test3.setDescription("desc test3");
 		
-		SimplePublisherHelper.createTest(test3);
+		ConnectorHelper.createTest(test3);
 		
 		//Update Test 2
 		test2.setLog("test");
 		
-		SimplePublisherHelper.updateTest(test2);
+		ConnectorHelper.updateTest(test2);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -359,7 +357,7 @@ public class WorkerTest {
 		//Create build
 		String buildName = "build "+System.currentTimeMillis();
 		String buildId = "6_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
 		build.setDescription("desc");
@@ -391,10 +389,10 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "1", "10", "100", new Date()));
 		commits.add(new Commit(null, null, "2", "20", "200", new Date(System.currentTimeMillis()+1000)));
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create report 1
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		String reportId = "6_1_"+System.currentTimeMillis();
 		report.setBuildName(buildName);
 		report.setBuildId(buildId);
@@ -410,10 +408,10 @@ public class WorkerTest {
 		logs.add("logs 2");
 		report.setLogs(logs);
 		
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//Create test
-		TestInstance test = new TestInstance();
+		TestEntry test = new TestEntry();
 		test.setReportId(reportId);
 		test.setReportName("report1");
 		test.setName("test1");
@@ -427,10 +425,10 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit2", "val2"));
 		test.setCriterias(testCriterias);
 		
-		SimplePublisherHelper.createTest(test);
+		ConnectorHelper.createTest(test);
 		
 		//Create test
-		TestInstance test2 = new TestInstance();
+		TestEntry test2 = new TestEntry();
 		test2.setReportId(reportId);
 		test2.setReportName("report1");
 		test2.setName("test2");
@@ -444,7 +442,7 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit20", "val20"));
 		test2.setCriterias(testCriterias);
 		
-		SimplePublisherHelper.createTest(test2);
+		ConnectorHelper.createTest(test2);
 		
 		//update build
 		build.setDescription("desc 2");
@@ -476,10 +474,10 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "3", "30", "300", new Date()));
 		commits.add(new Commit(null, null, "4", "40", "400", new Date(System.currentTimeMillis()+1000)));
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
 		//Create report 2
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		String report2Id = "6_2_"+System.currentTimeMillis();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
@@ -495,7 +493,7 @@ public class WorkerTest {
 		logs.add("logs 20");
 		report2.setLogs(logs);
 		
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Update report 1
 		report.setDescription("report desc 1");
@@ -508,10 +506,10 @@ public class WorkerTest {
 		logs.add("logs 4");
 		report.setLogs(logs);
 		
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
 		//Create test
-		TestInstance test3 = new TestInstance();
+		TestEntry test3 = new TestEntry();
 		test3.setReportId(report2Id);
 		test3.setReportName("report2");
 		test3.setName("test3");
@@ -525,7 +523,7 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit200", "val200"));
 		test3.setCriterias(testCriterias);
 		
-		SimplePublisherHelper.createTest(test3);
+		ConnectorHelper.createTest(test3);
 		
 		//Update Test 2
 		test2.setLog("test2");
@@ -537,9 +535,9 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit40", "val40"));
 		test2.setCriterias(testCriterias);
 		
-		SimplePublisherHelper.updateTest(test2);
+		ConnectorHelper.updateTest(test2);
 		
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -547,7 +545,7 @@ public class WorkerTest {
 		//Create build
 		String buildName = "build"/*+System.currentTimeMillis()*/;
 		String buildId = "7_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
 		build.setDescription("desc");
@@ -578,10 +576,10 @@ public class WorkerTest {
 		commits.add(new Commit(null, null, "3465345hgfjhfgjhg3465", null, "employee1@company.com", new Date(System.currentTimeMillis())));
 		build.setCommits(commits);
 		
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create report 1
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		String report1Id = "7_1_"+System.currentTimeMillis();
 		report.setBuildName(buildName);
 		report.setBuildId(buildId);
@@ -591,11 +589,11 @@ public class WorkerTest {
 		Date report1StartDate = new Date();
 		report.setStartDate(report1StartDate);
 		
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//Create 10000 tests for report 1
 		for(int i = 0; i < 100; i++){
-			TestInstance test = new TestInstance();
+			TestEntry test = new TestEntry();
 			test.setReportId(report1Id);
 			test.setReportName("Test Suite Group One");
 			test.setName("package#test"+i+".java");
@@ -647,11 +645,11 @@ public class WorkerTest {
 			}
 			test.setCriterias(testCriterias);
 			
-			SimplePublisherHelper.createTest(test);
+			ConnectorHelper.createTest(test);
 		}
 		
 		//Update report 1
-		report = new TestReport();
+		report = new ReportEntry();
 		report.setId(report1Id);
 		
 		Date report1EndDate = new Date();
@@ -663,10 +661,10 @@ public class WorkerTest {
 		logs.add("<a href=\"#\">file2.log</a>");
 		report.setLogs(logs);
 		
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
 		//update build	
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
 		
 		reports = new ArrayList<Pair>();
@@ -677,10 +675,10 @@ public class WorkerTest {
 		steps.add(new Step("Test Suite Grp 1", report1StartDate, report1EndDate));
 		build.setSteps(steps);
 		
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
 		//Create report 2
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		String report2Id = "7_1_"+System.currentTimeMillis();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
@@ -690,11 +688,11 @@ public class WorkerTest {
 		Date report2StartDate = new Date();
 		report2.setStartDate(report2StartDate);
 		
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Create and update 10000 tests for report 2
 		for(int i = 0; i < 100; i++){
-			TestInstance test = new TestInstance();
+			TestEntry test = new TestEntry();
 			test.setReportId(report2Id);
 			test.setReportName("Test Suite Group Two");
 			test.setName("package#test"+i+".java");
@@ -704,10 +702,10 @@ public class WorkerTest {
 			testCriterias.add(new Pair("Author", "employee@company.com"));
 			test.setCriterias(testCriterias);
 			
-			SimplePublisherHelper.createTest(test);
+			ConnectorHelper.createTest(test);
 			
 			//Update test
-			test = new TestInstance();
+			test = new TestEntry();
 			test.setReportId(report2Id);
 			test.setReportName("Test Suite Group Two");
 			test.setName("package#test"+i+".java");
@@ -716,11 +714,11 @@ public class WorkerTest {
 			test.setStatus("pass");
 			test.setEndDate(new Date());
 			
-			SimplePublisherHelper.updateTest(test);
+			ConnectorHelper.updateTest(test);
 		}
 		
 		//Update report 2
-		report2 = new TestReport();
+		report2 = new ReportEntry();
 		report2.setId(report2Id);
 		
 		Date report2EndDate = new Date();
@@ -732,10 +730,10 @@ public class WorkerTest {
 		logs.add("<a href=\"#\">file4.log</a>");
 		report2.setLogs(logs);
 		
-		SimplePublisherHelper.updateReport(report2);
+		ConnectorHelper.updateReport(report2);
 				
 		//update build	
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
 		build.setEndDate(new Date());
 		build.setStatus("completed");
@@ -746,11 +744,11 @@ public class WorkerTest {
 		steps = new ArrayList<Step>();
 		steps.add(new Step("Test Suite Grp 2", report2StartDate, report2EndDate));
 		build.setSteps(steps);
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 	}
 	
 	@Test
@@ -758,14 +756,14 @@ public class WorkerTest {
 		//Create build
 		String buildName = "partial_build";
 		String buildId = "8_"+System.currentTimeMillis();
-		Build build = new Build();
+		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
 		build.setStartDate(new Date());
-		SimplePublisherHelper.createBuild(build);
+		ConnectorHelper.createBuild(build);
 		
 		//Create report 1
-		TestReport report = new TestReport();
+		ReportEntry report = new ReportEntry();
 		String report1Id = "8_1_"+System.currentTimeMillis();
 		report.setBuildName(buildName);
 		report.setBuildId(buildId);
@@ -774,19 +772,19 @@ public class WorkerTest {
 		report.setDescription("Test suite associated to module one");
 		Date report1StartDate = new Date();
 		report.setStartDate(report1StartDate);
-		SimplePublisherHelper.createReport(report);
+		ConnectorHelper.createReport(report);
 		
 		//create tests for report 1
-		TestInstance test11 = new TestInstance();
+		TestEntry test11 = new TestEntry();
 		test11.setReportId(report1Id);
 		test11.setReportName("Test Suite Group One");
 		test11.setName("report 1 test 1");
 		test11.setStartDate(new Date());
 		test11.setStatus("pass");
 		test11.setEndDate(new Date());
-		SimplePublisherHelper.createTest(test11);
+		ConnectorHelper.createTest(test11);
 		
-		TestInstance test12 = new TestInstance();
+		TestEntry test12 = new TestEntry();
 		test12.setReportId(report1Id);
 		test12.setReportName("Test Suite Group One");
 		test12.setName("report 1 test 2");
@@ -794,19 +792,19 @@ public class WorkerTest {
 		test12.setStatus("fail");
 		test12.setLog("test logs here");
 		test12.setEndDate(new Date());
-		SimplePublisherHelper.createTest(test12);
+		ConnectorHelper.createTest(test12);
 		
 		//Update report 1
-		report = new TestReport();
+		report = new ReportEntry();
 		report.setId(report1Id);
 		
 		Date report1EndDate = new Date();
 		report.setEndDate(report1EndDate);
 		report.setStatus("completed");
-		SimplePublisherHelper.updateReport(report);
+		ConnectorHelper.updateReport(report);
 		
 		//Create report 2
-		TestReport report2 = new TestReport();
+		ReportEntry report2 = new ReportEntry();
 		String report2Id = "8_1_"+System.currentTimeMillis();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
@@ -814,38 +812,38 @@ public class WorkerTest {
 		report2.setId(report2Id);
 		Date report2StartDate = new Date();
 		report2.setStartDate(report2StartDate);
-		SimplePublisherHelper.createReport(report2);
+		ConnectorHelper.createReport(report2);
 		
 		//Create tests for report 2
-		TestInstance test21 = new TestInstance();
+		TestEntry test21 = new TestEntry();
 		test21.setReportId(report2Id);
 		test21.setReportName("Test Suite Group Two");
 		test21.setName("report 2 test 1");
 		test21.setStartDate(new Date());
 		test21.setStatus("pass");
 		test21.setEndDate(new Date());
-		SimplePublisherHelper.createTest(test21);
+		ConnectorHelper.createTest(test21);
 		
 		//Update report 2
-		report2 = new TestReport();
+		report2 = new ReportEntry();
 		report2.setId(report2Id);
 		Date report2EndDate = new Date();
 		report2.setEndDate(report2EndDate);
 		report2.setStatus("completed");
-		SimplePublisherHelper.updateReport(report2);
+		ConnectorHelper.updateReport(report2);
 				
 		//update build	
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
 		build.setEndDate(new Date());
 		build.setStatus("completed");
-		SimplePublisherHelper.updateBuild(build);
+		ConnectorHelper.updateBuild(build);
 		
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, false);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
-		test12 = new TestInstance();
+		test12 = new TestEntry();
 		test12.setReportId(report1Id);
 		test12.setReportName("Test Suite Group One");
 		test12.setName("report 1 test 2");
@@ -853,11 +851,11 @@ public class WorkerTest {
 		test12.setStatus("pass");
 		test12.setEndDate(new Date());
 		test12.setOverride(true);
-		SimplePublisherHelper.updateTest(test12);
+		ConnectorHelper.updateTest(test12);
 		
-		build = new Build();
+		build = new BuildEntry();
 		build.setId(buildId);
-		SimplePublisherHelper.runBuildAnalysis(build.getId(), null, true);
+		ConnectorHelper.runAnalysis(build.getId(), null, true);
 		
 	}
 

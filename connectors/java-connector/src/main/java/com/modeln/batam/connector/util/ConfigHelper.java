@@ -24,10 +24,13 @@
 
 package com.modeln.batam.connector.util;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import com.modeln.batam.connector.exception.PropertyConfigurationException;
 
 public class ConfigHelper {
 	
@@ -37,44 +40,66 @@ public class ConfigHelper {
 	private final static String PORT_PROPERTY_CONF = "com.modeln.batam.port";
 	private final static String VHOST_PROPERTY_CONF = "com.modeln.batam.vhost";
 	private final static String QUEUE_PROPERTY_CONF = "com.modeln.batam.queue";
-	private final static String TEST_MODE_PROPERTY_CONF = "com.modeln.batam.test_mode";
+	private final static String PUBLISHER_PROPERTY_CONF = "com.modeln.batam.publisher";
+	
+	private final static String HOST_SYSTEM_PROPERTY_CONF = "batam.host";
+	private final static String USER_SYSTEM_PROPERTY_CONF = "batam.username";
+	private final static String PASSWORD_SYSTEM_PROPERTY_CONF = "batam.password";
+	private final static String PORT_SYSTEM_PROPERTY_CONF = "batam.port";
+	private final static String VHOST_SYSTEM_PROPERTY_CONF = "batam.vhost";
+	private final static String QUEUE_SYSTEM_PROPERTY_CONF = "batam.queue";
+	private final static String PUBLISHER_SYSTEM_PROPERTY_CONF = "batam.publisher";
 	
 	public static String HOST;
 	public static String USER;
 	public static String PASSWORD;
 	public static Integer PORT;
 	public static String VHOST;
-	public static String QUEUE_NAME;
-	public static String TEST_MODE;
-	
-	static{
-		try {
-			HOST = getPropValue(HOST_PROPERTY_CONF);
-			USER = getPropValue(USER_PROPERTY_CONF);
-			PASSWORD = getPropValue(PASSWORD_PROPERTY_CONF);
-			PORT = Integer.valueOf(getPropValue(PORT_PROPERTY_CONF));
-			VHOST = getPropValue(VHOST_PROPERTY_CONF);
-			QUEUE_NAME = getPropValue(QUEUE_PROPERTY_CONF);
-			TEST_MODE = getPropValue(TEST_MODE_PROPERTY_CONF);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public static String getPropValue(String name) throws IOException {
+	public static String QUEUE;
+	public static String PUBLISHER;
 
-		Properties prop = new Properties();
-		String propFileName = "batam.properties";
- 
-		InputStream inputStream = ConfigHelper.class.getClassLoader().getResourceAsStream(propFileName);
-		prop.load(inputStream);
-		if (inputStream == null) {
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+	public static void loadProperties(String fileName) {
+		if(HOST != null && USER != null && PASSWORD != null && 
+				PORT != null && VHOST != null && QUEUE != null && PUBLISHER != null){
+			return;
 		}
- 
-		// get the property value and return it
-		return prop.getProperty(name);
+
+		try{
+			Properties prop = new Properties();
+			if(fileName == null){
+				//Load configuration from property file in classpath.
+				fileName = "batam.properties";
+				
+				InputStream inputStream = ConfigHelper.class.getClassLoader().getResourceAsStream(fileName);
+				
+				if (inputStream == null) {
+					throw new FileNotFoundException("property file '" + fileName + "' not found.");
+				}
+				
+				prop.load(inputStream);
+			}else{
+				//load the file handle for fileName
+				FileInputStream file = new FileInputStream(fileName);
+				
+			    //load all the properties from this file
+				prop.load(file);
+
+			    //we have loaded the properties, so close the file handle
+			    file.close();
+			}
+			
+			// get the property value and return it
+			HOST = System.getProperty(HOST_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(HOST_SYSTEM_PROPERTY_CONF) : prop.getProperty(HOST_PROPERTY_CONF);
+			USER = System.getProperty(USER_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(USER_SYSTEM_PROPERTY_CONF) : prop.getProperty(USER_PROPERTY_CONF);
+			PASSWORD = System.getProperty(PASSWORD_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PASSWORD_SYSTEM_PROPERTY_CONF) : prop.getProperty(PASSWORD_PROPERTY_CONF);
+			PORT = Integer.valueOf(System.getProperty(PORT_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PORT_SYSTEM_PROPERTY_CONF) : prop.getProperty(PORT_PROPERTY_CONF));
+			VHOST = System.getProperty(VHOST_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(VHOST_SYSTEM_PROPERTY_CONF) : prop.getProperty(VHOST_PROPERTY_CONF);
+			QUEUE = System.getProperty(QUEUE_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(QUEUE_SYSTEM_PROPERTY_CONF) : prop.getProperty(QUEUE_PROPERTY_CONF);
+			PUBLISHER = System.getProperty(PUBLISHER_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PUBLISHER_SYSTEM_PROPERTY_CONF) : prop.getProperty(PUBLISHER_PROPERTY_CONF);
+			
+		} catch (IOException e) {
+			throw new PropertyConfigurationException("Check your property file is correctly configured.", e);
+		}
+		return ;
 	}
 }

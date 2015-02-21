@@ -115,6 +115,7 @@ public class Commit {
 		this.dateCommitted = dateCommitted;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String toJSONString(){
 		JSONObject obj = new JSONObject();
 		obj.put("build_id", buildId);

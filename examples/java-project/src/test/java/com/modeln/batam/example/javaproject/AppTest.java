@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.modeln.batam.connector.SimplePublisherHelper;
+import com.modeln.batam.connector.ConnectorHelper;
 import com.modeln.batam.example.javaproject.App;
 
 public class AppTest {
@@ -29,7 +29,7 @@ public class AppTest {
 		public void succeeded(Description description) {
 			try {
 				System.out.println("STEP 3.0: SUBMIT TEST");
-				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate, "pass", null, null);
+				ConnectorHelper.createTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate, "pass", null, null);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -39,7 +39,7 @@ public class AppTest {
 		public void failed(Throwable e, Description description) {
 			try {
 				System.out.println("STEP 3.0: SUBMIT TEST");
-				SimplePublisherHelper.submitTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate,  "fail", null, e.getMessage());
+				ConnectorHelper.createTest(null, "AllTestsSuite", description.getClassName()+"."+description.getMethodName(), null, startDate, endDate,  "fail", null, e.getMessage());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -51,14 +51,14 @@ public class AppTest {
 	public static void setUp() throws IOException{
 		//Create Test Report
 		System.out.println("STEP 2.0: CREATE BUILD REPORT");
-		SimplePublisherHelper.createNewBuildTestReport(null, "AllTestsSuite", null, "Build", "Execute all tests", new Date());
+		ConnectorHelper.createReport(null, "AllTestsSuite", null, "Build", "Execute all tests", new Date(), null, null, null);
 	}
 
 	@AfterClass
 	public static void tearDown() throws IOException{
 		//Create Test Report
 		System.out.println("STEP 3.5 (Optional): UPDATE BUILD REPORT");
-		SimplePublisherHelper.updateBuildTestReportEndDate(null, "AllTestsSuite", null, "Build", new Date());
+		ConnectorHelper.updateReportEndDate(null, "AllTestsSuite", null, "Build", new Date());
 	}
 
 	@Before
