@@ -1,7 +1,7 @@
 module.exports = {
 	message_broker: {
 		host: 'localhost',
-		port: 5671, 
+		port: 5672, 
 		queue: 'batam',
 		username : 'batam',
 		password : 'batam2',

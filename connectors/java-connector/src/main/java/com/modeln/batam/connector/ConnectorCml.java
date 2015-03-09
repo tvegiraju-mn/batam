@@ -131,7 +131,7 @@ public class ConnectorCml {
 	
 	private final static String UPDATE_TEST_ACTION = "update_test";
 	
-	private final static String START_ANALYSIS_ACTION = "run_analysis";
+	private final static String RUN_ANALYSIS_ACTION = "run_analysis";
 
 	/**
 	 * Command Line entry point
@@ -172,7 +172,7 @@ public class ConnectorCml {
 				BuildEntry build = BuildEntry.fromJSON(jsonObject);
 				ConnectorHelper.updateBuild(build);
 				
-			}else if(START_ANALYSIS_ACTION.equals(action)){
+			}else if(RUN_ANALYSIS_ACTION.equals(action)){
 				BuildEntry build = BuildEntry.fromJSON(jsonObject);
 				ConnectorHelper.runAnalysis(build);
 				

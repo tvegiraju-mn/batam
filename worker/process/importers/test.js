@@ -381,8 +381,8 @@ function updateTest(report, data, ack){
 		if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
 			return e.error(data, ack, true, "End_date field not valid.");
 		}
-		test.duration = {};
 		if(!_.isNull(test.date) && !_.isNull(end_date) && _.isDate(test.date)){
+			test.duration = {};
 			test.duration.value = parseInt(end_date) - parseInt(test.date.getTime());
 			if(test.duration.value <= 10){
 				test.time = "0-10ms";

@@ -20,7 +20,7 @@ When using actions **create_test** or **update_test**, the JSON file you need to
  
 When integrating with your continuous integration system, you need to make sure that the BATAM system receives the following information.
 *A build, with one or multiple reports and one or multiple tests per reports.* 
-Whatever the outcome of your build execution is (pass, failed, error, etc...), you need to execute the **start_analysin** action at the very end of your process.
+Whatever the outcome of your build execution is (pass, failed, error, etc...), you need to execute the **run_analysis** action at the very end of your process.
 
 The **run_analysis** action tells the system that the build execution is done and it gives the BATAM system the green light to start crunching and analysis data received. 
 If this action is not called, the system will not know the build is over. As a consequence, it will not analyze it until you create a new build version.
@@ -54,12 +54,14 @@ The `batam.properties` file located in the classpath allows you to configure the
 
  - **com.modeln.batam.host=localhost** specify the message broker host.
  - **com.modeln.batam.username=username** specify the message broker username.
- - **com.modeln.batam.password=password** specify the message broker password.
+ - **com.modeln.batam.password=password** specify the message broker password. 
  - **com.modeln.batam.port=5672** specify the message broker port.
  - **com.modeln.batam.vhost=batam** specify the message broker VHost.
  - **com.modeln.batam.queue=batam** specify the message broker queue the connector publish data to.
  - **com.modeln.batam.publisher=on** when set to **off**, it prints messages in your console (stdout) instead of publishing them to the message broker. 
- 
+
+NOTE: Make sure to set a password different from the username otherwise RabbitMQ won't succeed to establish a connection.
+
 This file can be totally overridden by specifying an external property file at runtime using the **-p** option.
 
 It is also possible to override some or all properties defined within property files by defining system properties when execution the jar.
@@ -187,4 +189,30 @@ You can also install you jar file in your local Maven repository
 
 ```
 mvn install
+```
+
+You can compile the connector without to establish a connection to the Rabbit MQ instance.
+To do so, you just need to set the **publisher** property **off** in the [batam.properties](https://github.com/ModelN/batam/blob/master/connectors/java-connector/src/main/resources/batam.properties) file.
+
+If you turn the property **off** you will have to turn it on in your integration using the **-p** arguments or by creating a [Connector](https://github.com/ModelN/batam/blob/master/connectors/java-connector/src/main/java/com/modeln/batam/connector/Connector.java) instance properly configured using the beginConnection(with arguments) API.
+
+If you are running maven install without a RabbitMQ instance running,
+You can either set the **com.modeln.batam.publisher=off** property to off and run *mvn install*
+
+Or, you can install the java connector and ignore test failures by running the following commands:
+```
+mvn install -Dmaven.test.failure.ignore=true
+```
+or 
+```
+mvn install -DtestFailureIgnore=true
+```
+
+You can also skip tests execution by running the following command: 
+```
+mvn install -DskipTests
+```
+Finally, you can skip tests compilation all together using the following command: 
+```
+mvn install -Dmaven.test.skip=true
 ```

@@ -332,7 +332,7 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 			build.failures.trend  = 1;
 		}			
 	
-		if(previous_builds[0].duration != undefined){
+		if(!_.isUndefined(previous_builds[0].duration) && !_.isUndefined(build.duration)){
 			if(previous_builds[0].duration.value == build.duration.value){
 				build.duration.trend = 0;
 			}else if(previous_builds[0].duration.value > build.duration.value){
@@ -341,6 +341,10 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 				build.duration.trend = 1;
 			}
 		}else{
+			if(_.isUndefined(build.duration)){
+				build.duration = {};
+			}
+			
 			build.duration.trend = 1;
 		}
 		
