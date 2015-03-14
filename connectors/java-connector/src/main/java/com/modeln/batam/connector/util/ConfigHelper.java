@@ -42,14 +42,6 @@ public class ConfigHelper {
 	private final static String QUEUE_PROPERTY_CONF = "com.modeln.batam.queue";
 	private final static String PUBLISHER_PROPERTY_CONF = "com.modeln.batam.publisher";
 	
-	private final static String HOST_SYSTEM_PROPERTY_CONF = "batam.host";
-	private final static String USER_SYSTEM_PROPERTY_CONF = "batam.username";
-	private final static String PASSWORD_SYSTEM_PROPERTY_CONF = "batam.password";
-	private final static String PORT_SYSTEM_PROPERTY_CONF = "batam.port";
-	private final static String VHOST_SYSTEM_PROPERTY_CONF = "batam.vhost";
-	private final static String QUEUE_SYSTEM_PROPERTY_CONF = "batam.queue";
-	private final static String PUBLISHER_SYSTEM_PROPERTY_CONF = "batam.publisher";
-	
 	public static String HOST;
 	public static String USER;
 	public static String PASSWORD;
@@ -89,13 +81,13 @@ public class ConfigHelper {
 			}
 			
 			// get the property value and return it
-			HOST = System.getProperty(HOST_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(HOST_SYSTEM_PROPERTY_CONF) : prop.getProperty(HOST_PROPERTY_CONF);
-			USER = System.getProperty(USER_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(USER_SYSTEM_PROPERTY_CONF) : prop.getProperty(USER_PROPERTY_CONF);
-			PASSWORD = System.getProperty(PASSWORD_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PASSWORD_SYSTEM_PROPERTY_CONF) : prop.getProperty(PASSWORD_PROPERTY_CONF);
-			PORT = Integer.valueOf(System.getProperty(PORT_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PORT_SYSTEM_PROPERTY_CONF) : prop.getProperty(PORT_PROPERTY_CONF));
-			VHOST = System.getProperty(VHOST_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(VHOST_SYSTEM_PROPERTY_CONF) : prop.getProperty(VHOST_PROPERTY_CONF);
-			QUEUE = System.getProperty(QUEUE_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(QUEUE_SYSTEM_PROPERTY_CONF) : prop.getProperty(QUEUE_PROPERTY_CONF);
-			PUBLISHER = System.getProperty(PUBLISHER_SYSTEM_PROPERTY_CONF) != null ? System.getProperty(PUBLISHER_SYSTEM_PROPERTY_CONF) : prop.getProperty(PUBLISHER_PROPERTY_CONF);
+			HOST = System.getProperty(HOST_PROPERTY_CONF) != null ? System.getProperty(HOST_PROPERTY_CONF) : prop.getProperty(HOST_PROPERTY_CONF);
+			USER = System.getProperty(USER_PROPERTY_CONF) != null ? System.getProperty(USER_PROPERTY_CONF) : prop.getProperty(USER_PROPERTY_CONF);
+			PASSWORD = System.getProperty(PASSWORD_PROPERTY_CONF) != null ? System.getProperty(PASSWORD_PROPERTY_CONF) : prop.getProperty(PASSWORD_PROPERTY_CONF);
+			PORT = Integer.valueOf(System.getProperty(PORT_PROPERTY_CONF) != null ? System.getProperty(PORT_PROPERTY_CONF) : prop.getProperty(PORT_PROPERTY_CONF));
+			VHOST = System.getProperty(VHOST_PROPERTY_CONF) != null ? System.getProperty(VHOST_PROPERTY_CONF) : prop.getProperty(VHOST_PROPERTY_CONF);
+			QUEUE = System.getProperty(QUEUE_PROPERTY_CONF) != null ? System.getProperty(QUEUE_PROPERTY_CONF) : prop.getProperty(QUEUE_PROPERTY_CONF);
+			PUBLISHER = System.getProperty(PUBLISHER_PROPERTY_CONF) != null ? System.getProperty(PUBLISHER_PROPERTY_CONF) : prop.getProperty(PUBLISHER_PROPERTY_CONF);
 			
 		} catch (IOException e) {
 			throw new PropertyConfigurationException("Check your property file is correctly configured.", e);

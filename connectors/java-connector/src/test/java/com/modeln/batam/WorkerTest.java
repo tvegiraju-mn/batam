@@ -858,5 +858,46 @@ public class WorkerTest {
 		ConnectorHelper.runAnalysis(build.getId(), null, true);
 		
 	}
+	
+	@Test
+	public void testStepUpdate() throws IOException {
+		//Create build
+		String buildName = "partial_build";
+		String buildId = "8_"+System.currentTimeMillis();
+		BuildEntry build = new BuildEntry();
+		build.setName(buildName);
+		build.setId(buildId);
+		build.setStartDate(new Date());
+		List steps = new ArrayList<Step>();
+		steps.add(new Step("test", new Date(System.currentTimeMillis()), null));
+		build.setSteps(steps);
+		ConnectorHelper.createBuild(build);
+
+		//update build	
+		build = new BuildEntry();
+		build.setId(buildId);
+		build.setEndDate(new Date());
+		build.setStatus("completed");
+		steps = new ArrayList<Step>();
+		steps.add(new Step("test", null, new Date(System.currentTimeMillis()+1000)));
+		steps.add(new Step("test2", new Date(System.currentTimeMillis()+1000), null));
+		build.setSteps(steps);
+		ConnectorHelper.updateBuild(build);
+		
+		//update build	
+		build = new BuildEntry();
+		build.setId(buildId);
+		build.setEndDate(new Date());
+		build.setStatus("completed");
+		steps = new ArrayList<Step>();
+		steps.add(new Step("test2", null, new Date(System.currentTimeMillis()+2000)));
+		build.setSteps(steps);
+		ConnectorHelper.updateBuild(build);
+		
+		build = new BuildEntry();
+		build.setId(buildId);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
+		
+	}
 
 }

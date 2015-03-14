@@ -68,18 +68,18 @@ It is also possible to override some or all properties defined within property f
 Below is an example where the host is defined/overridden using system properties.
 
 ```
-java -Dbatam.host=myotherhost -jar connector.jar -a <action_name> -f <json_file> -p <property_file>
+java -Dcom.modeln.batam.host=myotherhost -jar connector.jar -a <action_name> -f <json_file> -p <property_file>
 ```
  
 Here is the list of all System properties supported:
 
- - **-Dbatam.host=localhost** specify the message broker host.
- - **-Dbatam.username=username** specify the message broker user name.
- - **-Dbatam.password=password** specify the message broker password.
- - **-Dbatam.port=5672** specify the message broker port.
- - **-Dbatam.vhost=batam** specify the message broker VHost.
- - **-Dbatam.queue=batam** specify the message broker queue the connector publish data to.
- - **-Dbatam.publisher=on** when set to **off**, it prints messages in your console (stdout) instead of publishing them to the message broker. 
+ - **-Dcom.modeln.batam.host=localhost** specify the message broker host.
+ - **-Dcom.modeln.batam.username=username** specify the message broker user name.
+ - **-Dcom.modeln.batam.password=password** specify the message broker password.
+ - **-Dcom.modeln.batam.port=5672** specify the message broker port.
+ - **-Dcom.modeln.batam.vhost=batam** specify the message broker VHost.
+ - **-Dcom.modeln.batam.queue=batam** specify the message broker queue the connector publish data to.
+ - **-Dcom.modeln.batam.publisher=on** when set to **off**, it prints messages in your console (stdout) instead of publishing them to the message broker. 
 
 ## JSON objects
 ### BuildEntry
