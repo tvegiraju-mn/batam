@@ -175,7 +175,7 @@ public class Connector {
 		if(publisher == null){
 			publisher = ConfigHelper.PUBLISHER;
 		}
-		if("on".equals(publisher)){
+		if("on".equals(publisher) || "true".equals(publisher)){
 			this.publish = true;
 		}else{
 			this.publish = false;
