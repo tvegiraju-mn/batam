@@ -14,21 +14,31 @@ collections = {
 
 exports.run = runAnalysisEntrypoint;
 
-function runAnalysisEntrypoint(data, ack){
+function runAnalysisEntrypoint(data, ack, ackOnError){
 	var findBuildCallback = function (error, builds){
 		if(error){
 			return e.error(data, ack, false, "Find Build Operation failed.");
 		}
 		if(builds.length == 0){
-			return e.error(data, ack, true, "Build doesn't exist.");
+			return e.error(data, ack, true, "Build doesn't exist. Please make sure to create a build using the create_build action before analyzing it.");
 		}
 		if(builds.length  > 1){
-			return e.error(data, ack, true, "Multiple Builds were found.");
+			var corrupted_build_id = "";
+			for(var bi = 0; bi < builds.length ; bi++){
+				if(bi != 0){
+					corrupted_build_id += ",";
+				}
+				corrupted_build_id += builds[bi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple build were found. " +
+					"Clean corrupted build entries (ids: "+corrupted_build_id+") from your database. " +
+					"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
 		//TODO check build fields
 		
 		//fetch all information needed.
-		fetchAll(builds[0], data, ack);
+		fetchAll(builds[0], data, ack, ackOnError);
 	};
 	
 	//fetch build
@@ -45,7 +55,7 @@ function runAnalysisEntrypoint(data, ack){
 		}else if(!_.isNull(id)){
 			collections.builds.find({id: id, lifecycle_status : "completed", next_id : null}).toArray(findBuildCallback);
 		}else{
-			return e.error(data, ack, true, "build_id or build_name not valid.");
+			return e.error(data, ack, true, "Build Id or name not valid. Please, set at least one of them.");
 		}
 	}else{
 		//Checking for lifecycle_status being pending doesn't allows re analysis of existing build.
@@ -56,12 +66,12 @@ function runAnalysisEntrypoint(data, ack){
 		}else if(!_.isNull(id)){
 			collections.builds.find({id: id, lifecycle_status : "pending"}).toArray(findBuildCallback);
 		}else{
-			return e.error(data, ack, true, "build_id or build_name not valid.");
+			return e.error(data, ack, true, "Build Id or name not valid. Please, set at least one of them.");
 		}
 	}
 }
 
-function fetchAll(build, data, ack){
+function fetchAll(build, data, ack, ackOnError){
 	var findPreviousBuildsCallback = function (error, previous_builds){
 		var findReportsCallback = function (error, reports){
 			var findPreviousReportsCallback = function (error, previous_reports){
@@ -71,7 +81,7 @@ function fetchAll(build, data, ack){
 						return e.error(data, ack, false, "Find Tests Operation failed.");
 					}
 					
-					processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack);
+					processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, ackOnError);
 				};
 				
 				if(error){
@@ -98,7 +108,17 @@ function fetchAll(build, data, ack){
 		}
 		
 		if(previous_builds.length  > 1){
-			return e.error(data, ack, true, "Multiple previous Build were found.");
+			var previous_corrupted_build_id = "";
+			for(var pbi = 0; pbi < previous_builds.length ; pbi++){
+				if(pbi != 0){
+					previous_corrupted_build_id += ",";
+				}
+				previous_corrupted_build_id += previous_builds[pbi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple previous build were found. " +
+					"Clean previous corrupted build entries (ids: "+previous_corrupted_build_id+") from your database. " +
+					"Keep the oldest entry having previous_id field non null and next_id field null.");
 		}
 		
 		//Fetch reports
@@ -115,7 +135,7 @@ function fetchAll(build, data, ack){
 	collections.builds.find({id: build.previous_id}).toArray(findPreviousBuildsCallback);	
 }
 
-function processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack){	
+function processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, ackOnError){	
 	var updatePreviousTestInfoCallback = function (error, count){
 		if(error) {
 			return e.error(data, ack, false, "Update Test operation failed.");
@@ -211,10 +231,12 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 			//If there is are previous reports, we look for the one with same name then we set the trend
 			if(previous_reports.length != 0){
 				var previousIndex = -1;
-				for(i = 0; i < previous_reports.length; i++){
+				for(var i = 0; i < previous_reports.length; i++){
 					if(reports[index].name == previous_reports[i].name){
 						if(previousIndex != -1){
-							return e.error(data, ack, true, "Multiple previous report found with same name.");
+							return e.error(data, ack, true, "Multiple previous reports were found with same name "+reports[index].name+". " +
+									"Clean previous corrupted report entries from your database. " +
+									"Keep the oldest entry having name set to "+reports[index].name+" and next_id field set to null.");
 						}
 						
 						previousIndex = i;
@@ -255,13 +277,17 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 					}
 					
 					//set duration info to report
-					if(previous_reports[previousIndex].duration.value == reports[index].duration.value){
-						reports[index].duration.trend = 0;
-					}else if(previous_reports[previousIndex].duration.value > reports[index].duration.value){
-						reports[index].duration.trend = -1;
+					if(!_.isNull(previous_reports[previousIndex].duration) && !_.isUndefined(previous_reports[previousIndex].duration)){
+						if(previous_reports[previousIndex].duration.value == reports[index].duration.value){
+							reports[index].duration.trend = 0;
+						}else if(previous_reports[previousIndex].duration.value > reports[index].duration.value){
+							reports[index].duration.trend = -1;
+						}else{
+							reports[index].duration.trend = 1;
+						}
 					}else{
 						reports[index].duration.trend = 1;
-					}
+					}						
 			
 					//Update previous report next_id
 					//This step can be done async
@@ -279,23 +305,25 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 		}
 	}
 	
-	finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack);
+	finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack, ackOnError);
 }
 
-function finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack){
+function finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack, ackOnError){
 	var updatePreviousBuildInfoCallback = function (error, count){
 		if(error) {
-			return e.error(data, ack, true, "Update Build operation failed.");
+			return e.error(build, ack, true, "Update Build operation failed.");
 	    }
 		console.log("-- "+count+ " previous build updated.");
 	};
 	var updateBuildInfoCallback = function (error, count){
 		if(error) {
-			return e.error(data, ack, true, "Update Build operation failed.");
+			return e.error(build, ack, true, "Update Build operation failed.");
 	    }
 		console.log("-- "+count+ " build updated.");
 		
-		ack.acknowledge();
+		if(!ackOnError){
+			ack.acknowledge();
+		}
 	};
 	
 	build.errors = {};

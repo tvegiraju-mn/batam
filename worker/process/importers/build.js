@@ -2,6 +2,7 @@ var _ = require('underscore');
 var util = require('util');
 var config = require('../../config.js');
 var e = require('../error/errorHandler.js');
+var analyzer = require('../analyzer.js');
 
 var mongoskin = require('mongoskin'),
 	dbUrl = process.env.MONGOHQ_URL || config.database.URL,
@@ -79,7 +80,17 @@ function createBuildEntrypoint(data, ack){
 			}
 			
 			if(previous_builds.length  > 1){
-				return e.error(data, ack, true, "Multiple previous build were found.");
+				var previous_corrupted_build_id = "";
+				for(var pbi = 0; pbi < previous_builds.length ; pbi++){
+					if(pbi != 0){
+						previous_corrupted_build_id += ",";
+					}
+					previous_corrupted_build_id += previous_builds[pbi].id;
+				}
+				
+				return e.error(data, ack, true, "Multiple previous build were found. " +
+					"Clean previous corrupted build entries (ids: "+previous_corrupted_build_id+") from your database. " +
+					"Keep the oldest entry having previous_id field non null and next_id field null.");
 			}
 			//If no previous build were found.
 			if(previous_builds.length == 0){
@@ -101,7 +112,14 @@ function createBuildEntrypoint(data, ack){
     	
     	//Check if build already exist.
     	if(count > 0){
-    		return e.error(data, ack, true, "Build already exists.");
+    		var dummyAck = {};
+    		dummyAck.acknowledge = function(){};
+    		e.error(data, dummyAck, true, "Build with id "+build.id+" and name "+build.name+" already exists. " +
+    			"It may be because, the previous related build didn't get analyzed. "+
+    			"Kicking off the previous build analysis first.");
+    		
+    		//Run analysis (It will fail if we have more than one build to process)
+    		analyzer.run(data, ack, true);
     	}
     	
     	//Fetch previous build in order to set previous_id attribute
@@ -304,10 +322,20 @@ function updateBuildEntrypoint(data, ack){
 			return e.error(data, ack, false, "Find Build Operation failed.");
 		}
 		if(builds.length == 0){
-			return e.error(data, ack, true, "Build doesn't exist.");
+			return e.error(data, ack, true, "Build doesn't exist. Please make sure to create a build using the create_build action before to update it.");
 		}
 		if(builds.length  > 1){
-			return e.error(data, ack, true, "Multiple Build were found.");
+			var corrupted_build_id = "";
+			for(var bi = 0; bi < builds.length ; bi++){
+				if(bi != 0){
+					corrupted_build_id += ",";
+				}
+				corrupted_build_id += builds[bi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple build were found. " +
+				"Clean corrupted build entries (ids: "+corrupted_build_id+") from your database. " +
+				"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
 		
 		//Update build.
@@ -325,7 +353,7 @@ function updateBuildEntrypoint(data, ack){
 	}else if(!_.isNull(id)){
 		collections.builds.find({id: id, lifecycle_status : "pending"}).toArray(findBuildCallback);
 	}else{
-		return e.error(data, ack, true, "Id or name not valid.");
+		return e.error(data, ack, true, "Build Id or name not valid. Please, set at least one of them.");
 	}
 }
 

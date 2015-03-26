@@ -1,6 +1,5 @@
 package com.modeln.batam.junit.listener;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
@@ -30,7 +29,8 @@ import com.modeln.batam.connector.ConnectorHelper;
  *              </property>
  *          </properties>
  *          <systemPropertyVariables>
- *          	<batam.report.name>Incentives Java build</batam.report.name>
+ *          	<batam.build.name>My Build</batam.report.name>
+ *          	<batam.report.name>TestSuite Report</batam.report.name>
  *              <batam.publish>true</batam.publish>
  *          </systemPropertyVariables>
  *          <testFailureIgnore>true</testFailureIgnore>
@@ -42,6 +42,8 @@ import com.modeln.batam.connector.ConnectorHelper;
  * 
  * The listener can be configured using 3 properties.
  * <ul>
+ *  <li><b>batam.build.name</b> : Specify the Build Name reports need to be registered into (optional if batam.build.id is defined).</li>
+ *  <li><b>batam.build.id</b> : Specify the Build Id reports need to be registered into (optional if batam.build.name is defined and unique across your BATAM builds).</li>
  * 	<li><b>batam.report.name</b> : Specify the Report Name tests need to be registered into (optional if batam.report.id is defined).</li>
  * 	<li><b>batam.report.id</b> : Specify the Report Id tests need to be registered into (optional if batam.report.name is defined and unique across your BATAM build reports).</li>
  *  <li><b>batam.publish</b> : Publish information to the BATAM system when set to true, Otherwise set to false.</li>
@@ -50,19 +52,33 @@ import com.modeln.batam.connector.ConnectorHelper;
  *
  */
 public class BatamRunListener extends RunListener {
-	private final static String BATAM_PUBLISH_PROPERTY = "batam.bublish";
+	private final static String BATAM_PUBLISH_PROPERTY = "batam.publish";
 	
 	private final static String BATAM_REPORT_ID_PROPERTY = "batam.report.id";
 	
 	private final static String BATAM_REPORT_NAME_PROPERTY = "batam.report.name";
 	
-    private Date startDate = null;
+	private final static String BATAM_BUILD_ID_PROPERTY = "batam.build.id";
+	
+	private final static String BATAM_BUILD_NAME_PROPERTY = "batam.build.name";
 
-    private Date endDate = null;
-
-    public void testStarted(Description description) throws IOException {
-        startDate = new Date();
+    public void testRunStarted(Description description) throws Exception {
+    	String publish = System.getProperty(BATAM_PUBLISH_PROPERTY);
+        String reportId = System.getProperty(BATAM_REPORT_ID_PROPERTY);
+        reportId = reportId != null && !reportId.isEmpty() ? reportId : null;
+        String reportName = System.getProperty(BATAM_REPORT_NAME_PROPERTY);
+        reportName = reportName != null && !reportName.isEmpty() ? reportName : null;
+        String buildId = System.getProperty(BATAM_BUILD_ID_PROPERTY);
+        buildId = buildId != null && !buildId.isEmpty() ? buildId : null;
+        String buildName = System.getProperty(BATAM_BUILD_NAME_PROPERTY);
+        buildName = buildName != null && !buildName.isEmpty() ? buildName : null;
         
+        if("true".equals(publish)) {
+            ConnectorHelper.createReport(reportId, reportName, buildId, buildName, null, new Date(), null, null, null);
+        }
+    }
+    
+    public void testStarted(Description description) throws Exception {        
         String publish = System.getProperty(BATAM_PUBLISH_PROPERTY);
         String reportId = System.getProperty(BATAM_REPORT_ID_PROPERTY);
         reportId = reportId != null && !reportId.isEmpty() ? reportId : null;
@@ -74,7 +90,7 @@ public class BatamRunListener extends RunListener {
             		reportName,
                     description.getClassName() + "." + description.getMethodName(),
                     null,
-                    startDate,
+                    new Date(),
                     null,
                     null,
                     null,
@@ -82,8 +98,7 @@ public class BatamRunListener extends RunListener {
         }
     }
 
-    public void testFinished(Description description) throws IOException {
-        endDate = new Date();
+    public void testFinished(Description description) throws Exception {
         
         String publish = System.getProperty(BATAM_PUBLISH_PROPERTY);
         String reportId = System.getProperty(BATAM_REPORT_ID_PROPERTY);
@@ -97,7 +112,7 @@ public class BatamRunListener extends RunListener {
                     description.getClassName() + "." + description.getMethodName(),
                     null,
                     null,
-                    endDate,
+                    new Date(),
                     "pass",
                     null,
                     null,
@@ -105,7 +120,7 @@ public class BatamRunListener extends RunListener {
         }
     }
 
-    public void testRunFinished(Result result) throws IOException {
+    public void testRunFinished(Result result) throws Exception {
         List<Failure> failures = result.getFailures();
         
         String publish = System.getProperty(BATAM_PUBLISH_PROPERTY);
@@ -133,6 +148,16 @@ public class BatamRunListener extends RunListener {
                         failure.getException().getMessage() + " " + exception,
                         false);
             }
+        }
+        
+        String buildId = System.getProperty(BATAM_BUILD_ID_PROPERTY);
+        buildId = buildId != null && !buildId.isEmpty() ? buildId : null;
+        String buildName = System.getProperty(BATAM_BUILD_NAME_PROPERTY);
+        buildName = buildName != null && !buildName.isEmpty() ? buildName : null;
+        
+        if("true".equals(publish)) {
+            ConnectorHelper.updateReportEndDate(reportId, reportName, buildId, buildName, new Date());
+            ConnectorHelper.updateReportStatus(reportId, reportName, buildId, buildName, "completed");
         }
     }
 }

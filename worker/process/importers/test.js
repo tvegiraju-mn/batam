@@ -21,10 +21,21 @@ function createTestEntrypoint(data, ack){
 			return e.error(data, ack, false, "Find Report Operation failed.");
 		}
 		if(reports.length == 0){
-			return e.error(data, ack, true, "Report doesn't exist.");
+			return e.error(data, ack, true, "Report doesn't exist. "+
+			"Please make sure to create a report using the create_report action before to create a test (using create_test action) in it.");
 		}
 		if(reports.length  > 1){
-			return e.error(data, ack, true, "Multiple Reports were found.");
+			var corrupted_report_id = "";
+			for(var bi = 0; bi < reports.length ; bi++){
+				if(bi != 0){
+					corrupted_report_id += ",";
+				}
+				corrupted_report_id += reports[bi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple builds were found. " +
+					"Clean corrupted report entries (ids: "+corrupted_report_id+") from your database. " +
+					"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
 		
 		//Create test.
@@ -42,7 +53,7 @@ function createTestEntrypoint(data, ack){
 	}else if(!_.isNull(reportId)){
 		collections.reports.find({id: reportId, lifecycle_status : "pending"}).toArray(findReportsCallback);
 	}else{
-		return e.error(data, ack, true, "Report_id or report_name not valid.");
+		return e.error(data, ack, true, "Report Id or name not valid. Please, set at least one of them.");
 	}
 }
 
@@ -95,7 +106,17 @@ function createTest(report, data, ack){
 			}
 			
 			if(tests.length  > 1){
-				return e.error(data, ack, true, "Multiple Tests were found.");
+				var corrupted_test_id = "";
+				for(var ti = 0; ti < tests.length ; ti++){
+					if(ti != 0){
+						corrupted_test_id += ",";
+					}
+					corrupted_test_id += tests[ti].id;
+				}
+				
+				return e.error(data, ack, true, "Multiple tests were found. " +
+						"Clean corrupted tests entries (ids: "+corrupted_test_id+") from your database. " +
+						"Keep the oldest desired test entry.");
 			}
 
 			//If previous test doesn't exist
@@ -149,7 +170,8 @@ function createTest(report, data, ack){
     	
     	//Check if test already exist.
     	if(count > 0){
-    		return e.error(data, ack, true, "Test already exists.");
+    		return e.error(data, ack, true, "Test with test name "+test.name+" already exists. " +
+    				"Please, set a unique test name per report.");
     	}
     	var previous_report_id = -1 //-1 should return nothing.
     	//If there is no previous report then there is no previous tests.
@@ -250,10 +272,22 @@ function updateTestEntrypoint(data, ack){
 			return e.error(data, ack, false, "Find Report Operation failed.");
 		}
 		if(reports.length == 0){
-			return e.error(data, ack, true, "Report doesn't exist.");
+			return e.error(data, ack, true, "Report doesn't exist. "+
+					"Please make sure to create a report using the create_report action before to create a test (using create_test action) in it.");
 		}
 		if(reports.length  > 1){
-			return e.error(data, ack, true, "Multiple Reports were found.");
+			var corrupted_report_id = "";
+			for(var ri = 0; ri < reports.length ; ri++){
+				if(ri != 0){
+					corrupted_report_id += ",";
+				}
+				corrupted_report_id += reports[ri].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple reports were found. " +
+					"Clean corrupted report entries (ids: "+corrupted_report_id+") from your database. " +
+					"Keep the oldest entry having lifecycle_status field set to pending if override field is set to false.  "+
+					"Otherwise keep the oldest entry having lifecycle_status field set to completed if override field is set to true.");
 		}
 		
 		//Create test.
@@ -273,7 +307,7 @@ function updateTestEntrypoint(data, ack){
 		}else if(!_.isNull(reportId)){
 			collections.reports.find({id: reportId, lifecycle_status : "completed", next_id : null}).toArray(findReportCallback);
 		}else{
-			return e.error(data, ack, true, "Report_id or report_name not valid.");
+			return e.error(data, ack, true, "Report Id or name not valid. Please, set at least one of them.");
 		}
 	}else{
 		if((_.isUndefined(reportId) || _.isNull(reportId)) && !_.isNull(reportName)){
@@ -284,7 +318,7 @@ function updateTestEntrypoint(data, ack){
 			
 			collections.reports.find({id: reportId, lifecycle_status : "pending", next_id : null}).toArray(findReportCallback);
 		}else{
-			return e.error(data, ack, true, "Report_id or report_name not valid.");
+			return e.error(data, ack, true, "Report Id or name not valid. Please, set at least one of them.");
 		}
 	}
 }
@@ -298,17 +332,27 @@ function updateTest(report, data, ack){
 			
 		    ack.acknowledge();
 		};
-		var findPreviousTestCallback = function (error, tests){
+		var findPreviousTestCallback = function (error, previous_tests){
     		if(error){
 				return e.error(data, ack, false, "Find previous Test Operation failed.");
 			}
 			
-			if(tests.length  > 1){
-				return e.error(data, ack, true, "Multiple Previous Tests were found.");
+			if(previous_tests.length  > 1){
+				var previous_corrupted_test_id = "";
+				for(var pti = 0; pti < previous_tests.length ; pti++){
+					if(pti != 0){
+						previous_corrupted_test_id += ",";
+					}
+					previous_corrupted_test_id += previous_tests[pti].id;
+				}
+				
+				return e.error(data, ack, true, "Multiple previous tests were found. " +
+						"Clean previous corrupted test entries (ids: "+previous_corrupted_test_id+") from your database. " +
+						"Keep the oldest entry having id field set to test previous_id field.");
 			}
 			
 			//If previous test doesn't exist
-			if(tests.length == 0 ){
+			if(previous_tests.length == 0 ){
 				test.regression = "n/a";
 				test.duration.trend = 1;
 				
@@ -316,7 +360,7 @@ function updateTest(report, data, ack){
 				collections.tests.updateById(test._id, {$set: test}, updateTestInfoCallback);
 			}else{
 				//If previous test exist.
-				var previous_test = tests[0];
+				var previous_test = previous_tests[0];
 				if(previous_test.status == "pass" && test.status == "fail"){
 					test.regression = "new";
 				}else if(previous_test.status == "fail" && test.status == "pass"){
@@ -348,10 +392,21 @@ function updateTest(report, data, ack){
 			return e.error(data, ack, false, "Find Test Operation failed.");
 		}
 		if(tests.length == 0){
-			return e.error(data, ack, true, "Test doesn't exist.");
+			return e.error(data, ack, true, "Test doesn't exist. "+
+					"Please make sure to create a test using the create_test action before to update a test (using update_test action) in it.");
 		}
 		if(tests.length  > 1){
-			return e.error(data, ack, true, "Multiple Tests were found.");
+			var corrupted_test_id = "";
+			for(var ti = 0; ti < tests.length ; ti++){
+				if(ti != 0){
+					corrupted_test_id += ",";
+				}
+				corrupted_test_id += tests[ti].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple tests were found. " +
+					"Clean corrupted test entries (ids: "+corrupted_test_id+") from your database. " +
+					"Keep the oldest desired test entry.");
 		}
 		
 		var buildId = data.build_id;

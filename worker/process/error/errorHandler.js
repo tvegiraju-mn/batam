@@ -14,13 +14,14 @@ exports.error = errorEntrypoint;
 function errorEntrypoint(data, ack, persist, message){
 	var insertError = function (error, resp){
 		if(error) {
-	    	return e.error(data, ack, false, "Insert new error failed.");
+			console.log("EXCEPTION: Insert new error failed.");
+	    	return;
 	    }
 		
 		console.log("-- Insert new error.");
 	};
 	
-	console.log("An Error occured:");
+	console.log("An Error occurred:");
 	console.log("data: "+util.inspect(data, true, null));
 	console.log("message: "+message);
 	if(persist == true){

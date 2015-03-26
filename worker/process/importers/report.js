@@ -19,10 +19,21 @@ function createReportEntrypoint(data, ack){
 			return e.error(data, ack, false, "Find Build Operation failed.");
 		}
 		if(builds.length == 0){
-			return e.error(data, ack, true, "Build doesn't exist.");
+			return e.error(data, ack, true, "Build doesn't exist. "+
+				"Please make sure to create a build using the create_build action before to create a report (using create_report action) in it.");
 		}
 		if(builds.length  > 1){
-			return e.error(data, ack, true, "Multiple Build were found.");
+			var corrupted_build_id = "";
+			for(var bi = 0; bi < builds.length ; bi++){
+				if(bi != 0){
+					corrupted_build_id += ",";
+				}
+				corrupted_build_id += builds[bi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple builds were found. " +
+					"Clean corrupted build entries (ids: "+corrupted_build_id+") from your database. " +
+					"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
 		
 		//Create report.
@@ -40,7 +51,7 @@ function createReportEntrypoint(data, ack){
 	}else if(!_.isNull(buildId)){
 		collections.builds.find({id: buildId, lifecycle_status : "pending"}).toArray(findPendingBuildCallback);
 	}else{
-		return e.error(data, ack, true, "Build_id or build_name not valid.");
+		return e.error(data, ack, true, "Build Id or name not valid. Please, set at least one of them.");
 	}
 }
 
@@ -63,7 +74,17 @@ function createReport(build, data, ack){
 			}
 			
 			if(previous_reports.length > 1){
-				return e.error(data, ack, true, "Multiple Reports were found.");
+				var previous_corrupted_report_id = "";
+				for(var pri = 0; pri < previous_reports.length ; pri++){
+					if(pri != 0){
+						previous_corrupted_report_id += ",";
+					}
+					previous_corrupted_report_id += previous_reports[pri].id;
+				}
+				
+				return e.error(data, ack, true, "Multiple previous reports were found. " +
+						"Clean previous corrupted report entries (ids: "+previous_corrupted_report_id+") from your database. " +
+						"Keep the oldest entry having lifecycle_status set to completed and next_id field set to null.");
 			}
 			
 			//If no previous reports were found.
@@ -86,7 +107,8 @@ function createReport(build, data, ack){
     	
     	//Check if report already exist.
     	if(count > 0){
-    		return e.error(data, ack, true, "Report already exists.");
+    		return e.error(data, ack, true, "Report with id "+report.id+" and name "+report.name+" already exists. " +
+			"Please, set a unique report id or let the system define one by only specifying the report name.");
     	}
     	
     	//Fetch previous report in order to set previous_id attribute
@@ -172,10 +194,21 @@ function updateReportEntrypoint(data, ack){
 			return e.error(data, ack, false, "Find Build Operation failed.");
 		}
 		if(builds.length == 0){
-			return e.error(data, ack, true, "Build doesn't exist.");
+			return e.error(data, ack, true, "Build doesn't exist. "+
+			"Please make sure to create a build using the create_build action before to update a report (using update_report action) in it.");
 		}
 		if(builds.length  > 1){
-			return e.error(data, ack, true, "Multiple Builds were found.");
+			var corrupted_build_id = "";
+			for(var bi = 0; bi < builds.length ; bi++){
+				if(bi != 0){
+					corrupted_build_id += ",";
+				}
+				corrupted_build_id += builds[bi].id;
+			}
+			
+			return e.error(data, ack, true, "Multiple builds were found. " +
+					"Clean corrupted build entries (ids: "+corrupted_build_id+") from your database. " +
+					"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
 
 		//Update report.
@@ -204,10 +237,19 @@ function updateBuildReport(build, data, ack){
 			return e.error(data, ack, false, "Find Report Operation failed.");
 		}
 		if(reports.length == 0){
-			return e.error(data, ack, true, "Report doesn't exist.");
+			return e.error(data, ack, true, "Report doesn't exist. Please make sure to create a report using the create_report action before to update it.");
 		}
 		if(reports.length  > 1){
-			return e.error(data, ack, true, "Multiple Reports were found.");
+			var corrupted_report_id = "";
+			for(var ri = 0; ri < reports.length ; ri++){
+				if(ri != 0){
+					corrupted_report_id += ",";
+				}
+				corrupted_report_id += corrupted_report_id[ri].id;
+			}
+			return e.error(data, ack, true, "Multiple reports were found. " +
+					"Clean corrupted reports entries (ids: "+corrupted_report_id+") from your database. " +
+					"Keep the oldest report entry having lifecycle_status field set to pending.");
 		}
 		
 		//Update report.

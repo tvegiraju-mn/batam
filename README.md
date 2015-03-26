@@ -42,10 +42,8 @@ Connector integration examples:
 
 
 ## Install
-- Install a [MongoDB](http://www.mongodb.org/) database.
-- Install [RabbitMQ](http://www.rabbitmq.com/).
-- Install, configure and run the webapp module.
-- Install, configure and run one or multiple workers.
+- Install, configure and run one or multiple workers (See [Documentation](https://github.com/ModelN/batam/tree/master/worker) ).
+- Install, configure and run the webapp module (See [Documentation](https://github.com/ModelN/batam/tree/master/webapp) ).
 - Use connectors in your build environment.
 
 ## License
