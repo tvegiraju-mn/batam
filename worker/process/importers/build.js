@@ -112,18 +112,20 @@ function createBuildEntrypoint(data, ack){
     	
     	//Check if build already exist.
     	if(count > 0){
-    		var dummyAck = {};
-    		dummyAck.acknowledge = function(){};
-    		e.error(data, dummyAck, true, "Build with id "+build.id+" and name "+build.name+" already exists. " +
+    		e.info(data, "Build with id "+id+" and name "+name+" already exists. " +
     			"It may be because, the previous related build didn't get analyzed. "+
     			"Kicking off the previous build analysis first.");
     		
     		//Run analysis (It will fail if we have more than one build to process)
-    		analyzer.run(data, ack, true);
+    		analyzer.run(data, ack, 
+    			function(){
+    				console.log("-- Resume Build creation.");
+    				createBuildEntrypoint(data, ack);
+    			});
+    	}else{
+    		//Fetch previous build in order to set previous_id attribute
+    		collections.builds.find({name: build.name, lifecycle_status : "completed", next_id : null}).toArray(fetchPreviousBuildCallback);
     	}
-    	
-    	//Fetch previous build in order to set previous_id attribute
-    	collections.builds.find({name: build.name, lifecycle_status : "completed", next_id : null}).toArray(fetchPreviousBuildCallback);
 	};
 	
 	var id = data.id;
@@ -156,11 +158,10 @@ function createBuildEntrypoint(data, ack){
 		//If id is not given, we generate one
 		var d = new Date();
 		var time = d.getTime();
-		id = name+"_"+time;
+		build.id = name+"_"+time;
 	}else{
-		//id = id.replace(" ","_");
+		build.id = id;
 	}
-	build.id = id;
 
 	//Check start
 	if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
@@ -311,7 +312,15 @@ function createBuildEntrypoint(data, ack){
 	}
 
 	//Before to create a new build, we check it doesn't exist already.
-	collections.builds.count({id: build.id, name: build.name}, checkBuildExist);
+	if((_.isUndefined(id) || _.isNull(id)) && !_.isNull(name)){
+		collections.builds.count({name: name, lifecycle_status : "pending"}, checkBuildExist);	
+	}else if(!_.isNull(id) && !_.isNull(name)){
+		collections.builds.count({id: id, name: name, lifecycle_status : "pending"}, checkBuildExist);
+	}else if(!_.isNull(id)){
+		collections.builds.count({id: id, lifecycle_status : "pending"}, checkBuildExist);
+	}else{
+		return e.error(data, ack, true, "Build Id or name not valid. Please, set at least one of them.");
+	}
 }
 
 exports.update = updateBuildEntrypoint;

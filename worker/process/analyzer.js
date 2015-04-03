@@ -14,7 +14,7 @@ collections = {
 
 exports.run = runAnalysisEntrypoint;
 
-function runAnalysisEntrypoint(data, ack, ackOnError){
+function runAnalysisEntrypoint(data, ack, callback){
 	var findBuildCallback = function (error, builds){
 		if(error){
 			return e.error(data, ack, false, "Find Build Operation failed.");
@@ -22,7 +22,7 @@ function runAnalysisEntrypoint(data, ack, ackOnError){
 		if(builds.length == 0){
 			return e.error(data, ack, true, "Build doesn't exist. Please make sure to create a build using the create_build action before analyzing it.");
 		}
-		if(builds.length  > 1){
+		if(builds.length > 1){
 			var corrupted_build_id = "";
 			for(var bi = 0; bi < builds.length ; bi++){
 				if(bi != 0){
@@ -35,10 +35,11 @@ function runAnalysisEntrypoint(data, ack, ackOnError){
 					"Clean corrupted build entries (ids: "+corrupted_build_id+") from your database. " +
 					"Keep the oldest entry having lifecycle_status field set to pending.");
 		}
+		
 		//TODO check build fields
 		
 		//fetch all information needed.
-		fetchAll(builds[0], data, ack, ackOnError);
+		fetchAll(builds[0], data, ack, callback);
 	};
 	
 	//fetch build
@@ -71,7 +72,7 @@ function runAnalysisEntrypoint(data, ack, ackOnError){
 	}
 }
 
-function fetchAll(build, data, ack, ackOnError){
+function fetchAll(build, data, ack, callback){
 	var findPreviousBuildsCallback = function (error, previous_builds){
 		var findReportsCallback = function (error, reports){
 			var findPreviousReportsCallback = function (error, previous_reports){
@@ -81,7 +82,7 @@ function fetchAll(build, data, ack, ackOnError){
 						return e.error(data, ack, false, "Find Tests Operation failed.");
 					}
 					
-					processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, ackOnError);
+					processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, callback);
 				};
 				
 				if(error){
@@ -135,7 +136,7 @@ function fetchAll(build, data, ack, ackOnError){
 	collections.builds.find({id: build.previous_id}).toArray(findPreviousBuildsCallback);	
 }
 
-function processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, ackOnError){	
+function processAnalysis(data, build, previous_builds, reports, previous_reports, tests, ack, callback){	
 	var updatePreviousTestInfoCallback = function (error, count){
 		if(error) {
 			return e.error(data, ack, false, "Update Test operation failed.");
@@ -157,15 +158,20 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 
 	var total_failures = 0;
 	var total_errors = 0;
+	var total_passes = 0;
+	var total_tests = 0;
 	//If build has no report.
 	if(reports.length != 0){
 		
 		//For each current reports
 		for(var index = 0; index < reports.length; index++){
-			var total_test = 0;
-			var total_regressions = 0;
-			var total_new_regression = 0;
-			var total_fixed_regression = 0;
+			var total_report_tests = 0;
+			var total_report_regressions = 0;
+			var total_report_new_regression = 0;
+			var total_report_fixed_regression = 0;
+			var total_report_failures = 0;
+			var total_report_errors = 0;
+			var total_report_passes = 0;
 			
 			//For each current Tests
 			for(var j = 0; j < tests.length; j++){
@@ -174,22 +180,27 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 					//TODO check current test fields.
 					
 					//Count tests infos.
-					total_test ++;
+					total_report_tests ++;
+					total_tests ++;
 		
 					if(tests[j].status != "pass"){
-						total_regressions ++;
+						total_report_regressions ++;
 						if(tests[j].regression == "new"){
-							total_new_regression ++;
+							total_report_new_regression ++;
 						}
 					}else if(tests[j].status == "pass"){
+						total_report_passes ++;
+						total_passes ++;
 						if(tests[j].regression == "fixed"){
-							total_fixed_regression ++;
+							total_report_fixed_regression ++;
 						}
 					}
 					if(tests[j].status == "error"){
+						total_report_errors ++;
 						total_errors ++;
 					}
 					if(tests[j].status == "fail"){
+						total_report_failures ++;
 						total_failures ++;
 					}
 		
@@ -205,29 +216,61 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 			//set tests info to report
 			reports[index].tests = {};
 			reports[index].tests.all = {};
-			reports[index].tests.all.value = total_test;
-			if(total_test > 0){
+			reports[index].tests.all.value = total_report_tests;
+			if(total_report_tests > 0){
 				reports[index].tests.all.trend = 1;
 			}else{
 				reports[index].tests.all.trend = 0;
 			}
+			
+			reports[index].tests.failures = {};
+			reports[index].tests.failures.value = total_report_failures;
+			if(total_report_failures > 0){
+				reports[index].tests.failures.trend = 1;
+			}else{
+				reports[index].tests.failures.trend = 0;
+			}
+			
+			reports[index].tests.errors = {};
+			reports[index].tests.errors.value = total_report_errors;
+			if(total_report_errors > 0){
+				reports[index].tests.errors.trend = 1;
+			}else{
+				reports[index].tests.errors.trend = 0;
+			}
+			
+			reports[index].tests.passes = {};
+			reports[index].tests.passes.value = total_report_passes;
+			if(total_report_passes > 0){
+				reports[index].tests.passes.trend = 1;
+			}else{
+				reports[index].tests.passes.trend = 0;
+			}
+			
 			reports[index].tests.regressions = {};
-			reports[index].tests.regressions.value = total_regressions;
-			if(total_regressions > 0){
+			reports[index].tests.regressions.value = total_report_regressions;
+			if(total_report_regressions > 0){
 				reports[index].tests.regressions.trend = 1;
 			}else{
 				reports[index].tests.regressions.trend = 0;
 			}	
+			
 			reports[index].tests.new_regressions = {};
-			reports[index].tests.new_regressions.value = total_regressions;
-			if(total_regressions > 0){
+			reports[index].tests.new_regressions.value = total_report_new_regression;
+			if(total_report_new_regression > 0){
 				reports[index].tests.new_regressions.trend = 1;
 			}else{
 				reports[index].tests.new_regressions.trend = 0;
 			}
+			
 			reports[index].tests.fixed_regressions = {};
-			reports[index].tests.fixed_regressions.value = total_fixed_regression;
-			reports[index].tests.fixed_regressions.trend = 0;
+			reports[index].tests.fixed_regressions.value = total_report_fixed_regression;
+			if(total_report_fixed_regression > 0){
+				reports[index].tests.fixed_regressions.trend = 1;
+			}else{
+				reports[index].tests.fixed_regressions.trend = 0;
+			}
+			
 			//If there is are previous reports, we look for the one with same name then we set the trend
 			if(previous_reports.length != 0){
 				var previousIndex = -1;
@@ -243,34 +286,57 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 					}
 				}
 				if(previousIndex != -1){
-					reports[index].tests.new_regressions.value = total_new_regression;
-					if(previous_reports[previousIndex].tests.all.value == total_test){
+					if(previous_reports[previousIndex].tests.all.value == total_report_tests){
 						reports[index].tests.all.trend = 0;
-					}else if(previous_reports[previousIndex].tests.all.value > total_test){
+					}else if(previous_reports[previousIndex].tests.all.value > total_report_tests){
 						reports[index].tests.all.trend = -1;
 					}else{
 						reports[index].tests.all.trend = 1;
 					}
+					
+					if(previous_reports[previousIndex].tests.failures.value == total_report_failures){
+						reports[index].tests.failures.trend = 0;
+					}else if(previous_reports[previousIndex].tests.failures.value > total_report_failures){
+						reports[index].tests.failures.trend = -1;
+					}else{
+						reports[index].tests.failures.trend = 1;
+					}
+					
+					if(previous_reports[previousIndex].tests.errors.value == total_report_errors){
+						reports[index].tests.errors.trend = 0;
+					}else if(previous_reports[previousIndex].tests.errors.value > total_report_errors){
+						reports[index].tests.errors.trend = -1;
+					}else{
+						reports[index].tests.errors.trend = 1;
+					}
+					
+					if(previous_reports[previousIndex].tests.passes.value == total_report_passes){
+						reports[index].tests.passes.trend = 0;
+					}else if(previous_reports[previousIndex].tests.passes.value > total_report_passes){
+						reports[index].tests.passes.trend = -1;
+					}else{
+						reports[index].tests.passes.trend = 1;
+					}
 				
-					if(previous_reports[previousIndex].tests.regressions.value == total_regressions){
+					if(previous_reports[previousIndex].tests.regressions.value == total_report_regressions){
 						reports[index].tests.regressions.trend = 0;
-					}else if(previous_reports[previousIndex].tests.regressions.value > total_regressions){
+					}else if(previous_reports[previousIndex].tests.regressions.value > total_report_regressions){
 						reports[index].tests.regressions.trend = -1;
 					}else{
 						reports[index].tests.regressions.trend = 1;
 					}
 					
-					if(previous_reports[previousIndex].tests.new_regressions.value == total_new_regression){
+					if(previous_reports[previousIndex].tests.new_regressions.value == total_report_new_regression){
 						reports[index].tests.new_regressions.trend = 0;
-					}else if(previous_reports[previousIndex].tests.new_regressions.value > total_new_regression){
+					}else if(previous_reports[previousIndex].tests.new_regressions.value > total_report_new_regression){
 						reports[index].tests.new_regressions.trend = -1;
 					}else{
 						reports[index].tests.new_regressions.trend = 1;
 					}
 			
-					if(previous_reports[previousIndex].tests.fixed_regressions.value == total_fixed_regression){
+					if(previous_reports[previousIndex].tests.fixed_regressions.value == total_report_fixed_regression){
 						reports[index].tests.fixed_regressions.trend = 0;
-					}else if(previous_reports[previousIndex].tests.fixed_regressions.value > total_fixed_regression){
+					}else if(previous_reports[previousIndex].tests.fixed_regressions.value > total_report_fixed_regression){
 						reports[index].tests.fixed_regressions.trend = -1;
 					}else{
 						reports[index].tests.fixed_regressions.trend = 1;
@@ -305,10 +371,10 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 		}
 	}
 	
-	finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack, ackOnError);
+	finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, previous_builds, ack, callback);
 }
 
-function finalizeAnalysis(build, total_errors, total_failures, previous_builds, ack, ackOnError){
+function finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, previous_builds, ack, callback){
 	var updatePreviousBuildInfoCallback = function (error, count){
 		if(error) {
 			return e.error(build, ack, true, "Update Build operation failed.");
@@ -321,9 +387,7 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 	    }
 		console.log("-- "+count+ " build updated.");
 		
-		if(!ackOnError){
-			ack.acknowledge();
-		}
+		callback();
 	};
 	
 	build.errors = {};
@@ -333,12 +397,29 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 	}else{
 		build.errors.trend = 0;
 	}
+	
 	build.failures = {};
 	build.failures.value = total_failures;
 	if(total_failures > 0){
 		build.failures.trend = 1;
 	}else{
 		build.failures.trend = 0;
+	}
+	
+	build.tests = {};
+	build.tests.value = total_tests;
+	if(total_tests > 0){
+		build.tests.trend = 1;
+	}else{
+		build.tests.trend = 0;
+	}
+	
+	build.passes = {};
+	build.passes.value = total_passes;
+	if(total_passes > 0){
+		build.passes.trend = 1;
+	}else{
+		build.passes.trend = 0;
 	}
 	
 	//If previous build exist.
@@ -358,7 +439,23 @@ function finalizeAnalysis(build, total_errors, total_failures, previous_builds, 
 			build.failures.trend  = -1;
 		}else{
 			build.failures.trend  = 1;
-		}			
+		}
+		
+		if(previous_builds[0].tests.value == build.tests.value){
+			build.tests.trend  = 0;
+		}else if(previous_builds[0].tests.value > build.tests.value){
+			build.tests.trend  = -1;
+		}else{
+			build.tests.trend  = 1;
+		}
+		
+		if(previous_builds[0].passes.value == build.passes.value){
+			build.passes.trend  = 0;
+		}else if(previous_builds[0].passes.value > build.passes.value){
+			build.passes.trend  = -1;
+		}else{
+			build.passes.trend  = 1;
+		}
 	
 		if(!_.isUndefined(previous_builds[0].duration) && !_.isUndefined(build.duration)){
 			if(previous_builds[0].duration.value == build.duration.value){

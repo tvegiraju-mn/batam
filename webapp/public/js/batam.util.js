@@ -40,7 +40,7 @@ function formatWithLabel(value, trend, threshold, isTime){
 			return '<span class="label label-warning">'+value+' </span>';
 		}
 	}else{
-		console.log("An unexpected error happenned");
+		return null;
 	}
 }
 

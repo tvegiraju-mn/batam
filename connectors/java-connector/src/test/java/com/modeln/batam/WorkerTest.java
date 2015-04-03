@@ -10,6 +10,11 @@ import org.junit.Test;
 import com.modeln.batam.connector.ConnectorHelper;
 import com.modeln.batam.connector.wrapper.*;
 
+/**
+ * This test Suite is intended to test The worker Module.
+ * @author gzussa
+ *
+ */
 public class WorkerTest {
 
 	@Test
@@ -340,6 +345,7 @@ public class WorkerTest {
 		test3.setReportName("report2");
 		test3.setReportId(report2Id);
 		test3.setName("test3");
+		test3.setName("test1");
 		test3.setDescription("desc test3");
 		
 		ConnectorHelper.createTest(test3);
@@ -543,8 +549,8 @@ public class WorkerTest {
 	@Test
 	public void completeRealScenario() throws IOException {
 		//Create build
-		String buildName = "build"/*+System.currentTimeMillis()*/;
-		String buildId = "7_"+System.currentTimeMillis();
+		String buildName = "test build end to end"/*+System.currentTimeMillis()*/;
+		String buildId = "7 "+System.currentTimeMillis();
 		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
 		build.setId(buildId);
@@ -580,7 +586,7 @@ public class WorkerTest {
 		
 		//Create report 1
 		ReportEntry report = new ReportEntry();
-		String report1Id = "7_1_"+System.currentTimeMillis();
+		String report1Id = "7 1 "+System.currentTimeMillis();
 		report.setBuildName(buildName);
 		report.setBuildId(buildId);
 		report.setName("Test Suite Group One");
@@ -679,7 +685,7 @@ public class WorkerTest {
 		
 		//Create report 2
 		ReportEntry report2 = new ReportEntry();
-		String report2Id = "7_1_"+System.currentTimeMillis();
+		String report2Id = "7 1 "+System.currentTimeMillis();
 		report2.setBuildName(buildName);
 		report2.setBuildId(buildId);
 		report2.setName("Test Suite Group Two");
@@ -754,7 +760,7 @@ public class WorkerTest {
 	@Test
 	public void partialBuild() throws IOException {
 		//Create build
-		String buildName = "partial_build";
+		String buildName = "partial build test";
 		String buildId = "8_"+System.currentTimeMillis();
 		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
@@ -843,6 +849,7 @@ public class WorkerTest {
 		build.setId(buildId);
 		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
+		//Override a test
 		test12 = new TestEntry();
 		test12.setReportId(report1Id);
 		test12.setReportName("Test Suite Group One");
@@ -862,7 +869,7 @@ public class WorkerTest {
 	@Test
 	public void testStepUpdate() throws IOException {
 		//Create build
-		String buildName = "partial_build";
+		String buildName = "build "+System.currentTimeMillis();
 		String buildId = "8_"+System.currentTimeMillis();
 		BuildEntry build = new BuildEntry();
 		build.setName(buildName);
@@ -898,6 +905,83 @@ public class WorkerTest {
 		build.setId(buildId);
 		ConnectorHelper.runAnalysis(build.getId(), null, false);
 		
+	}
+	
+	@Test
+	public void createAutoAnalysis() throws IOException {
+		//Create build
+		String buildName = "build 9"+System.currentTimeMillis();
+		BuildEntry build = new BuildEntry();
+		build.setName(buildName);
+		
+		ConnectorHelper.createBuild(build);
+		
+		//Create report 1
+		ReportEntry report = new ReportEntry();
+		String reportName = "report 9_1_"+System.currentTimeMillis();
+		report.setBuildName(buildName);
+		report.setName(reportName);
+		
+		ConnectorHelper.createReport(report);
+		
+		//Create test
+		TestEntry test = new TestEntry();
+		test.setReportName(reportName);
+		test.setName("test1");
+		
+		ConnectorHelper.createTest(test);
+		
+		//Create test
+		TestEntry test2 = new TestEntry();
+		test2.setReportName(reportName);
+		test2.setName("test2");
+		
+		ConnectorHelper.createTest(test2);
+		
+		//Create update
+		build.setDescription("desc");
+		
+		ConnectorHelper.updateBuild(build);
+		
+		//Create report 2
+		ReportEntry report2 = new ReportEntry();
+		String report2Name = "report9_2_"+System.currentTimeMillis();
+		report2.setBuildName(buildName);
+		report2.setName(report2Name);
+		
+		ConnectorHelper.createReport(report2);
+		
+		//Update report 1
+		report.setStatus("test");
+		
+		ConnectorHelper.updateReport(report);
+		
+		//Create test
+		TestEntry test3 = new TestEntry();
+		test3.setReportName(report2Name);
+		test3.setName("test3");
+		
+		ConnectorHelper.createTest(test3);
+		
+		//Update Test 2
+		test2.setLog("test");
+		
+		ConnectorHelper.updateTest(test2);
+		
+		//Recreate a empty build
+		BuildEntry build2 = new BuildEntry();
+		build2.setName(buildName);
+		
+		ConnectorHelper.createBuild(build2);
+		
+		//Recreate a second empty build
+		BuildEntry build3 = new BuildEntry();
+		build3.setName(buildName);
+		
+		ConnectorHelper.createBuild(build3);
+		
+		//Analyze
+		ConnectorHelper.runAnalysis(null, build3.getName(), false);
 	}
 
 }

@@ -56,9 +56,19 @@
                   <dl class="dl-horizontal">
                     <dt>Name</dt>
                     <dd id="test_name"></dd>
-
-                    <dt>Date</dt>
-                    <dd id="test_date"></dd>
+                    <dt>Description</dt>
+                    <dd id="test_description"></dd>
+                  </dl>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <dl class="dl-horizontal">
+                    <dt>Start Date</dt>
+                    <dd id="test_start_date"></dd>
+                    
+                    <dt>End Date</dt>
+                    <dd id="test_end_date"></dd>
 
                     <dt>Status</dt>
                     <dd id="test_status"><!-- <span class="label label-danger">error</span> --></dd>
@@ -98,6 +108,7 @@
 	<script type="text/javascript" >
 	
     $(document).ready(function(){
+    	var notAvailable = '';
 	    var criteriasIds = [];
 	    var table;
 	    var graph = 'status';
@@ -113,22 +124,24 @@
     		}
 	      	$('#header_name').html(response.test.name);
 	      	$('#test_name').html(response.test.name);
-	      	var date = response.test.date == undefined ? 'n/a' : moment(response.test.date).format('MMM Do YYYY, h:mm:ss a');
-	      	$('#test_date').html(date);
-	      	if(response.test.status == null){
-	    		$('#test_status').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	      	$('#test_description').html(response.test.description);
+	      	var start_date = response.test.start_date == undefined ? notAvailable : moment(response.test.start_date).format('MMM Do YYYY, h:mm:ss a');
+	      	$('#test_start_date').html(start_date);
+	      	var end_date = response.test.end_date == undefined ? notAvailable : moment(response.test.end_date).format('MMM Do YYYY, h:mm:ss a');
+	      	$('#test_end_date').html(end_date);
+	      	if(response.test.status != null){
 	    		$('#test_status').html(response.test.status);
 	    	}
-	      	var time = response.test.time == undefined ? 'n/a' : response.test.time;
+	      	var time = response.test.time == undefined ? notAvailable : response.test.time;
 	      	$('#test_time').html(time);
-	      	var regression = response.test.regression == undefined ? 'n/a' : response.test.regression;
+	      	var regression = response.test.regression == undefined ? notAvailable : response.test.regression;
 	      	$('#test_regression').html(regression);
 	      	
 	      	var dynamicFields = '';
 	      	for(var field in response.test){
 	      		console.log(field);
 	      		if(field != '_id' &&
+	      				field != 'description' &&
 	      				field != 'report_id' &&
 	      				field != 'name' &&
 	      				field != 'date' &&
@@ -137,8 +150,9 @@
 	      				field != 'regression' &&
 	      				field != 'log'){
 	      			if(field == 'duration'){
+	      				var formattedDuration = formatWithLabel(response.test[field].value, response.test[field].trend, 1000, true);
 	      				dynamicFields += '<dt>'+field+'</dt>'+
-                    	'<dd>'+formatWithLabel(response.test[field].value, response.test[field].trend, 1000, true)+'</dd>';
+                    	'<dd>'+(formattedDuration == null ? notAvailable : formattedDuration)+'</dd>';
 	      			}else if(field == 'previous_id' || field == 'next_id' || field == 'build_id'){
 	      				//Do nothing. Don't display those.
 	      			}else{

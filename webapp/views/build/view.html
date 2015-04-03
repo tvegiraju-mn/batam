@@ -58,13 +58,13 @@
                     <dt>Description</dt>
                     <dd id="build_description"></dd>
 
-                    <dt>Build Start Date</dt>
+                    <dt>Start Date</dt>
                     <dd id="build_date"></dd>
                     
-                    <dt>Build End Date</dt>
+                    <dt>End Date</dt>
                     <dd id="build_end_date"></dd>
 
-                    <dt>Build Status</dt>
+                    <dt>Status</dt>
                     <dd id="build_status"></dd>
 
                     <dt>Duration</dt>
@@ -128,6 +128,7 @@
 	google.load("visualization", "1.1", {packages:["timeline"]});
 	
 	$(document).ready(function(){
+		var notAvailable = ''
 		// Initial fetch
 	    $.getJSON('/api/builds/{{build_id}}', displayBuild)
 		    .error(handleError)
@@ -156,24 +157,20 @@
 	    	}
 	    	$('#build_header').html(buildHeader);
 	    	$('#build_name').html(response.build.name);
-	    	var description = response.build.description == undefined? 'n/a' : response.build.description;
+	    	var description = response.build.description == undefined? notAvailable : response.build.description;
 	    	$('#build_description').html(description);
-	    	var date = response.build.date == undefined ? 'n/a' : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
+	    	var date = response.build.date == undefined ? notAvailable : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
 	    	$('#build_date').html(date);
-	    	var end_date = response.build.end_date == undefined ? 'n/a' : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss a');
+	    	var end_date = response.build.end_date == undefined ? notAvailable : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss a');
 	    	$('#build_end_date').html(end_date);
-	    	if(response.build.status == undefined){
-	    		$('#build_status').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.build.status != undefined){
 	    		if(response.build.status == 'completed'){
 	    			$('#build_status').html('<span class="label label-success">'+response.build.status+'</span>');
 	    		}else{
 	    			$('#build_status').html('<span class="label label-danger">'+response.build.status+'</span>');
 	    		}
 	    	}
-	    	if(response.build.duration == undefined){
-	    		$('#build_duration').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.build.duration != undefined){
 	    		$('#build_duration').html(formatWithLabel(response.build.duration.value, response.build.duration.trend, 600000, true));
 	    	}
 	    	if(response.build.criterias != null && response.build.criterias.length != 0){
@@ -295,16 +292,16 @@
 	    		listHtml +=	'			</div>' +
 	    		'		</div>' +
 	    		'		<div class="list-group-item-text">';
-	    		var description = response.reports[i].description == undefined ? 'n/a': response.reports[i].description;
+	    		var description = response.reports[i].description == undefined ? 'No description available.' : response.reports[i].description;
 	    		listHtml +=	'  			'+description+'<div class="pull-right"> ';
 	    		if(response.reports[i].status == undefined){
-	    			listHtml +=	'			<span class="label label-info">n/a</span>';
+	    			listHtml +=	'			<span class="label label-info">Status not available</span>';
 	    		}else if(response.reports[i].status == "completed"){
 	            	listHtml +=	'			<span class="label label-success">'+response.reports[i].status+'</span>';
 	            }else{
 	            	listHtml +=	'			<span class="label label-danger">'+response.reports[i].status+'</span>';
 	            }
-	    		var updateTime = response.reports[i].date == undefined ? 'n/a' : moment(response.reports[i].date).fromNow();
+	    		var updateTime = response.reports[i].date == undefined ? notAvailable : moment(response.reports[i].date).fromNow();
 	            listHtml +=	'  			'+updateTime+'</div>' +
 	            '		</div>' +
 	            '</a>';

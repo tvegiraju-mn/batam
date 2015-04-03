@@ -357,7 +357,7 @@ function downloadPDF(req, res, next){
 							doc.rect(100, initialYAxis+(1 * 25), 100, 25).fillAndStroke("#F0F0F0", "black");
 							doc.rect(200, initialYAxis+(1 * 25), 300, 25).fillAndStroke("white", "black");			
 							doc.fontSize(12).fillColor('black').text("Start Time", 105, 150 + (1 * 25) + 5);
-							doc.fontSize(12).fillColor('black').text(tests[j].date+" ms", 205, 150 + (1 * 25) + 5);
+							doc.fontSize(12).fillColor('black').text(tests[j].start_date+" ms", 205, 150 + (1 * 25) + 5);
 							
 							doc.rect(100, initialYAxis+(2 * 25), 100, 25).fillAndStroke("#F0F0F0", "black");
 							doc.rect(200, initialYAxis+(2 * 25), 300, 25).fillAndStroke("white", "black");			

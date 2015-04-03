@@ -21,7 +21,8 @@
     <![endif]-->
   </head>
   <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+  	<a href="https://github.com/ModelN/batam"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:9999" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+  	<div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" id="step1" href="/">Build And Test Automation Management</a>
@@ -38,6 +39,7 @@
           </h1>
         </div>
       </div>
+      
       <div class="row">
         <div class="form-horizontal">
           <div id="builds_search_criterias" class="form-group">
@@ -63,6 +65,7 @@
     <script type="text/javascript">
     
     $(document).ready(function(){
+    	var notAvailable= ' ';
     	var criteriasIds = [];
         // Initialize search
         $.getJSON('/api/criterias/build', displayBuildCriterias)
@@ -151,9 +154,35 @@
            
             	buildList += '<a href="/'+response.builds[i].id+'" class="list-group-item">'+ 
                		'  <div class="row">' +
-               		'    <div class="col-md-6">' +
+               		'    <div class="col-md-4">' +
                		'      <h4>'+response.builds[i].name+'</h4>' +
                		'    </div>' + 
+               		'    <div class="col-md-2">';
+    			if(response.builds[i].tests == undefined){
+    				buildList += '		<strong> Tests <span class="label label-info">n/a</span></strong>';
+    			}else{
+    				buildList += '		<strong> Tests '+response.builds[i].tests.value;	
+    				if(response.builds[i].tests.trend == 1){
+    					buildList +=	'						<span class="glyphicon glyphicon-chevron-up"></span>';
+		    		}else if(response.builds[i].tests.trend == -1){
+		    			buildList +=	'						<span class="glyphicon glyphicon-chevron-down"></span>';
+		    		}
+    				buildList +=	'					</span></strong>';
+    			}
+             	buildList += '    </div>' +
+             		'    <div class="col-md-2">';
+    			if(response.builds[i].passes == undefined){
+    				buildList += '		<strong> Pass <span class="label label-info">n/a</span></strong>';
+    			}else{
+    				if(response.builds[i].tests.trend == 1){
+    					buildList += '		<strong> Pass <span class="label label-success">'+response.builds[i].passes.value+' <span class="glyphicon glyphicon-chevron-up"></span></span></strong>';
+		    		}else if(response.builds[i].tests.trend == -1){
+		    			buildList +=	'		<strong> Pass <span class="label label-warning">'+response.builds[i].passes.value+' <span class="glyphicon glyphicon-chevron-down"></span></span></strong>';
+		    		}else{
+		    			buildList += '		<strong> Pass '+response.builds[i].passes.value+'</strong>';	 
+		    		}
+    			}
+             	buildList += '    </div>' +
                		'    <div class="col-md-2">';
     			if(response.builds[i].failures == undefined){
     				buildList += '		<strong> Failures <span class="label label-info">n/a</span></strong>';
@@ -167,8 +196,8 @@
     			}else{
              		buildList += '		<strong> Errors '+formatWithLabel(response.builds[i].errors.value, response.builds[i].errors.trend, 0, false)+'</strong>';
     			}
-             	var description = response.builds[i].description == undefined ? 'n/a' : response.builds[i].description;
-             	var updateTime = response.builds[i].end_date == undefined ? 'n/a' : moment(response.builds[i].end_date).fromNow();
+             	var description = response.builds[i].description == undefined ? 'No description available.' : response.builds[i].description;
+             	var updateTime = response.builds[i].end_date == undefined ? notAvailable : moment(response.builds[i].end_date).fromNow();
              	buildList += '    </div>' +
              		'    </div>' +
              	'    <div class="list-group-item-text">'+description+'<div class="pull-right">Last update : '+updateTime+'</div></div></a>';

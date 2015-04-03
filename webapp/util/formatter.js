@@ -1,6 +1,10 @@
 var _ = require('underscore');
 
 exports.formatStatus = function(status){
+	if(status == null){
+		return null;
+	}
+	
 	if(status == 'pass'){
 		return '<span class="label label-success">'+status+'</span>';
 	}else if(status == 'fail' || status == 'error'){
@@ -11,6 +15,10 @@ exports.formatStatus = function(status){
 }
 
 exports.formatRegression = function(status, regression){
+	if(regression == null){
+		return null;
+	}
+	
 	if(status == 'pass'){
 		if(regression != 'new'){
 			return '<span class="label label-success">'+regression+'</span>';
@@ -28,11 +36,13 @@ exports.formatRegression = function(status, regression){
 	}else{
 		return '<span class="label label-default">'+regression+'</span>';
 	}
-	//Not possible
-	return regression;
 }
 
 exports.formatTime = function(time){
+	if(time == null){
+		return null;
+	}
+	
 	if(!_.isUndefined(time) && !_.isNull(time)){
 		if(time.indexOf('h') != -1){
 			return '<span class="label label-danger">'+time+'</span>';

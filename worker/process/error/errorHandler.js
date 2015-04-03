@@ -30,3 +30,11 @@ function errorEntrypoint(data, ack, persist, message){
 	
 	ack.acknowledge();
 }
+
+exports.info = infoEntrypoint;
+
+function infoEntrypoint(data, message){
+	console.log("Info:");
+	console.log("data: "+util.inspect(data, true, null));
+	console.log("message: "+message);
+}

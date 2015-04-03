@@ -128,7 +128,7 @@ function createTest(report, data, ack){
 					test.regression = "new";
 				}
 				test.duration.trend = 1;
-				test.regression = "n/a"
+				test.regression = null;
     			test.previous_id = null;
     			
 				//Create Test
@@ -145,7 +145,7 @@ function createTest(report, data, ack){
 				}
 				
 				//set duration info to test
-				if(!_.isNull(test.date) && !_.isNull(end_date) && _.isDate(test.date)){
+				if(!_.isNull(test.start_date) && !_.isNull(test.end_date) && _.isDate(test.start_date)){
 					if(previous_test.duration.value == test.duration.value){
 						test.duration.trend = 0;
 					}else if(previous_test.duration.value > test.duration.value){
@@ -209,16 +209,21 @@ function createTest(report, data, ack){
 		return e.error(data, ack, true, "Start_date field not valid.");
 	}
 	if(!_.isNull(start_date)){
-		test.date = new Date(parseInt(start_date));
+		test.start_date = new Date(parseInt(start_date));
 	}
 	
-	//Set duration value if possible and time
+	//Check End date
 	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
 		return e.error(data, ack, true, "End_date field not valid.");
 	}
+	if(!_.isNull(end_date)){
+		test.end_date = new Date(parseInt(end_date));
+	}
+	
+	//Set duration value if possible and time
 	test.duration = {};
-	if(!_.isNull(test.date) && !_.isNull(end_date)){	
-		test.duration.value = parseInt(end_date) - parseInt(start_date);
+	if(!_.isNull(test.start_date) && !_.isNull(test.end_date) && _.isDate(test.end_date) && _.isDate(test.start_date)){	
+		test.duration.value = parseInt(test.end_date.getTime()) - parseInt(test.start_date.getTime());
 		if(test.duration.value <= 10){
 			test.time = "0-10ms";
 		}else if(test.duration.value <= 10){
@@ -353,7 +358,7 @@ function updateTest(report, data, ack){
 			
 			//If previous test doesn't exist
 			if(previous_tests.length == 0 ){
-				test.regression = "n/a";
+				test.regression = null;
 				test.duration.trend = 1;
 				
 				//Update test
@@ -373,7 +378,7 @@ function updateTest(report, data, ack){
 				test.previous_id = previous_test._id;
 				
 				//set duration info to test
-				if(!_.isNull(test.date) && !_.isNull(end_date) && _.isDate(test.date)){
+				if(!_.isNull(test.start_date) && !_.isNull(test.end_date) && _.isDate(test.start_date)){
 					if(previous_test.duration.value == test.duration.value){
 						test.duration.trend = 0;
 					}else if(previous_test.duration.value > test.duration.value){
@@ -429,16 +434,23 @@ function updateTest(report, data, ack){
 			return e.error(data, ack, true, "Start_date field not valid.");
 		}
 		if(!_.isNull(start_date)){
-			test.date = new Date(parseInt(start_date));
+			test.start_date = new Date(parseInt(start_date));
 		}
 		
-		//Set duration value if possible
+		//Check end date
 		if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
 			return e.error(data, ack, true, "End_date field not valid.");
 		}
-		if(!_.isNull(test.date) && !_.isNull(end_date) && _.isDate(test.date)){
-			test.duration = {};
-			test.duration.value = parseInt(end_date) - parseInt(test.date.getTime());
+		if(!_.isNull(end_date)){
+			test.end_date = new Date(parseInt(end_date));
+		}
+		
+		//Set duration value if possible
+		if(!_.isNull(test.start_date) && !_.isNull(test.end_date) && _.isDate(test.end_date) && _.isDate(test.start_date)){
+			if(test.duration == undefined){
+				test.duration = {};
+			}
+			test.duration.value = parseInt(test.end_date.getTime()) - parseInt(test.start_date.getTime());
 			if(test.duration.value <= 10){
 				test.time = "0-10ms";
 			}else if(test.duration.value <= 10){
@@ -504,7 +516,7 @@ function updateTest(report, data, ack){
 			}
 			//If there is no previous test or status is not defined.
 			if(_.isUndefined(test.previous_id) || _.isNull(test.previous_id)){  
-				test.regression = "n/a"	
+				test.regression = null;	
 				//Update test
 				collections.tests.updateById(test._id, {$set: test}, updateTestInfoCallback);
 			}else {

@@ -73,7 +73,7 @@ function findBuildList(req, res, next){
 	    //Fetch all builds and then we filter down in the callback. 
 	    //NOTE: for performance reasons we may want to query the db with filters.
 	    req.collections.builds.find({lifecycle_status: 'completed'}, 
-	    	{_id:0, name:1, id:1, description:1, failures:1, errors:1, end_date:1, date: 1, criterias: 1})
+	    	{_id:0, name:1, id:1, description:1, tests:1, passes:1, failures:1, errors:1, end_date:1, date: 1, criterias: 1})
 	    	.toArray(findCompletedBuildsWithFilters);
 	};
 	

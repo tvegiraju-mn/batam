@@ -53,7 +53,9 @@ function startImport(message, ack){
 				break;
 				case "run_analysis":
 					console.log("run_analysis action.");
-					analyzer.run(data, ack, false);
+					analyzer.run(data, ack, function(){
+						ack.acknowledge();
+					});
 				break;
 				default:
 					e.error(obj, ack, true, "Action not valid.");

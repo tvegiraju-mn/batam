@@ -123,6 +123,7 @@
     google.load("visualization", "1.1", {packages:["corechart"]});
    
     $(document).ready(function(){
+    	var notAvailable = '';
 	    var criteriasIds = [];
 	    var table;
 	    var graph = 'status';
@@ -143,28 +144,22 @@
 	      	}
 	      	$('#report_header').html(reportHeader);
 	      	$('#report_name').html(response.report.name);
-	      	var description = response.report.description == undefined ? 'n/a' : response.report.description;
+	      	var description = response.report.description == undefined ? notAvailable : response.report.description;
 	      	$('#report_description').html(description);
-	      	var date = response.report.date == undefined ? 'n/a' : moment(response.report.date).format('MMM Do YYYY, h:mm:ss a');
+	      	var date = response.report.date == undefined ? notAvailable : moment(response.report.date).format('MMM Do YYYY, h:mm:ss a');
 	    	$('#report_date').html(date);
-	    	if(response.report.status == null){
-	    		$('#report_status').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.status != null){
 	    		if(response.report.status == 'completed'){
 	    			$('#report_status').html('<span class="label label-success">'+response.report.status+'</span>');
 	    		}else{
 	    			$('#report_status').html('<span class="label label-danger">'+response.report.status+'</span>');
 	    		}
 	    	}
-	    	if(response.report.duration == null){
-	    		$('#report_duration').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.duration != null){
 	    		$('#report_duration').html(formatWithLabel(response.report.duration.value, response.report.duration.trend, 600000, true));		
 	    	}
     	
-	    	if(response.report.logs == null){
-	    		$('#report_logs').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.logs != null){
 	    		var logs = '';
 	    		for(var i = 0; i < response.report.logs.length; i++){
 	    			if(i != 0){
@@ -175,21 +170,15 @@
 	    		$('#report_logs').html(logs);
 	    	}
     	
-	    	if(response.report.tests == null || response.report.tests.regressions == null){
-	    		$('#report_active_regressions').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.tests != null && response.report.tests.regressions != null){
 	    		$('#report_active_regressions').html(formatWithLabel(response.report.tests.regressions.value, response.report.tests.regressions.trend, 0, false));
 	    	}
     	
-	    	if(response.report.tests == null || response.report.tests.new_regressions == null){
-	    		$('#report_new_regressions').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.tests != null && response.report.tests.new_regressions != null){
 	    		$('#report_new_regressions').html(formatWithLabel(response.report.tests.new_regressions.value, response.report.tests.new_regressions.trend, 0, false));
 	    	}
     	
-	    	if(response.report.tests == null || response.report.tests.fixed_regressions == null){
-	    		$('#report_fixed_regressions').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.tests != null && response.report.tests.fixed_regressions != null){
 	    		if(response.report.tests.fixed_regressions.value == 0){
 	    			$('#report_fixed_regressions').html(response.report.tests.fixed_regressions.value);
 	    		}else{
@@ -203,9 +192,7 @@
 		    	}
 	    	}
 	    	
-	    	if(response.report.tests == null|| response.report.tests.all == null){
-	    		$('#report_tests').html('<span class="label label-default">N/A</span>');	
-	    	}else{
+	    	if(response.report.tests != null && response.report.tests.all != null){
 	    		if(response.report.tests.all.trend == -1){
 	    			$('#report_tests').html(response.report.tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span>');
 	    		}else if(response.report.tests.all.trend == 1){

@@ -1,0 +1,220 @@
+<!-- ============================================================== -->
+<!-- Model N Build Infrastructure Targets                           -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- 
+  - This ant build file is used to test the Model N Ant tasks that
+  - have been added to the Ant library.
+  -->
+<!-- ============================================================== -->
+<project name="BATAM Test" default="batam" basedir=".">
+  <description>
+    This is an Ant build file which exercises the reporting targets
+    to determine if the build is working correctly.
+  </description>
+
+   <taskdef resource="com/modeln/batam/ant/taskdef.properties" classpath="../../../target/batam-ant-1.0.0.jar"/> 
+  <!--
+    - Log the progress entries to the build database.
+    -->
+  <target name="batam">
+  	<tstamp>
+    	<format property="current_date" pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" locale="en,GB"/>
+  	</tstamp>
+  	
+    <!-- Run Create Build ant task -->
+    <batamcreatebuild
+    	host="localhost"
+    	username="batam" 
+    	password="batam"
+    	port="2345"
+    	vhost="batam"
+    	queue="batam"
+    	publisher="off"
+    	id="id"
+    	name="name"
+    	startDate="${current_date}" 
+    	endDate="${current_date}" 
+    	dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ" 
+    	status= "status"
+		description="description"
+		override="true">
+		<criterias>
+			<criteria name="crit_name_1" value="crit_value_1"/>
+			<criteria name="crit_name_2" value="crit_value_2"/>
+		</criterias>
+		
+		<commits>
+      		<commit commitId="commitid_1" url="url_1" author="author_1" dateCommitted="${current_date}" />
+      		<commit commitId="commitid_2" url="url_2" author="author_2" dateCommitted="${current_date}" />
+		</commits>
+		
+		<infos>
+	      	<info  name="info_name_1" value="info_value_1" />
+	      	<info  name="info_name_2" value="info_value_2" />
+		</infos>
+		
+		<reports>
+      		<report  name="report_name_1" value="report_value_1" />
+      		<report  name="report_name_2" value="report_value_2" />
+      	</reports>
+      	
+      	<steps>
+      		<step name="step_name_1" startDate="${current_date}" endDate="${current_date}" />
+      		<step name="step_name_2" startDate="${current_date}" endDate="${current_date}" />
+      	</steps>
+    </batamcreatebuild>
+    
+    <!-- Run Create Build ant task -->
+    <batamupdatebuild 
+    	host="localhost"
+    	username="batam" 
+    	password="batam"
+    	port="2345"
+    	vhost="batam"
+    	queue="batam"
+    	publisher="off"
+    	id="id2"
+    	name="name"
+    	startDate="${current_date}" 
+    	endDate="${current_date}" 
+    	dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ" 
+    	status= "status"
+		description="description">
+		
+		<criterias>
+			<criteria name="crit_name_1" value="crit_value_1"/>
+			<criteria name="crit_name_2" value="crit_value_2"/>
+		</criterias>
+		
+		<commits>
+      		<commit commitId="commitid_1" url="url_1" author="author_1" dateCommitted="${current_date}" />
+      		<commit commitId="commitid_2" url="url_2" author="author_2" dateCommitted="${current_date}" />
+		</commits>
+		
+		<infos>
+	      	<info  name="info_name_1" value="info_value_1" />
+	      	<info  name="info_name_2" value="info_value_2" />
+		</infos>
+		
+		<reports>
+      		<report  name="report_name_1" value="report_value_1" />
+      		<report  name="report_name_2" value="report_value_2" />
+      	</reports>
+      	
+      	<steps>
+      		<step name="step_name_1" startDate="${current_date}" endDate="${current_date}" />
+      		<step name="step_name_2" startDate="${current_date}" endDate="${current_date}" />
+      	</steps>
+      
+    </batamupdatebuild>
+    
+    <batamcreatereport 
+    	host="localhost"
+       	username="batam" 
+       	password="batam"
+       	port="2345"
+       	vhost="batam"
+       	queue="batam"
+       	publisher="off"
+    	id="id3" 
+    	buildId="buildid" 
+    	buildName="buildname" 
+    	name="name" 
+    	description="description" 
+    	startDate="${current_date}" 
+    	endDate="${current_date}" 
+    	dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ" 
+    	status="status">
+		<logs>
+			<log value="log1" />
+    		<log value="log2" />
+    	</logs>
+    </batamcreatereport>
+    
+    <batamupdatereport 
+    	host="localhost"
+       	username="batam" 
+       	password="batam"
+       	port="2345"
+       	vhost="batam"
+       	queue="batam"
+       	publisher="off"
+    	id="id4" 
+    	buildId="buildid" 
+    	buildName="buildname" 
+    	name="name" 
+    	description="description" 
+    	startDate="${current_date}" 
+    	endDate="${current_date}" 
+    	dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ" 
+    	status="status">
+		<logs>
+			<log value="log1" />
+    		<log value="log2" />
+    	</logs>
+    </batamupdatereport>
+    
+    <batamrun 
+    	host="localhost"
+       	username="batam" 
+       	password="batam"
+       	port="2345"
+       	vhost="batam"
+       	queue="batam"
+       	publisher="off"
+    	id="id5"
+    	name="name"
+    	override="true">
+    </batamrun>
+    
+    <batamcreatetest 
+    	host="localhost"
+       	username="batam" 
+       	password="batam"
+       	port="2345"
+       	vhost="batam"
+       	queue="batam"
+       	publisher="off"
+    	reportId="id6" 
+	    reportName="reportname" 
+	    name="name" 
+	    description="description" 
+	    startDate="${current_date}"
+	    endDate="${current_date}"
+	    dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+	    status="status" 
+	    log="log" 
+	    override = "true">
+    	<criterias>
+			<criteria name="crit_name_1" value="crit_value_1"/>
+			<criteria name="crit_name_2" value="crit_value_2"/>
+		</criterias>
+    </batamcreatetest>
+    
+    <batamupdatetest 
+    	host="localhost"
+       	username="batam" 
+       	password="batam"
+       	port="2345"
+       	vhost="batam"
+       	queue="batam"
+       	publisher="off"
+    	reportId="id7" 
+	    reportName="reportname" 
+	    name="name" 
+	    description="description" 
+	    startDate="${current_date}"
+	    endDate="${current_date}"
+	    dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+	    status="status" 
+	    log="log" 
+	    override = "false">
+    	<criterias>
+			<criteria name="crit_name_1" value="crit_value_1"/>
+			<criteria name="crit_name_2" value="crit_value_2"/>
+		</criterias>
+    </batamupdatetest>
+
+  </target>
+
+</project>
