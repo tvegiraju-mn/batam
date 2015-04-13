@@ -968,20 +968,20 @@ public class WorkerTest {
 		
 		ConnectorHelper.updateTest(test2);
 		
-		//Recreate a empty build
-		BuildEntry build2 = new BuildEntry();
-		build2.setName(buildName);
-		
-		ConnectorHelper.createBuild(build2);
-		
-		//Recreate a second empty build
-		BuildEntry build3 = new BuildEntry();
-		build3.setName(buildName);
-		
-		ConnectorHelper.createBuild(build3);
+//		//Recreate a empty build
+//		BuildEntry build2 = new BuildEntry();
+//		build2.setName(buildName);
+//		
+//		ConnectorHelper.createBuild(build2);
+//		
+//		//Recreate a second empty build
+//		BuildEntry build3 = new BuildEntry();
+//		build3.setName(buildName);
+//		
+//		ConnectorHelper.createBuild(build3);
 		
 		//Analyze
-		ConnectorHelper.runAnalysis(null, build3.getName(), false);
+		//ConnectorHelper.runAnalysis(null, build3.getName(), false);
 	}
 
 }

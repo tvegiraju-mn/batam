@@ -47,9 +47,9 @@ function showTest(req, res, next){
 		if(_.isEmpty(build) || _.isNull(build)){
 			return next('Build '+req.params.build_id+' not found.');
 		}
-		if(build.lifecycle_status != 'completed'){
-			return next('Build '+req.params.build_id+' not complete.');
-		}
+//		if(build.lifecycle_status != 'completed'){
+//			return next('Build '+req.params.build_id+' not complete.');
+//		}
 		
 		//Fetch build report.
 		req.collections.reports.findOne({id: req.params.report_id, build_id: build.id}, findReport);

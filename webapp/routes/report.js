@@ -30,9 +30,6 @@ function showReport(req, res, next){
 		if(_.isNull(build)){
 			return next('Build '+req.params.build_id+' not found.');
 		}
-		if(build.lifecycle_status != 'completed'){
-			return next('Build '+req.params.build_id+' not complete.');
-		}
 		
 		req.collections.reports.findOne({id: req.params.report_id}, findReport);	
 	};
@@ -67,7 +64,7 @@ function findReport(req, res, next){
 		    	return next(error);
 		    }
 		    	
-		    if(_.isNull(build) || build.lifecycle_status != 'completed'){
+		    if(_.isNull(build)/* || build.lifecycle_status != 'completed'*/){
 		    	res.send({report: null});
 		    }else{
 		    	//Add build previous and next Id to report object.
@@ -128,12 +125,12 @@ function findReportList(req, res, next){
 	    	return next(error);
 	    }
     	
-	    if(_.isNull(build) || build.lifecycle_status != 'completed'){
+	    if(_.isNull(build)){
 	    	res.send({reports: []});
 	    }
 	    
 	    req.collections.reports.find({build_id: req.query.build_id}, 
-    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, tests: 1})
+    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, tests: 1, lifecycle_status: 1})
     		.toArray(findReport);
     };
     

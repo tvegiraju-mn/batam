@@ -160,6 +160,9 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 	var total_errors = 0;
 	var total_passes = 0;
 	var total_tests = 0;
+	var total_regressions = 0;
+	var total_new_regressions = 0;
+	var total_fixed_regressions = 0;
 	//If build has no report.
 	if(reports.length != 0){
 		
@@ -185,14 +188,17 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 		
 					if(tests[j].status != "pass"){
 						total_report_regressions ++;
+						total_regressions ++;
 						if(tests[j].regression == "new"){
 							total_report_new_regression ++;
+							total_new_regressions ++;
 						}
 					}else if(tests[j].status == "pass"){
 						total_report_passes ++;
 						total_passes ++;
 						if(tests[j].regression == "fixed"){
 							total_report_fixed_regression ++;
+							total_fixed_regressions ++;
 						}
 					}
 					if(tests[j].status == "error"){
@@ -344,12 +350,17 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 					
 					//set duration info to report
 					if(!_.isNull(previous_reports[previousIndex].duration) && !_.isUndefined(previous_reports[previousIndex].duration)){
-						if(previous_reports[previousIndex].duration.value == reports[index].duration.value){
-							reports[index].duration.trend = 0;
-						}else if(previous_reports[previousIndex].duration.value > reports[index].duration.value){
-							reports[index].duration.trend = -1;
+						if(!_.isNull(reports[index].duration) && !_.isUndefined(reports[index].duration)){
+							if(previous_reports[previousIndex].duration.value == reports[index].duration.value){
+								reports[index].duration.trend = 0;
+							}else if(previous_reports[previousIndex].duration.value > reports[index].duration.value){
+								reports[index].duration.trend = -1;
+							}else{
+								reports[index].duration.trend = 1;
+							}
 						}else{
-							reports[index].duration.trend = 1;
+							reports[index].duration = {};
+							reports[index].duration.trend = -1;
 						}
 					}else{
 						reports[index].duration.trend = 1;
@@ -371,10 +382,10 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 		}
 	}
 	
-	finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, previous_builds, ack, callback);
+	finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, total_regressions, total_new_regressions, total_fixed_regressions, previous_builds, ack, callback);
 }
 
-function finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, previous_builds, ack, callback){
+function finalizeAnalysis(build, total_tests, total_passes, total_errors, total_failures, total_regressions, total_new_regressions, total_fixed_regressions, previous_builds, ack, callback){
 	var updatePreviousBuildInfoCallback = function (error, count){
 		if(error) {
 			return e.error(build, ack, true, "Update Build operation failed.");
@@ -422,39 +433,87 @@ function finalizeAnalysis(build, total_tests, total_passes, total_errors, total_
 		build.passes.trend = 0;
 	}
 	
+	build.regressions = {};
+	build.regressions.value = total_regressions;
+	if(total_regressions > 0){
+		build.regressions.trend = 1;
+	}else{
+		build.regressions.trend = 0;
+	}
+	
+	build.new_regressions = {};
+	build.new_regressions.value = total_new_regressions;
+	if(total_new_regressions > 0){
+		build.new_regressions.trend = 1;
+	}else{
+		build.new_regressions.trend = 0;
+	}
+	
+	build.fixed_regressions = {};
+	build.fixed_regressions.value = total_fixed_regressions;
+	if(total_fixed_regressions > 0){
+		build.fixed_regressions.trend = 1;
+	}else{
+		build.fixed_regressions.trend = 0;
+	}
+	
 	//If previous build exist.
 	if(!_.isNull(previous_builds) && previous_builds.length == 1){
 		
-		if(previous_builds[0].errors.value == build.errors.value){
+		if(previous_builds[0].errors != null && previous_builds[0].errors.value != null && previous_builds[0].errors.value == build.errors.value){
 			build.errors.trend  = 0;
-		}else if(previous_builds[0].errors.value > build.errors.value){
+		}else if(previous_builds[0].errors != null && previous_builds[0].errors.value != null && previous_builds[0].errors.value > build.errors.value){
 			build.errors.trend  = -1;
 		}else{
 			build.errors.trend  = 1;
 		}
 		
-		if(previous_builds[0].failures.value == build.failures.value){
+		if(previous_builds[0].failures != null && previous_builds[0].failures.value != null && previous_builds[0].failures.value == build.failures.value){
 			build.failures.trend  = 0;
-		}else if(previous_builds[0].failures.value > build.failures.value){
+		}else if(previous_builds[0].failures != null && previous_builds[0].failures.value != null && previous_builds[0].failures.value > build.failures.value){
 			build.failures.trend  = -1;
 		}else{
 			build.failures.trend  = 1;
 		}
 		
-		if(previous_builds[0].tests.value == build.tests.value){
+		if(previous_builds[0].tests != null && previous_builds[0].tests.value != null && previous_builds[0].tests.value == build.tests.value){
 			build.tests.trend  = 0;
-		}else if(previous_builds[0].tests.value > build.tests.value){
+		}else if(previous_builds[0].tests != null && previous_builds[0].tests.value != null && previous_builds[0].tests.value > build.tests.value){
 			build.tests.trend  = -1;
 		}else{
 			build.tests.trend  = 1;
 		}
 		
-		if(previous_builds[0].passes.value == build.passes.value){
+		if(previous_builds[0].passes != null && previous_builds[0].passes.value != null && previous_builds[0].passes.value == build.passes.value){
 			build.passes.trend  = 0;
-		}else if(previous_builds[0].passes.value > build.passes.value){
+		}else if(previous_builds[0].passes != null && previous_builds[0].passes.value != null && previous_builds[0].passes.value > build.passes.value){
 			build.passes.trend  = -1;
 		}else{
 			build.passes.trend  = 1;
+		}
+		
+		if(previous_builds[0].regressions != null && previous_builds[0].regressions.value != null && previous_builds[0].regressions.value == build.regressions.value){
+			build.regressions.trend  = 0;
+		}else if(previous_builds[0].regressions != null && previous_builds[0].regressions.value != null && previous_builds[0].regressions.value > build.regressions.value){
+			build.regressions.trend  = -1;
+		}else{
+			build.regressions.trend  = 1;
+		}		
+
+		if(previous_builds[0].new_regressions != null && previous_builds[0].new_regressions.value != null && previous_builds[0].new_regressions.value == build.new_regressions.value){
+			build.new_regressions.trend  = 0;
+		}else if(previous_builds[0].new_regressions != null && previous_builds[0].new_regressions.value != null && previous_builds[0].new_regressions.value > build.new_regressions.value){
+			build.new_regressions.trend  = -1;
+		}else{
+			build.new_regressions.trend  = 1;
+		}
+		
+		if(previous_builds[0].fixed_regressions != null && previous_builds[0].fixed_regressions.value != null && previous_builds[0].fixed_regressions.value == build.fixed_regressions.value){
+			build.fixed_regressions.trend  = 0;
+		}else if(previous_builds[0].fixed_regressions != null && previous_builds[0].fixed_regressions.value != null && previous_builds[0].fixed_regressions.value > build.fixed_regressions.value){
+			build.fixed_regressions.trend  = -1;
+		}else{
+			build.fixed_regressions.trend  = 1;
 		}
 	
 		if(!_.isUndefined(previous_builds[0].duration) && !_.isUndefined(build.duration)){

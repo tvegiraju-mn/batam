@@ -8,7 +8,8 @@
 
     <!-- Bootstrap -->
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
-
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	
     <!-- Shepherd -->
     <!-- <link rel="stylesheet" href="../../css/shepherd-theme-arrows.css" />
     <link rel="stylesheet" href="../../css/shepherd-theme-arrows-plain-buttons.css" /> -->
@@ -43,47 +44,100 @@
       <div class="row">
         <div class="form-horizontal">
           <div id="builds_search_criterias" class="form-group">
-            <div class="col-sm-offset-10 col-sm-2">
+          	<div class="col-sm-offset-2 col-sm-2 checkbox">
+        		<label>
+          			<input type="checkbox" name="lifecycle_status" id="lifecycle_status" /> Display pending builds
+        		</label>
+      		</div>
+            <div class="col-sm-offset-5 col-sm-2">
               <button id="builds_search" class="btn btn-default">Search</button>
+              <button id="copy-clipboard" data-toggle="tooltip" data-placement="top" title="Copy Search URL" class="btn btn-default" type="button">
+              <i class="fa fa-clipboard"></i></button>
             </div>
           </div> 
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12">   
           <div id="builds_list" class="list-group">
           </div>
         </div><!-- /.col-md-12 -->
       </div>
+      <a id="build_list_link">Rest</a>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="../../js/moment.min.js"></script>
 	<script type="text/javascript" src="../../js/underscore.min.js"></script>
 	<script type="text/javascript" src="../../js/batam.util.js"></script>
+	<script type="text/javascript" src="../../js/ZeroClipboard.min.js"></script>
     <script type="text/javascript">
     
     $(document).ready(function(){
     	var notAvailable= ' ';
     	var criteriasIds = [];
+    	
         // Initialize search
         $.getJSON('/api/criterias/build', displayBuildCriterias)
         	.error(handleError)
         	.fail(handleFailure);
          
         // Display project list 
-        $.getJSON('/api/builds', displayBuildList)
-        	.error(handleError)
-        	.fail(handleFailure);
-         
+        displayList();
+        
+        createClipboard();
+        
+        function displayList(){
+        	var queryParams = getUrlParams();
+        	var query = '/api/builds';
+        	for(var i = 0; i < queryParams.length; i++){
+        		if(i == 0){
+        			query += '?';
+        		}else{
+        			query += '&';
+        		}
+        		query += queryParams[i]+'='+queryParams[queryParams[i]];
+        	}
+        	$.getJSON(query, displayBuildList)
+        		.error(handleError)
+        		.fail(handleFailure);
+        }
+        
+        function createClipboard(){
+	        var client = new ZeroClipboard($("#copy-clipboard"));
+	        $('#copy-clipboard').tooltip();
+	        client.on('ready', function(event) {
+	          	client.on('copy', function(event) {
+	        	 	var query = '?lifecycle_status='+$('#lifecycle_status').is(':checked');
+	             	
+	             	for(var i = 0; i < criteriasIds.length; i++){
+	             		if($('#'+criteriasIds[i]).val() != null && $('#'+criteriasIds[i]).val() != ''){
+	               			query += '&'+criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
+	             		}
+	             	}
+	             	var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+	            	event.clipboardData.setData('text/plain', full+query);
+	          	});
+	          	client.on('aftercopy', function(event) {
+	            	$('.tooltip .tooltip-inner').text('Search URL Copied!');
+	          	});
+	        });
+        }
+        
         function displayBuildCriterias(response){
         	//If There are no criterias, we remove the form entirely
     	    if(response.criterias.length == 0){
     	    	$('#builds_search_criterias').remove();
     	    	return;
     	    }
-        	
+    	    var queryParams = getUrlParams();
+    	    if('true' == queryParams['lifecycle_status']){
+    	    	$('#lifecycle_status').attr("checked", true);
+    	    }else{
+    	    	$('#lifecycle_status').attr("checked", false)
+    	    }
     	    var criteriasForm = '';
            	for(var i = 0; i < response.criterias.length; i++){
              	criteriasIds[i] = replaceAll(" ", "_", response.criterias[i].name.toLowerCase());
@@ -94,8 +148,12 @@
                		'    <div class="col-sm-3">' +
                		'      <select class="form-control" id="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" name="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">';
                		criteriasForm += '        <option value="">Any</option>';
-               		for(var j = 0; j < response.criterias[i].values.length; j++){	             		
-                 		criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
+               		for(var j = 0; j < response.criterias[i].values.length; j++){	 
+               			if(response.criterias[i].values[j] == queryParams[replaceAll(" ", "_", response.criterias[i].name.toLowerCase())]){
+                 			criteriasForm += '        <option value="'+response.criterias[i].values[j]+'" selected>'+response.criterias[i].values[j]+'</option>';
+               			}else{
+               				criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
+               			}
                		}
                		criteriasForm += '      </select>' +
                		'    </div>';
@@ -111,13 +169,19 @@
                		'      <select class="form-control" id="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" name="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">';
                		criteriasForm += '        <option value="">Any</option>';
                		for(var j = 0; j < response.criterias[i].values.length; j++){
-                 		criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
+               			if(response.criterias[i].values[j] == queryParams[replaceAll(" ", "_", response.criterias[i].name.toLowerCase())]){
+               				criteriasForm += '        <option value="'+response.criterias[i].values[j]+'" selected>'+response.criterias[i].values[j]+'</option>';
+               			}else{
+                 			criteriasForm += '        <option value="'+response.criterias[i].values[j]+'">'+response.criterias[i].values[j]+'</option>';
+               			}
                		}
                		criteriasForm += '      </select>' +
                		'    </div>' +
                		'  </div>' +
                		'</div>';
              	}
+             	
+             	createRestLink();
            	} 
            	$('#builds_search_criterias').before(criteriasForm); 
           	//Add action to submit button
@@ -125,19 +189,31 @@
         }
         
         function handleSearchClick(){
-           	var query = '';
+           	var query = '?lifecycle_status='+$('#lifecycle_status').is(':checked');
+           	
            	for(var i = 0; i < criteriasIds.length; i++){
-             	if(i == 0){
-               		query += '?';
-             	}else{
-               		query += '&';
-             	}
-             	query += criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
+           		if($('#'+criteriasIds[i]).val() != null && $('#'+criteriasIds[i]).val() != ''){
+             		query += '&'+criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
+           		}
            	}
            	
            	$.getJSON('/api/builds'+query, displayBuildList)
            		.error(handleError)
            		.fail(handleFailure); 
+           	
+           	createRestLink();
+        }
+        
+        function createRestLink(){
+           	var query = '?lifecycle_status='+$('#lifecycle_status').is(':checked');
+           	
+           	for(var i = 0; i < criteriasIds.length; i++){
+           		if($('#'+criteriasIds[i]).val() != null && $('#'+criteriasIds[i]).val() != ''){
+             		query += '&'+criteriasIds[i]+'='+$('#'+criteriasIds[i]).val();
+           		}
+           	}
+           	
+           	$('#build_list_link').attr('href', '/api/builds'+query); 
         }
         
         // Function display build list
@@ -151,15 +227,18 @@
            	
            	var buildList = '';
            	for(var i = 0; i < response.builds.length; i++){
-           
-            	buildList += '<a href="/'+response.builds[i].id+'" class="list-group-item">'+ 
-               		'  <div class="row">' +
+	           	if(response.builds[i].lifecycle_status == 'pending'){
+	           		buildList += '<a href="/'+response.builds[i].id+'" class="list-group-item list-group-item-warning">';
+	           	}else{
+	           		buildList += '<a href="/'+response.builds[i].id+'" class="list-group-item">';
+	           	}
+            	buildList += '  <div class="row">' +
                		'    <div class="col-md-4">' +
                		'      <h4>'+response.builds[i].name+'</h4>' +
                		'    </div>' + 
                		'    <div class="col-md-2">';
     			if(response.builds[i].tests == undefined){
-    				buildList += '		<strong> Tests <span class="label label-info">n/a</span></strong>';
+    				buildList += '		<strong> Tests <span class="label label-info">0</span></strong>';
     			}else{
     				buildList += '		<strong> Tests '+response.builds[i].tests.value;	
     				if(response.builds[i].tests.trend == 1){
@@ -172,7 +251,7 @@
              	buildList += '    </div>' +
              		'    <div class="col-md-2">';
     			if(response.builds[i].passes == undefined){
-    				buildList += '		<strong> Pass <span class="label label-info">n/a</span></strong>';
+    				buildList += '		<strong> Pass <span class="label label-info">0</span></strong>';
     			}else{
     				if(response.builds[i].tests.trend == 1){
     					buildList += '		<strong> Pass <span class="label label-success">'+response.builds[i].passes.value+' <span class="glyphicon glyphicon-chevron-up"></span></span></strong>';
@@ -185,18 +264,18 @@
              	buildList += '    </div>' +
                		'    <div class="col-md-2">';
     			if(response.builds[i].failures == undefined){
-    				buildList += '		<strong> Failures <span class="label label-info">n/a</span></strong>';
+    				buildList += '		<strong> Failures <span class="label label-info">0</span></strong>';
     			}else{
     				buildList += '		<strong> Failures '+formatWithLabel(response.builds[i].failures.value, response.builds[i].failures.trend, 0, false)+'</strong>';	 
     			}
              	buildList += '    </div>' +
              		'    <div class="col-md-2">';
              	if(response.builds[i].errors == undefined){
-             		buildList += '		<strong> Errors <span class="label label-info">n/a</span></strong>';
+             		buildList += '		<strong> Errors <span class="label label-info">0</span></strong>';
     			}else{
              		buildList += '		<strong> Errors '+formatWithLabel(response.builds[i].errors.value, response.builds[i].errors.trend, 0, false)+'</strong>';
     			}
-             	var description = response.builds[i].description == undefined ? 'No description available.' : response.builds[i].description;
+             	var description = response.builds[i].description == undefined ? '&nbsp;' : response.builds[i].description;
              	var updateTime = response.builds[i].end_date == undefined ? notAvailable : moment(response.builds[i].end_date).fromNow();
              	buildList += '    </div>' +
              		'    </div>' +

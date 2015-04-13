@@ -169,6 +169,9 @@ function createBuildEntrypoint(data, ack){
 	}
 	if(!_.isNull(start_date)){
 		build.date = new Date(parseInt(start_date));
+	}else{
+		//We set a date by default since we need the date to display latest build in UI.
+		build.date = new Date();
 	}
 	
 	//Set duration value if possible
