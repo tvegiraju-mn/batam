@@ -363,6 +363,9 @@ function processAnalysis(data, build, previous_builds, reports, previous_reports
 							reports[index].duration.trend = -1;
 						}
 					}else{
+						if(_.isNull(reports[index].duration) || _.isUndefined(reports[index].duration)){
+							reports[index].duration = {};	
+						}
 						reports[index].duration.trend = 1;
 					}						
 			
