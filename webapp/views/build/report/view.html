@@ -67,8 +67,11 @@
 									<strong>General</strong>
 								</h5>
 								<dl class="dl-horizontal">
-									<dt>Date</dt>
+									<dt>Start Date</dt>
 									<dd id="report_date"></dd>
+									
+									<dt>End Date</dt>
+									<dd id="report_end_date"></dd>
 
 									<dt>Status</dt>
 									<dd id="report_status"></dd>
@@ -226,6 +229,8 @@
 	      	$('#report_description').html(description);
 	      	var date = response.report.date == undefined ? notAvailable : moment(response.report.date).format('MMM Do YYYY, h:mm:ss a');
 	    	$('#report_date').html(date);
+	    	var end_date = response.report.end_date == undefined ? notAvailable : moment(response.report.end_date).format('MMM Do YYYY, h:mm:ss a');
+	    	$('#report_end_date').html(end_date);
 	    	if(response.report.status != null){
 	    		if(response.report.status == 'completed'){
 	    			$('#report_status').html('<span class="label label-success">'+response.report.status+'</span>');

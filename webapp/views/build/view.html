@@ -422,24 +422,24 @@
 	           		listHtml += '<a href="/{{build_id}}/report/'+response.reports[i].id+'" class="list-group-item">';
 	           	}
 	    		listHtml += '		<div class="row" style="margin-bottom:10px">' +
-	    		'			<div class="col-sm-4">' +
+	    		'			<div class="col-sm-12">' +
 	    		'				<strong>'+response.reports[i].name +'</strong>'+
 	    		'			</div>' +
-	    		'			<div class="col-sm-2">';
-	    		if(response.reports[i].tests.all == undefined){
+	    		'			<div class="col-sm-2 col-sm-offset-2">';
+	    		if(response.reports[i].tests == null || response.reports[i].tests.all == undefined){
 	    			listHtml += '		<strong> Tests <span class="label label-info">0</span></strong>';
     			}else{
     				if(response.reports[i].tests.all.trend == 1){
-    					listHtml += '		<strong> Tests <span class="label label-success">'+response.reports[i].tests.all.value+' <span class="glyphicon glyphicon-chevron-up"></span></span></strong>';
+    					listHtml += '		<strong> Tests <span>'+response.reports[i].tests.all.value+' <span class="glyphicon glyphicon-chevron-up"></span></span></strong>';
 		    		}else if(response.reports[i].tests.all.trend == -1){
-		    			listHtml +=	'		<strong> Tests <span class="label label-warning">'+response.reports[i].tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span></span></strong>';
+		    			listHtml +=	'		<strong> Tests <span>'+response.reports[i].tests.all.value+' <span class="glyphicon glyphicon-chevron-down"></span></span></strong>';
 		    		}else{
-		    			listHtml += '		<strong> Tests '+response.reports[i].tests.all.value+'</strong>';	 
+		    			listHtml += '		<strong> Tests <span>'+response.reports[i].tests.all.value+'</span></strong>';	 
 		    		}
     			}
 	    		listHtml += '			</div>' +
 	    		'			<div class="col-sm-2">';
-	    		if(response.reports[i].tests.passes == undefined){
+	    		if(response.reports[i].tests == null || response.reports[i].tests.passes == undefined){
 	    			listHtml += '		<strong> Pass <span class="label label-info">0</span></strong>';
     			}else{
     				if(response.reports[i].tests.passes.trend == 1){
@@ -447,9 +447,16 @@
 		    		}else if(response.reports[i].tests.passes.trend == -1){
 		    			listHtml +=	'		<strong> Pass <span class="label label-warning">'+response.reports[i].tests.passes.value+' <span class="glyphicon glyphicon-chevron-down"></span></span></strong>';
 		    		}else{
-		    			listHtml += '		<strong> Pass '+response.reports[i].tests.passes.value+'</strong>';	 
+		    			listHtml += '		<strong> Pass <span>'+response.reports[i].tests.passes.value+'</span></strong>';	 
 		    		}
     			}
+	    		listHtml += '			</div>' +
+	    		'			<div class="col-sm-2">';
+	    		if(response.reports[i].tests == null || response.reports[i].tests == null || response.reports[i].tests.all_regressions == null || response.reports[i].tests.rall_egressions.value == null){
+	    			listHtml += '				<strong> Regressions <span class="label label-info">0</span></strong>';
+	    		}else{
+	    			listHtml += '				<strong> Regressions '+formatWithLabel(response.reports[i].tests.all_regressions.value, response.reports[i].tests.all_regressions.trend, 0, false)+'</strong>';
+	    		}
 	    		listHtml += '			</div>' +
 	    		'			<div class="col-sm-2">';
 	    		if(response.reports[i].tests == null || response.reports[i].tests.failures == null || response.reports[i].tests.failures.value == null){
@@ -476,7 +483,7 @@
 	            }else{
 	            	listHtml +=	'			<span class="label label-danger">'+response.reports[i].status+'</span>';
 	            }
-	    		var updateTime = response.reports[i].date == undefined ? notAvailable : moment(response.reports[i].date).fromNow();
+	    		var updateTime = response.reports[i].date == undefined ? notAvailable : moment(response.reports[i].end_date).fromNow();
 	            listHtml +=	'  			'+updateTime+'</div>' +
 	            '		</div>' +
 	            '</a>';

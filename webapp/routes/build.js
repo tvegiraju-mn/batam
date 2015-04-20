@@ -147,6 +147,13 @@ function findBuildList(req, res, next){
 	    	resultIndex++;        
 	    });
 	    
+	    //Order build per end date
+	    result.sort(function(a, b) {
+		    var aed = a.end_date == null ? new Date() : new Date(a.end_date);
+		    var bed = b.end_date == null ? new Date() : new Date(b.end_date);
+		    return aed > bed ? -1 : aed < bed ? 1 : 0;
+		});
+	    
 		res.send({builds: result});
 	};
 	

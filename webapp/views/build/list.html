@@ -128,10 +128,6 @@
         
         function displayBuildCriterias(response){
         	//If There are no criterias, we remove the form entirely
-    	    if(response.criterias.length == 0){
-    	    	$('#builds_search_criterias').remove();
-    	    	return;
-    	    }
     	    var queryParams = getUrlParams();
     	    if('true' == queryParams['lifecycle_status']){
     	    	$('#lifecycle_status').attr("checked", true);
@@ -232,11 +228,11 @@
 	           	}else{
 	           		buildList += '<a href="/'+response.builds[i].id+'" class="list-group-item">';
 	           	}
-            	buildList += '  <div class="row">' +
-               		'    <div class="col-md-4">' +
+            	buildList += '  <div class="row" style="margin-bottom:10px">' +
+               		'    <div class="col-md-12">' +
                		'      <h4>'+response.builds[i].name+'</h4>' +
                		'    </div>' + 
-               		'    <div class="col-md-2">';
+               		'    <div class="col-sm-2 col-sm-offset-4">';
     			if(response.builds[i].tests == undefined){
     				buildList += '		<strong> Tests <span class="label label-info">0</span></strong>';
     			}else{
@@ -249,7 +245,7 @@
     				buildList +=	'					</span></strong>';
     			}
              	buildList += '    </div>' +
-             		'    <div class="col-md-2">';
+             		'    <div class="col-sm-2">';
     			if(response.builds[i].passes == undefined){
     				buildList += '		<strong> Pass <span class="label label-info">0</span></strong>';
     			}else{
@@ -262,14 +258,14 @@
 		    		}
     			}
              	buildList += '    </div>' +
-               		'    <div class="col-md-2">';
+               		'    <div class="col-sm-2">';
     			if(response.builds[i].failures == undefined){
     				buildList += '		<strong> Failures <span class="label label-info">0</span></strong>';
     			}else{
     				buildList += '		<strong> Failures '+formatWithLabel(response.builds[i].failures.value, response.builds[i].failures.trend, 0, false)+'</strong>';	 
     			}
              	buildList += '    </div>' +
-             		'    <div class="col-md-2">';
+             		'    <div class="col-sm-2">';
              	if(response.builds[i].errors == undefined){
              		buildList += '		<strong> Errors <span class="label label-info">0</span></strong>';
     			}else{

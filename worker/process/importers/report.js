@@ -163,8 +163,9 @@ function createReport(build, data, ack){
 	}
 	if(!_.isNull(report.date) && !_.isNull(end_date)){
 		report.duration = {};
-		report.duration.value = parseInt(end_date) - parseInt(start_date);
+		report.duration.value = parseInt(end_date) - parseInt(report.date.getTime());
 		report.duration.trend = 0;
+		report.end_date = new Date(parseInt(end_date));
 	}
 	
 	//Check logs
@@ -320,6 +321,7 @@ function updateReport(report, data, ack){
 		report.duration = {};
 		report.duration.value = parseInt(end_date) - parseInt(report.date.getTime());
 		report.duration.trend = 0;
+		report.end_date = new Date(parseInt(end_date));
 	}
 
 	//Update logs, 
