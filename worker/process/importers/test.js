@@ -187,7 +187,7 @@ function createTest(report, data, ack){
 	var description = data.description;
 	var start_date = data.start_date;
 	var end_date = data.end_date;
-	var status = data.status;
+	var status = data.status != null ? data.status.toLowerCase() : null;
 	var log = data.log;	
 	var criterias = data.criterias;
 	
@@ -419,7 +419,7 @@ function updateTest(report, data, ack){
 		var description = data.description;
 		var start_date = data.start_date;
 		var end_date = data.end_date;
-		var status = data.status;
+		var status = data.status != null ? data.status.toLowerCase() : null;
 		var log = data.log;
 		var criterias = data.criterias;
 	
