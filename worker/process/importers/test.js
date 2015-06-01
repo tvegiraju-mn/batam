@@ -194,6 +194,8 @@ function createTest(report, data, ack){
 	var test = {};
 	test.status = status;
 	test.report_id = report.id;
+	test.report_name = report.name;
+	test.build_name = report.build_name;
 	test.build_id = report.build_id;
 	test.description = description;
 	test.log = log;

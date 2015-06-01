@@ -129,6 +129,7 @@ function createReport(build, data, ack){
 	report.description = description;
 	report.status = status;
 	report.build_id = build.id;
+	report.build_name = build.name;
 	report.lifecycle_status = "pending";
 	build.next_id = null;
 	

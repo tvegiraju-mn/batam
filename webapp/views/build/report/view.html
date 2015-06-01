@@ -7,14 +7,12 @@
 <title>Build And Test Automation Management</title>
 
 <!-- Bootstrap -->
-<link href="../../../css/bootstrap.min.css" rel="stylesheet">
+<link href="../../../css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet"
-	href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" />
 
 <!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css"
-	href="../../../css/jquery.dataTables.min.css">
-
+<link rel="stylesheet" type="text/css" href="../../../css/jquery.dataTables.min.css" />
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -308,7 +306,7 @@
 	    	}
 	      	
 	    	// Initialize search
-	        $.getJSON('/api/criterias/test/{{report_id}}', displaySearch)
+	        $.getJSON('/api/search/test?report_id={{report_id}}&build_id={{build_id}}', displaySearch)
 	        	.error(handleError)
     			.fail(handleFailure);
 	    }

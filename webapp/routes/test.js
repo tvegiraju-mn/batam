@@ -47,9 +47,6 @@ function showTest(req, res, next){
 		if(_.isEmpty(build) || _.isNull(build)){
 			return next('Build '+req.params.build_id+' not found.');
 		}
-//		if(build.lifecycle_status != 'completed'){
-//			return next('Build '+req.params.build_id+' not complete.');
-//		}
 		
 		//Fetch build report.
 		req.collections.reports.findOne({id: req.params.report_id, build_id: build.id}, findReport);
@@ -61,11 +58,11 @@ function showTest(req, res, next){
 	}
 	//if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.params.build_id) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	//if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.params.report_id) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	if(validator.isNull(req.params.test_id) || !validator.isMongoId(req.params.test_id)){
 		return next(new Error('test_id param should not be null and correspond to a MongoDB Id.'));
@@ -142,11 +139,11 @@ function findTestList(req, res, next){
 	}
 	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	//if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.query.report_id) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	if(validator.isNull(req.query.draw) || !validator.isInt(req.query.draw)){
 		return next(new Error('draw param should not be null and should be a number.'));
@@ -248,64 +245,74 @@ function downloadPDF(req, res, next){
 				var totalRegressions = 0;
 				var totalFailures = 0;
 				var totalErrors = 0;
-				var i = 0;
-				for(i = 1; i <= reports.length; i++){
-					doc.rect(75, initialYAxis+(i*25), 200, 25).fillAndStroke("white", "black");
-					doc.rect(275, initialYAxis+(i*25), 50, 25).fillAndStroke("white", "black");
-					doc.rect(325, initialYAxis+(i*25), 50, 25).fillAndStroke("white", "black");
+
+				var rowPerPage = 20;
+				var pageIndex = 1;
+				for(var i = 1; i <= reports.length; i++){
+					if(pageIndex % rowPerPage == 0){
+						doc.addPage();
+						pageIndex = 1;
+						rowPerPage = 25;
+						initialYAxis = 50; 
+					}
+					doc.rect(75, initialYAxis+(pageIndex*25), 200, 25).fillAndStroke("white", "black");
+					doc.rect(275, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("white", "black");
+					doc.rect(325, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("white", "black");
 					if(reports[i-1].tests.regressions.value != 0){
-						doc.rect(375, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+						doc.rect(375, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 					}else{
-						doc.rect(375, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+						doc.rect(375, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 					}
 					if(reports[i-1].tests.failures.value != 0){
-						doc.rect(425, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+						doc.rect(425, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 					}else{
-						doc.rect(425, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+						doc.rect(425, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 					}
 					if(reports[i-1].tests.errors.value != 0){
-						doc.rect(475, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+						doc.rect(475, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 					}else{
-						doc.rect(475, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+						doc.rect(475, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 					}
 					
-					doc.fontSize(9).fillColor('black').text(reports[i-1].name, 80, initialYAxis+(i*25)+5);
-					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.all.value, 280, initialYAxis+(i*25)+5);
-					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.passes.value, 330, initialYAxis+(i*25)+5);
-					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.regressions.value, 380, initialYAxis+(i*25)+5);
-					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.failures.value, 430, initialYAxis+(i*25)+5);
-					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.errors.value, 480, initialYAxis+(i*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].name, 80, initialYAxis+(pageIndex*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.all.value, 280, initialYAxis+(pageIndex*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.passes.value, 330, initialYAxis+(pageIndex*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.regressions.value, 380, initialYAxis+(pageIndex*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.failures.value, 430, initialYAxis+(pageIndex*25)+5);
+					doc.fontSize(9).fillColor('black').text(reports[i-1].tests.errors.value, 480, initialYAxis+(pageIndex*25)+5);
 					
 					totalTests += reports[i-1].tests.all.value;
 					totalPasses += reports[i-1].tests.passes.value;
 					totalRegressions += reports[i-1].tests.regressions.value;
 					totalFailures += reports[i-1].tests.failures.value;
 					totalErrors += reports[i-1].tests.errors.value;
+					
+					pageIndex++;
 				}
-				doc.rect(75, initialYAxis+(i*25), 200, 25).fillAndStroke("#F0F0F0", "black");
-				doc.rect(275, initialYAxis+(i*25), 50, 25).fillAndStroke("white", "black");
-				doc.rect(325, initialYAxis+(i*25), 50, 25).fillAndStroke("white", "black");
+				doc.rect(75, initialYAxis+(pageIndex*25), 200, 25).fillAndStroke("#F0F0F0", "black");
+				doc.rect(275, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("white", "black");
+				doc.rect(325, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("white", "black");
 				if(totalRegressions != 0){
-					doc.rect(375, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+					doc.rect(375, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 				}else{
-					doc.rect(375, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+					doc.rect(375, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 				}
 				if(totalFailures != 0){
-					doc.rect(425, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+					doc.rect(425, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 				}else{
-					doc.rect(425, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+					doc.rect(425, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 				}
 				if(totalErrors != 0){
-					doc.rect(475, initialYAxis+(i*25), 50, 25).fillAndStroke("#990000", "black");
+					doc.rect(475, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#990000", "black");
 				}else{
-					doc.rect(475, initialYAxis+(i*25), 50, 25).fillAndStroke("#669966", "black");
+					doc.rect(475, initialYAxis+(pageIndex*25), 50, 25).fillAndStroke("#669966", "black");
 				}
-				doc.fontSize(9).fillColor('black').text("Total", 80, initialYAxis+(i*25)+5);
-				doc.fontSize(9).fillColor('black').text(totalTests, 280, initialYAxis+(i*25)+5);
-				doc.fontSize(9).fillColor('black').text(totalPasses, 330, initialYAxis+(i*25)+5);
-				doc.fontSize(9).fillColor('black').text(totalRegressions, 380, initialYAxis+(i*25)+5);
-				doc.fontSize(9).fillColor('black').text(totalFailures, 430, initialYAxis+(i*25)+5);
-				doc.fontSize(9).fillColor('black').text(totalErrors, 480, initialYAxis+(i*25)+5);
+				doc.fontSize(9).fillColor('black').text("Total", 80, initialYAxis+(pageIndex*25)+5);
+				doc.fontSize(9).fillColor('black').text(totalTests, 280, initialYAxis+(pageIndex*25)+5);
+				doc.fontSize(9).fillColor('black').text(totalPasses, 330, initialYAxis+(pageIndex*25)+5);
+				doc.fontSize(9).fillColor('black').text(totalRegressions, 380, initialYAxis+(pageIndex*25)+5);
+				doc.fontSize(9).fillColor('black').text(totalFailures, 430, initialYAxis+(pageIndex*25)+5);
+				doc.fontSize(9).fillColor('black').text(totalErrors, 480, initialYAxis+(pageIndex*25)+5);
 				
 				//Tests results per reports
 				doc.addPage();
@@ -511,7 +518,7 @@ function downloadPDF(req, res, next){
 	
 	//if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.params.build_id) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	
 	//Fetch Build
@@ -606,20 +613,17 @@ function findStat(req, res, next){
 	};
 	
 	//Validate inputs.
-	if(!req.query.build_id || !req.query.report_id || !req.query.graph) {
-		return next(new Error('No build_id, report_id or graph query params.'));
+	if(!req.query.build_id || !req.query.graph) {
+		return next(new Error('No build_id or graph query params.'));
 	}
-	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('build_id param should not be null, between 5 and 30 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	//if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
-	if(validator.isNull(req.query.report_id) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	if(!validator.isNull(req.query.report_id) && !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	//if(validator.isNull(req.query.graph) || !validator.isLength(req.query.graph, 3, 20) || !validator.matches(req.query.graph, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.query.graph) || !validator.matches(req.query.graph, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 3 and 20 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		return next(new Error('graph param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 	
 	//Create response object.
@@ -655,9 +659,9 @@ function createSearchCriterias(req, criterias){
 			searchCriterias[currentCriterias] = req.query[currentCriterias];
 		}
 	}
-
-	searchCriterias.report_id = req.query.report_id;	
-	
+	if(req.query.report_id != null && req.query.report_id != '' && req.query.report_id != 'null'){
+		searchCriterias.report_id = req.query.report_id;	
+	}
 	return searchCriterias;
 }
 
@@ -693,7 +697,7 @@ function findTest(req, res, next){
 }
 
 /**
- * API path /api/criterias/test/:report_id
+ * API path /api/search/tests
  */
 exports.search = findSearchedTests;
 
@@ -749,17 +753,30 @@ function findSearchedTests(req, res, next){
 			allCriterias[currentCriterias] = {};
 		}
 
-		//Fetch all tests for this report.
-		req.collections.tests.find({report_id: req.params.report_id}).toArray(findTests);
+		//Fetch all tests for this report or build.
+		if(req.query.report_id != null){
+			req.collections.tests.find({report_id: req.query.report_id}).toArray(findTests);
+		}else{
+			req.collections.tests.find({build_id: req.query.build_id}).toArray(findTests);
+		}
 	};
 	
 	//Validate inputs.
-	if(!req.params.report_id) {
-		return next(new Error('No report_id param in url.'));
+	if(validator.isNull(req.query.report_id) && validator.isNull(req.query.build_id)){
+		return next(new Error('report_id or build_id param should be not null'));
 	}
-	//if(validator.isNull(req.params.report_id) || !validator.isLength(req.params.report_id, 5, 60) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
-	if(validator.isNull(req.params.report_id) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
-		return next(new Error('report_id param should not be null, between 5 and 60 characters and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	if(!validator.isNull(req.query.report_id)){
+		if(!validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
+			return next(new Error(req.query.report_id+'report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		}
+	}
+	if(!validator.isNull(req.query.build_id)){
+		if(!validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+			return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+		}
+	}
+	if(validator.isNull(req.query.report_id) && validator.isNull(req.query.build_id)){
+		return next(new Error("Either build_id or report_id should be defined"));
 	}
 	
 	var allCriterias = {};
@@ -768,6 +785,93 @@ function findSearchedTests(req, res, next){
 	
 	//Fetch all tests criterias.
 	req.collections.testcriterias.find().toArray(findTestCriterias);
+}
+
+/**
+ * API path /api/tests/history
+ */
+exports.history = findTestHistory; 
+
+function findTestHistory(req, res, next){
+	var findTest = function (error, test){
+		var findTests = function (error, tests){
+			var countTest = function (error, count){
+				//Validate query result.
+				if(error){
+					return next(error);
+				}
+				if(_.isNull(count)){
+					count = 0;
+				}				
+				
+				result.recordsTotal = count;
+				result.recordsFiltered = count;
+				result.data = data;
+				//Send result.
+				res.send(result);
+			};
+			
+			//Handle Error.
+			if(error){
+				return next(error);
+			}
+			
+			//Populate the data array with tests found.
+			for(var index in tests){
+				data[index] = [
+	               tests[index].build_id, 
+	               tests[index].report_id, 
+				   tests[index]._id, 
+	               tests[index].start_date, 
+	               formatter.formatTime(tests[index].time),
+	               formatter.formatStatus(tests[index].status)]; 
+			}
+			
+			//Count number of retuned tests and send response.
+			req.collections.tests.count({name: test_name, build_name: build_name, start_date : { $lte : test.start_date }}, countTest);
+		}
+		
+		if(error){
+			return next(error);
+		}
+		
+		//fetch build name
+		var test_name = test.name;
+		var build_name = test.build_name;
+		
+		//Fetch all test criterias.
+		req.collections.tests.find({name: test_name, build_name: build_name, start_date : { $lte : test.start_date }})
+			.sort({start_date: -1})
+			.skip(parseInt(req.query.start)).limit(parseInt(req.query.length))
+			.toArray(findTests);
+	}
+
+	//Validate inputs.
+	if(!req.query.draw || !req.query.length || !req.query.start){
+		return next(new Error('No draw, length, start query params.'));
+	}
+	if(validator.isNull(req.params.test_id) || !validator.matches(req.params.test_id, '[0-9a-zA-Z_-]+')){
+		return next(new Error('build_name param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
+	}
+	if(validator.isNull(req.query.draw) || !validator.isInt(req.query.draw)){
+		return next(new Error('draw param should not be null and should be a number.'));
+	}
+	if(validator.isNull(req.query.length) || !validator.isInt(req.query.length)){
+		return next(new Error('length param should not be null and should be a number.'));
+	}
+	if(validator.isNull(req.query.start) || !validator.isInt(req.query.start)){
+		return next(new Error('start param should not be null and should be a number.'));
+	}
+	
+	//Create response object.
+	var result = {};
+	//Set draw value.
+	result.draw = req.query.draw;
+	//Create data obejct array.
+	var data = [];
+
+	//Fetch all test criterias.
+	req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id)}, findTest)
 }
 
 function replaceAll(find, replace, str) {

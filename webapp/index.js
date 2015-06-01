@@ -60,16 +60,15 @@ app.get('/api/criterias/build', routes.build.search);
 
 app.get('/api/builds/:build_id', routes.build.view);
 app.get('/api/commits', routes.commit.list);
-app.get('/api/reports', routes.report.list);
 
+app.get('/api/reports', routes.report.list);
 app.get('/api/reports/:report_id', routes.report.view);
-app.get('/api/criterias/test/:report_id', routes.test.search);
+app.get('/api/search/test', routes.test.search);
+
 app.get('/api/tests', routes.test.list);
 app.get('/api/tests/stat', routes.test.stat);
-
 app.get('/api/tests/:test_id', routes.test.view);
-
-
+app.get('/api/tests/:test_id/history', routes.test.history);
 
 app.all('*', function(req, res){
   res.status(404).end();
