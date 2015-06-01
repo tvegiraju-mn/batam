@@ -136,6 +136,27 @@
 												<dl class="dl-horizontal" id="build_reports"></dl>
 											</div>
 										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<h3 id="thumbnails">Commits</h3>
+												<table id="commits" class="display" cellspacing="0" width="100%">
+													<thead>
+														<tr>
+															<th>Commit Id</th>
+															<th>Date Committed</th>
+															<th>Author</th>
+														</tr>
+													</thead>
+													<tfoot>
+														<tr>
+															<th>Commit Id</th>
+															<th>Date Committed</th>
+															<th>Author</th>
+														</tr>
+													</tfoot>
+												</table>
+											</div>
+										</div>
 									</div>
 								</div><!-- /.well -->
 							</div><!-- /.col-md-12 -->
@@ -145,26 +166,19 @@
 								<div id="build_timeline" style="height: 100px;"></div>
 							</div>
 						</div>
+						
+						<div class="form-horizontal">
+							<div class="form-group">
+								<div class="row">
+									<label for="graphs_link" class="col-sm-2 control-label">Display Graph</label>
+									<div class="col-md-2">
+										<select class="form-control" id="graphs_link" name="graphs_link"></select>
+									</div>
+								</div>	
+							</div>	
+						</div>
 						<div class="row">
-							<div class="col-md-12">
-								<h3 id="thumbnails">Commits</h3>
-								<table id="commits" class="display" cellspacing="0" width="100%">
-									<thead>
-										<tr>
-											<th>Commit Id</th>
-											<th>Date Committed</th>
-											<th>Author</th>
-										</tr>
-									</thead>
-									<tfoot>
-										<tr>
-											<th>Commit Id</th>
-											<th>Date Committed</th>
-											<th>Author</th>
-										</tr>
-									</tfoot>
-								</table>
-							</div>
+							<div id="graph-panel"></div>
 						</div>
 					</div>
 				</div>
@@ -208,10 +222,12 @@
 	<script type="text/javascript" src="../../js/underscore.min.js"></script>
 	<script type="text/javascript" src="../../js/batam.util.js"></script>
 	<script type="text/javascript">
-	google.load("visualization", "1.1", {packages:["timeline"]});
+	google.load("visualization", "1.1", {packages:["timeline", "corechart"]});
 	
 	$(document).ready(function(){
-		var notAvailable = ''
+		var notAvailable = '';
+		var criteriasIds = [];
+		var graph = '';
 		// Initial fetch
 	    $.getJSON('/api/builds/{{build_id}}', displayBuild)
 		    .error(handleError)
@@ -220,6 +236,10 @@
 	    $.getJSON('/api/reports?build_id={{build_id}}', displayReports)
 		    .error(handleError)
 		    .fail(handleFailure);	
+	    
+        $.getJSON('/api/search/test?build_id={{build_id}}', initGraph)
+        	.error(handleError)
+			.fail(handleFailure);
 	    
 	  	//Submit download button
       	$('#tests_download').click(handleDownloadClick);
@@ -487,6 +507,77 @@
 	   		$('#reports_list').html(listHtml);
 	    	
 	    }
+	    
+	    function initGraph(response){
+	    	// Add Show graphs
+          	var graphLink = '<option value="">None</option>';//'<ul class="nav nav-tabs" role="tablist">';
+          	for(var i = 0; i < response.criterias.length; i++){
+				if(graph != null && replaceAll(" ", "_", response.criterias[i].name.toLowerCase()) == graph){
+					graphLink += '<option id="graph_link_'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" value="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" selected="selected">'+response.criterias[i].name+'</li>';
+				}else{
+					graphLink += '<option id="graph_link_'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" value="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'">'+response.criterias[i].name+'</li>';
+				}
+          	}
+	    	//graphLink += '</ul>';
+          	$('#graphs_link').html(graphLink);
+          	
+          	//Display default status graph 
+          	if(graph != null && graph != ''){
+	          	var query = '?build_id={{build_id}}&graph='+graph;
+	        	for(var j = 0; j < criteriasIds.length; j++){
+	        		if($('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != null && $('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != ''){
+	          			query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
+	        		}
+	        	}
+        	
+	        	//Display Graphs
+	        	$.getJSON('/api/tests/stat'+query, displayGraph)
+	        		.error(handleError)
+	    			.fail(handleFailure);
+          	}
+          	
+          	//Add event click to show graph
+          	$('#graphs_link').change(handleGraphClick);
+	    }
+	    
+	    function handleGraphClick(){
+
+  			graph = $('#graphs_link').val();
+  			if(graph == null || graph == ''){
+  				$('#graph-panel').html('');
+  				return;
+  			}
+  			var query = '?build_id={{build_id}}&graph='+graph;
+        	for(var j = 0; j < criteriasIds.length; j++){
+        		if($('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != null && $('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != ''){
+          			query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
+        		}
+        	}
+        	//Display Graphs
+        	$.getJSON('/api/tests/stat'+query, displayGraph)
+    			.error(handleError)
+				.fail(handleFailure);
+  		}
+	    
+	    function displayGraph(response){
+	 		$('#graph-panel').html('<div class="col-md-6" id="graph" style="height: 300px"></div><div class="col-md-6" id="trend"></div>');
+            var dataSource = [];
+            dataSource[0] = [response.stat.name, "Count"]
+            for(var j = 0; j < response.stat.values.length; j++){
+            	dataSource[j+1] = [response.stat.values[j].name, response.stat.values[j].value];
+            }
+           
+            var data = google.visualization.arrayToDataTable(dataSource);
+			var chartTitle = "Tests executed Per " + response.stat.name;
+          	var options = {
+            	title: chartTitle,
+          	};
+
+          	var chart = new google.visualization.PieChart(document.getElementById("graph"));
+          	chart.draw(data, options);
+          	
+          	displayTrend(response);
+	  	}
 	    
 	});
               
