@@ -48,27 +48,28 @@ if('development' == app.get('env')){
 }
 
 //Define Routes and views
-app.get('/', routes.build.showAll);
-app.get('/:build_id', routes.build.show);
-app.get('/:build_id/download', routes.test.download);
-app.get('/:build_id/report/:report_id', routes.report.show);
-app.get('/:build_id/report/:report_id/test/:test_id', routes.test.show);
+app.get('/', routes.pages.build.showAll);
+app.get('/:build_id', routes.pages.build.show);
+app.get('/:build_id/download', routes.pages.test.download);
+app.get('/:build_id/search', routes.pages.build.search);
+app.get('/:build_id/report/:report_id', routes.pages.report.show);
+app.get('/:build_id/report/:report_id/test/:test_id', routes.pages.test.show);
 
 //REST API ROUTES
-app.get('/api/builds', routes.build.list);
-app.get('/api/criterias/build', routes.build.search);
+app.get('/api/commits', routes.apis.commit.list);
 
-app.get('/api/builds/:build_id', routes.build.view);
-app.get('/api/commits', routes.commit.list);
+app.get('/api/builds', routes.apis.build.list);
+app.get('/api/builds/criterias', routes.apis.build.criterias);
+app.get('/api/builds/:build_id', routes.apis.build.view);
 
-app.get('/api/reports', routes.report.list);
-app.get('/api/reports/:report_id', routes.report.view);
-app.get('/api/search/test', routes.test.search);
+app.get('/api/reports', routes.apis.report.list);
+app.get('/api/reports/:report_id', routes.apis.report.view);
 
-app.get('/api/tests', routes.test.list);
-app.get('/api/tests/stat', routes.test.stat);
-app.get('/api/tests/:test_id', routes.test.view);
-app.get('/api/tests/:test_id/history', routes.test.history);
+app.get('/api/tests', routes.apis.test.list);
+app.get('/api/tests/criterias', routes.apis.test.criterias);
+app.get('/api/tests/stat', routes.apis.test.stat);
+app.get('/api/tests/:test_id', routes.apis.test.view);
+app.get('/api/tests/:test_id/history', routes.apis.test.history);
 
 app.all('*', function(req, res){
   res.status(404).end();

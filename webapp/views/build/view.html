@@ -166,7 +166,6 @@
 								<div id="build_timeline" style="height: 100px;"></div>
 							</div>
 						</div>
-						
 						<div class="form-horizontal">
 							<div class="form-group">
 								<div class="row">
@@ -194,9 +193,11 @@
 							<span class="glyphicon glyphicon-resize-small"></span> Compare
 							With ...
 						</button>
-						<button id="tests_filter" type="button" class="btn btn-default">
-							<span class="glyphicon glyphicon-search"></span> Search
-						</button>
+						<a href="/{{build_id}}/search">
+							<button id="tests_searches" type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-search"></span> Search
+							</button>
+						</a>
 					</div>
 				</div><!-- /.col-md-12 -->
 			</div>
@@ -237,11 +238,14 @@
 		    .error(handleError)
 		    .fail(handleFailure);	
 	    
-        $.getJSON('/api/search/test?build_id={{build_id}}', initGraph)
+        $.getJSON('/api/tests/criterias?build_id={{build_id}}', initGraph)
         	.error(handleError)
 			.fail(handleFailure);
 	    
 	  	//Submit download button
+      	$('#tests_download').click(handleDownloadClick);
+	  	
+      //Submit download button
       	$('#tests_download').click(handleDownloadClick);
         
       	function handleDownloadClick(){

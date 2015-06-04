@@ -3,7 +3,7 @@ var util = require('util');
 var validator = require('validator');
 
 /**
- * PAGE path /api/commits
+ * API path /api/commits
  */
 exports.list = findCommitList;
 	

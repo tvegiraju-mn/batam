@@ -80,7 +80,7 @@
     	var criteriasIds = [];
     	
         // Initialize search
-        $.getJSON('/api/criterias/build', displayBuildCriterias)
+        $.getJSON('/api/builds/criterias', displayBuildCriterias)
         	.error(handleError)
         	.fail(handleFailure);
          

@@ -306,7 +306,7 @@
 	    	}
 	      	
 	    	// Initialize search
-	        $.getJSON('/api/search/test?report_id={{report_id}}&build_id={{build_id}}', displaySearch)
+	        $.getJSON('/api/tests/criterias?report_id={{report_id}}&build_id={{build_id}}', displaySearch)
 	        	.error(handleError)
     			.fail(handleFailure);
 	    }

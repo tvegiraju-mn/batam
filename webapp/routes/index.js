@@ -1,4 +1,2 @@
-exports.build = require('./build');
-exports.commit = require('./commit');
-exports.report = require('./report');
-exports.test = require('./test');
+exports.pages = require('./pages');
+exports.apis = require('./apis');
