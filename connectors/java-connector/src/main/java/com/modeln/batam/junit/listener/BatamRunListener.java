@@ -94,6 +94,8 @@ public class BatamRunListener extends RunListener {
                     null,
                     null,
                     null,
+                    null,
+                    null,
                     null);
         }
     }
@@ -114,6 +116,8 @@ public class BatamRunListener extends RunListener {
                     null,
                     new Date(),
                     "pass",
+                    null,
+                    null,
                     null,
                     null,
                     false);
@@ -144,6 +148,8 @@ public class BatamRunListener extends RunListener {
                         null,
                         null,
                         "fail",
+                        null,
+                        null, 
                         null,
                         failure.getException().getMessage() + " " + exception,
                         false);

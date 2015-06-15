@@ -130,6 +130,8 @@ Command line options > Environment properties > External file property > Interna
 		"status" : "pass|failed|error| name it",
 		"log" : "test logs",
 		"criterias" : [[Pair](#pair)],
+		"tags" : ["list of String"],
+		"steps" : [[Step][#step]],
 		"override" : false
 }
 ```
@@ -147,7 +149,11 @@ Command line options > Environment properties > External file property > Interna
 {
  		"name" : "step name",
  		"start_date" : "12341234", // Time in millisecond
- 		"end_date" : "12341234" // Time in millisecond
+ 		"end_date" : "12341234" // Time in millisecond,
+ 		"order": 1,
+ 		"status" : success,
+ 		"result": 10,
+ 		"expected": "10"
 }
 ```
 

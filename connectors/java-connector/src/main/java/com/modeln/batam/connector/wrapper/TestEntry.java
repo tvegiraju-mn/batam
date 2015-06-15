@@ -41,6 +41,8 @@ import org.json.simple.JSONObject;
  * 		"status" : "pass|failed|error| name it",
  * 		"log" : "test logs",
  * 		"criterias" : [{@link com.modeln.batam.connector.wrapper.Pair}],
+ * 		"tags" : [{@link java.lang.String}],
+ *    	"steps" : [{@link com.modeln.batam.connector.wrapper.Step}],
  * 		"override" : false
  * }
  * 
@@ -66,14 +68,28 @@ public class TestEntry {
 	
 	private List<Pair> criterias;
 	
+	private List<String> tags;
+	
+	private List<Step> steps;
+	
 	private boolean override = false;
 	
 	public TestEntry() {
 		super();
 	}
 	
-	public TestEntry(String reportId, String reportName, String name, String description, Date startDate, Date endDate, String status,
-			List<Pair> criterias, String log, boolean override) {
+	public TestEntry(String reportId, 
+			String reportName, 
+			String name, 
+			String description, 
+			Date startDate, 
+			Date endDate, 
+			String status,
+			List<Pair> criterias,
+			List<String> tags,
+			List<Step> steps,
+			String log, 
+			boolean override) {
 		super();
 		this.reportId = reportId;
 		this.reportName = reportName;
@@ -83,6 +99,8 @@ public class TestEntry {
 		this.endDate = endDate;
 		this.status = status;
 		this.criterias = criterias;
+		this.tags = tags;
+		this.steps = steps;
 		this.log = log;
 		this.override = override;
 	}
@@ -159,6 +177,22 @@ public class TestEntry {
 		this.criterias = criterias;
 	}
 
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
+	public List<Step> getSteps() {
+		return steps;
+	}
+
+	public void setSteps(List<Step> steps) {
+		this.steps = steps;
+	}
+
 	public boolean isOverride() {
 		return override;
 	}
@@ -178,6 +212,8 @@ public class TestEntry {
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("status", status);
 		obj.put("criterias", criterias);
+		obj.put("tags", tags);
+		obj.put("steps", steps);
 		obj.put("log", log);
 		obj.put("override", override);
 		
@@ -209,11 +245,29 @@ public class TestEntry {
 			}
 		}
 		
+		List<String> tags = new ArrayList<String>();
+		JSONArray tagsArray = (JSONArray)obj.get("tags");
+		if(tagsArray != null){
+			for(Iterator<String> it =  tagsArray.iterator(); it.hasNext();){
+				String tag = it.next();
+				tags.add(tag);
+			}
+		}
+		
+		List<Step> steps = new ArrayList<Step>();
+		JSONArray stepsArray = (JSONArray)obj.get("steps");
+		if(stepsArray != null){
+			for(Iterator<JSONObject> it = stepsArray.iterator(); it.hasNext();){
+				JSONObject step = it.next();
+				steps.add(Step.fromJSON(step));
+			}
+		}
+		
 		String log = (String)obj.get("log");
 		
 		return new TestEntry(reportId, reportName, name, description, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)), 
-				status, criterias, log, override);
+				status, criterias, tags, steps, log, override);
 	}
 }

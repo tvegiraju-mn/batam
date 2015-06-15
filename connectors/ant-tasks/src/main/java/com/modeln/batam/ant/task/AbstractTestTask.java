@@ -12,6 +12,10 @@ import com.modeln.batam.connector.wrapper.Pair;
 import com.modeln.batam.connector.wrapper.TestEntry;
 import com.modeln.batam.ant.typedef.Criteria;
 import com.modeln.batam.ant.typedef.Criterias;
+import com.modeln.batam.ant.typedef.Step;
+import com.modeln.batam.ant.typedef.Steps;
+import com.modeln.batam.ant.typedef.Tag;
+import com.modeln.batam.ant.typedef.Tags;
 
 public abstract class AbstractTestTask extends AbstractBatamTask {
 	
@@ -37,10 +41,26 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 	
 	private List<Criterias> criterias = new ArrayList<Criterias>();
 	
+	private List<Tags> tags = new ArrayList<Tags>();
+	
+	private List<Steps> steps = new ArrayList<Steps>();
+	
 	public Criterias createCriterias() {                              
 		Criterias criteria = new Criterias();
 		criterias.add(criteria);
         return criteria;
+    }
+	
+	public Tags createTags() {                              
+		Tags tag = new Tags();
+		tags.add(tag);
+        return tag;
+    }
+	
+	public Steps createSteps() {                              
+		Steps step = new Steps();
+		steps.add(step);
+        return step;
     }
 	
 	public String getReportId() {
@@ -127,6 +147,8 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 	public void execute(){
 		//Check params.
 		checkUnaryList(criterias);
+		checkUnaryList(tags);
+		checkUnaryList(steps);
 		
 		//Build test object.
 		TestEntry test = new TestEntry();
@@ -148,6 +170,7 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 		}
 		test.setStatus(status);
 		test.setLog(log);
+		
 		//Add criterias to test.
 		List<Pair> testCriterias = new ArrayList<Pair>();
 		if(!criterias.isEmpty()){
@@ -157,6 +180,26 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 			}
 		}
 		test.setCriterias(testCriterias);
+		
+		//Add tags to test.
+		List<String> testTags = new ArrayList<String>();
+		if(!tags.isEmpty()){
+			for(int i = 0; i < tags.get(0).getTags().size(); i++){
+				Tag tag = tags.get(0).getTags().get(i);
+				testTags.add(tag.getValue());
+			}
+		}
+		test.setTags(testTags);
+		
+		//Add steps to test.
+		List<com.modeln.batam.connector.wrapper.Step> testSteps = new ArrayList<com.modeln.batam.connector.wrapper.Step>();
+		if(!steps.isEmpty()){
+			for(int i = 0; i < steps.get(0).getSteps().size(); i++){
+				Step step = steps.get(0).getSteps().get(i);
+				testSteps.add(new com.modeln.batam.connector.wrapper.Step(step.getOrder(), step.getName(), step.getStatus(), step.getResult(), step.getExpected()));
+			}
+		}
+		test.setSteps(testSteps);
 		
 		setConnector(Connector.getInstance());
 

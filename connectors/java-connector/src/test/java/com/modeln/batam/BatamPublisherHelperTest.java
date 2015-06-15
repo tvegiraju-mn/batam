@@ -181,9 +181,18 @@ public class BatamPublisherHelperTest {
 		List<Pair> criterias = new ArrayList<Pair>();
 		criterias.add(new Pair("foo1", "bar1"));
 		criterias.add(new Pair("foo2", "bar2"));
-		ConnectorHelper.createTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, "11111");
 		
-		ConnectorHelper.createTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null);
+		List<String> tags = new ArrayList<String>();
+		tags.add("tag 1");
+		tags.add("tag 2");
+		
+		List<Step> steps = new ArrayList<Step>();
+		steps.add(new Step(1, "step 1", "success", "1", "1"));
+		steps.add(new Step(2, "step 2", "failled", "1", "2"));
+		
+		ConnectorHelper.createTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps,  "11111");
+		
+		ConnectorHelper.createTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null);
 	}
 	
 	@Test
@@ -191,9 +200,18 @@ public class BatamPublisherHelperTest {
 		List<Pair> criterias = new ArrayList<Pair>();
 		criterias.add(new Pair("foo1", "bar1"));
 		criterias.add(new Pair("foo2", "bar2"));
-		ConnectorHelper.updateTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, "11111", false);
 		
-		ConnectorHelper.updateTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, false);
+		List<String> tags = new ArrayList<String>();
+		tags.add("tag 1");
+		tags.add("tag 2");
+		
+		List<Step> steps = new ArrayList<Step>();
+		steps.add(new Step(1, "step 1", "success", "1", "1"));
+		steps.add(new Step(2, "step 2", "failled", "1", "2"));
+		
+		ConnectorHelper.updateTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps, "11111", false);
+		
+		ConnectorHelper.updateTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null, false);
 	}
 
 }

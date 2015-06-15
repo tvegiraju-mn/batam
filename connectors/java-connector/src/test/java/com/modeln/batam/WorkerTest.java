@@ -430,6 +430,14 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit1", "val1"));
 		testCriterias.add(new Pair("crit2", "val2"));
 		test.setCriterias(testCriterias);
+		List<String> tags = new ArrayList<String>();
+		tags.add("tag 1");
+		tags.add("tag 2");
+		test.setTags(tags);
+		List<Step> testSteps = new ArrayList<Step>();
+		testSteps.add(new Step(1, "step 1", "success", "1", "1"));
+		testSteps.add(new Step(2, "step 2", "failed", "1", "2"));
+		test.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test);
 		
@@ -447,6 +455,14 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit10", "val10"));
 		testCriterias.add(new Pair("crit20", "val20"));
 		test2.setCriterias(testCriterias);
+		tags = new ArrayList<String>();
+		tags.add("tag 10");
+		tags.add("tag 20");
+		test2.setTags(tags);
+		testSteps = new ArrayList<Step>();
+		testSteps.add(new Step(1, "step 10", "success", "10", "10"));
+		testSteps.add(new Step(2, "step 20", "failed", "10", "20"));
+		test2.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test2);
 		
@@ -528,6 +544,15 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit100", "val100"));
 		testCriterias.add(new Pair("crit200", "val200"));
 		test3.setCriterias(testCriterias);
+		test2.setCriterias(testCriterias);
+		tags = new ArrayList<String>();
+		tags.add("tag 100");
+		tags.add("tag 200");
+		test3.setTags(tags);
+		testSteps = new ArrayList<Step>();
+		testSteps.add(new Step(1, "step 100", "success", "100", "100"));
+		testSteps.add(new Step(2, "step 200", "failed", "100", "200"));
+		test3.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test3);
 		
@@ -540,6 +565,14 @@ public class WorkerTest {
 		testCriterias.add(new Pair("crit30", "val30"));
 		testCriterias.add(new Pair("crit40", "val40"));
 		test2.setCriterias(testCriterias);
+		tags = new ArrayList<String>();
+		tags.add("tag 3");
+		tags.add("tag 4");
+		test2.setTags(tags);
+		testSteps = new ArrayList<Step>();
+		testSteps.add(new Step(3, "step 30", "success", "10", "10"));
+		testSteps.add(new Step(4, "step 40", "failed", "10", "20"));
+		test2.setSteps(testSteps);
 		
 		ConnectorHelper.updateTest(test2);
 		
@@ -650,6 +683,22 @@ public class WorkerTest {
 				testCriterias.add(new Pair("Author", "employee10@company.com"));
 			}
 			test.setCriterias(testCriterias);
+			
+			List<String> testTags = new ArrayList<String>();
+			if(i < 50){
+				testTags.add("under 50");
+			}else{
+				testTags.add("over 50");
+			}
+			if(i < 25){
+				testTags.add("under 25");
+			}else{
+				testTags.add("over 25");
+			}
+			
+			List<Step> testSteps = new ArrayList<Step>();
+			testSteps.add(new Step(1, "step 1 test"+i, "success", ""+i, ""+i));
+			testSteps.add(new Step(2, "step 2 test"+i, "failed", ""+i, ""+(i+1)));
 			
 			ConnectorHelper.createTest(test);
 		}
@@ -875,7 +924,7 @@ public class WorkerTest {
 		build.setName(buildName);
 		build.setId(buildId);
 		build.setStartDate(new Date());
-		List steps = new ArrayList<Step>();
+		List<Step> steps = new ArrayList<Step>();
 		steps.add(new Step("test", new Date(System.currentTimeMillis()), null));
 		build.setSteps(steps);
 		ConnectorHelper.createBuild(build);

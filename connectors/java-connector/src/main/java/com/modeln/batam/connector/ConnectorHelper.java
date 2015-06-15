@@ -446,6 +446,8 @@ public class ConnectorHelper {
 	 * @param endDate : Test End Date.
 	 * @param status : Test Status.
 	 * @param criterias : Test Criterias, List of {@see com.modeln.batam.connector.wrapper.Pair criterias}.
+	 * @param tags : Test Tags, List of {@see java.lang.String tags}.
+	 * @param steps :  Test Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
 	 * @param log : Test log (raw logs).
 	 * @return published message.
 	 * @throws IOException
@@ -458,12 +460,14 @@ public class ConnectorHelper {
 			Date endDate,
 			String status, 
 			List<Pair> criterias, 
+			List<String> tags,
+			List<Step> steps,
 			String log) throws IOException {
 
 		Connector connector = Connector.getInstance();
 		connector.beginConnection();
 		String message = connector.createTest(reportId, reportName, name,
-				description, startDate, endDate, status, criterias, log);
+				description, startDate, endDate, status, criterias, tags, steps, log);
 		connector.endConnection();
 
 		return message;
@@ -480,6 +484,8 @@ public class ConnectorHelper {
 	 * @param endDate : Test End Date.
 	 * @param status : Test Status.
 	 * @param criterias : Test Criterias, List of {@see com.modeln.batam.connector.wrapper.Pair criterias}.
+	 * @param tags : Test Tags, List of {@see java.lang.String tags}.
+	 * @param steps :  Test Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
 	 * @param log : Test log (raw logs)
 	 * @param override : true if update must be applied to previous analyzed build test. Otherwise false.
 	 * @return published message.
@@ -493,12 +499,14 @@ public class ConnectorHelper {
 			Date endDate,
 			String status, 
 			List<Pair> criterias, 
+			List<String> tags,
+			List<Step> steps,
 			String log,
 			boolean override) throws IOException {
 
 		Connector connector = Connector.getInstance();
 		connector.beginConnection();
-		String message = connector.updateTest(reportId, reportName, name, description, startDate, endDate, status, criterias, log, override);
+		String message = connector.updateTest(reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);
 		connector.endConnection();
 
 		return message;

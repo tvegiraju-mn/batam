@@ -189,6 +189,14 @@
 			<criteria name="crit_name_1" value="crit_value_1"/>
 			<criteria name="crit_name_2" value="crit_value_2"/>
 		</criterias>
+    	<tags>
+			<tag value="tag_1" />
+			<tag value="tag_2" />
+		</tags>
+    	<steps>
+			<step order="1" name="step 1" status="success" result="1" expected="1"/>
+    		<step order="2" name="step 2" status="failed" result="2" expected="1"/>
+		</steps>
     </batamcreatetest>
     
     <batamupdatetest 
@@ -213,8 +221,16 @@
 			<criteria name="crit_name_1" value="crit_value_1"/>
 			<criteria name="crit_name_2" value="crit_value_2"/>
 		</criterias>
+    	<tags>
+			<tag value="tag_1" />
+			<tag value="tag_2" />
+		</tags>
+		<steps>
+			<step order="1" name="step 1" status="success" result="1" expected="1"/>
+			<step order="2" name="step 2" status="failed" result="2" expected="1"/>
+		</steps>
     </batamupdatetest>
-
+  	
   </target>
 
 </project>
