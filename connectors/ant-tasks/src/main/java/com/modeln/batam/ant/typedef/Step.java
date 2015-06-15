@@ -14,6 +14,8 @@ public class Step {
 	private String result;
 	
 	private String expected;
+	
+	private String error;
     
 	public Step() {
 		super();
@@ -73,6 +75,14 @@ public class Step {
 
 	public void setExpected(String expected) {
 		this.expected = expected;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 	
 }

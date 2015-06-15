@@ -196,7 +196,7 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 		if(!steps.isEmpty()){
 			for(int i = 0; i < steps.get(0).getSteps().size(); i++){
 				Step step = steps.get(0).getSteps().get(i);
-				testSteps.add(new com.modeln.batam.connector.wrapper.Step(step.getOrder(), step.getName(), step.getStatus(), step.getResult(), step.getExpected()));
+				testSteps.add(new com.modeln.batam.connector.wrapper.Step(step.getOrder(), step.getName(), step.getStatus(), step.getResult(), step.getExpected(), step.getError()));
 			}
 		}
 		test.setSteps(testSteps);

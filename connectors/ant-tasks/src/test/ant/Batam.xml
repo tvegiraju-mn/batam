@@ -195,7 +195,7 @@
 		</tags>
     	<steps>
 			<step order="1" name="step 1" status="success" result="1" expected="1"/>
-    		<step order="2" name="step 2" status="failed" result="2" expected="1"/>
+    		<step order="2" name="step 2" status="failed" result="2" expected="1" error="soustraction not working"/>
 		</steps>
     </batamcreatetest>
     
@@ -227,7 +227,7 @@
 		</tags>
 		<steps>
 			<step order="1" name="step 1" status="success" result="1" expected="1"/>
-			<step order="2" name="step 2" status="failed" result="2" expected="1"/>
+			<step order="2" name="step 2" status="failed" result="2" expected="1" error="soustraction not working"/>
 		</steps>
     </batamupdatetest>
   	

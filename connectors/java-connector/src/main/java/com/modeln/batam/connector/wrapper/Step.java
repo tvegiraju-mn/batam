@@ -33,9 +33,10 @@ import org.json.simple.JSONObject;
  * 		"start_date" : "12341234", // Time in millisecond
  * 		"end_date" : "12341234", // Time in millisecond
  *      "order": 1,
- *      "status": "success",
- *      "result": "2",
- *      "expected": "2"
+ *      "status": "fail",
+ *      "result": "1",
+ *      "expected": "2",
+ *      "error": "addition doesn't work"
  * }
  * 
  * @author gzussa
@@ -56,6 +57,8 @@ public class Step {
 	private String result;
 	
 	private String expected;
+	
+	private String error;
 
 	public Step(String name, Date startDate, Date endDate) {
 		super();
@@ -64,16 +67,17 @@ public class Step {
 		this.endDate = endDate;
 	}
 	
-	public Step(Integer order, String name, String status, String result, String expected) {
+	public Step(Integer order, String name, String status, String result, String expected, String error) {
 		super();
 		this.order = order;
 		this.name = name;
 		this.status = status;
 		this.result = result;
 		this.expected = expected;
+		this.error = error;
 	}
 	
-	public Step(String name, Date startDate, Date endDate, Integer order, String status, String result, String expected) {
+	public Step(String name, Date startDate, Date endDate, Integer order, String status, String result, String expected, String error) {
 		super();
 		this.name = name;
 		this.startDate = startDate;
@@ -82,6 +86,7 @@ public class Step {
 		this.status = status;
 		this.result = result;
 		this.expected = expected;
+		this.error = error;
 	}
 
 	public String getName() {
@@ -107,8 +112,6 @@ public class Step {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
-	
 	
 	public Integer getOrder() {
 		return order;
@@ -141,6 +144,14 @@ public class Step {
 	public void setExpected(String expected) {
 		this.expected = expected;
 	}
+	
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
 
 	@Override
 	public String toString() {
@@ -157,6 +168,7 @@ public class Step {
 		obj.put("status", status);
 		obj.put("result", result);
 		obj.put("expected", expected);
+		obj.put("error", error);
 		
 		return obj.toJSONString();
 	}
@@ -169,6 +181,7 @@ public class Step {
 		String status = (String)obj.get("status");
 		String result = (String)obj.get("result");
 		String expected = (String)obj.get("expected");
+		String error = (String)obj.get("error");
 		
 		return new Step(name, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
@@ -176,6 +189,7 @@ public class Step {
 				order,
 				status,
 				result,
-				expected);
+				expected,
+				error);
 	}
 }

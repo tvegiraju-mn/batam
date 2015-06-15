@@ -187,8 +187,8 @@ public class BatamPublisherHelperTest {
 		tags.add("tag 2");
 		
 		List<Step> steps = new ArrayList<Step>();
-		steps.add(new Step(1, "step 1", "success", "1", "1"));
-		steps.add(new Step(2, "step 2", "failled", "1", "2"));
+		steps.add(new Step(1, "step 1", "success", "1", "1", null));
+		steps.add(new Step(2, "step 2", "failled", "1", "2", "reason"));
 		
 		ConnectorHelper.createTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps,  "11111");
 		
@@ -206,8 +206,8 @@ public class BatamPublisherHelperTest {
 		tags.add("tag 2");
 		
 		List<Step> steps = new ArrayList<Step>();
-		steps.add(new Step(1, "step 1", "success", "1", "1"));
-		steps.add(new Step(2, "step 2", "failled", "1", "2"));
+		steps.add(new Step(1, "step 1", "success", "1", "1", null));
+		steps.add(new Step(2, "step 2", "failled", "1", "2", "reason"));
 		
 		ConnectorHelper.updateTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps, "11111", false);
 		

@@ -435,8 +435,8 @@ public class WorkerTest {
 		tags.add("tag 2");
 		test.setTags(tags);
 		List<Step> testSteps = new ArrayList<Step>();
-		testSteps.add(new Step(1, "step 1", "success", "1", "1"));
-		testSteps.add(new Step(2, "step 2", "failed", "1", "2"));
+		testSteps.add(new Step(1, "step 1", "success", "1", "1", null));
+		testSteps.add(new Step(2, "step 2", "failed", "1", "2", "not working"));
 		test.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test);
@@ -460,8 +460,8 @@ public class WorkerTest {
 		tags.add("tag 20");
 		test2.setTags(tags);
 		testSteps = new ArrayList<Step>();
-		testSteps.add(new Step(1, "step 10", "success", "10", "10"));
-		testSteps.add(new Step(2, "step 20", "failed", "10", "20"));
+		testSteps.add(new Step(1, "step 10", "success", "10", "10", null));
+		testSteps.add(new Step(2, "step 20", "failed", "10", "20", "not working"));
 		test2.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test2);
@@ -550,8 +550,8 @@ public class WorkerTest {
 		tags.add("tag 200");
 		test3.setTags(tags);
 		testSteps = new ArrayList<Step>();
-		testSteps.add(new Step(1, "step 100", "success", "100", "100"));
-		testSteps.add(new Step(2, "step 200", "failed", "100", "200"));
+		testSteps.add(new Step(1, "step 100", "success", "100", "100", null));
+		testSteps.add(new Step(2, "step 200", "failed", "100", "200", "not working"));
 		test3.setSteps(testSteps);
 		
 		ConnectorHelper.createTest(test3);
@@ -570,8 +570,8 @@ public class WorkerTest {
 		tags.add("tag 4");
 		test2.setTags(tags);
 		testSteps = new ArrayList<Step>();
-		testSteps.add(new Step(3, "step 30", "success", "10", "10"));
-		testSteps.add(new Step(4, "step 40", "failed", "10", "20"));
+		testSteps.add(new Step(3, "step 30", "success", "10", "10", null));
+		testSteps.add(new Step(4, "step 40", "failed", "10", "20", "not working"));
 		test2.setSteps(testSteps);
 		
 		ConnectorHelper.updateTest(test2);
@@ -697,8 +697,8 @@ public class WorkerTest {
 			}
 			
 			List<Step> testSteps = new ArrayList<Step>();
-			testSteps.add(new Step(1, "step 1 test"+i, "success", ""+i, ""+i));
-			testSteps.add(new Step(2, "step 2 test"+i, "failed", ""+i, ""+(i+1)));
+			testSteps.add(new Step(1, "step 1 test"+i, "success", ""+i, ""+i, null));
+			testSteps.add(new Step(2, "step 2 test"+i, "failed", ""+i, ""+(i+1), "raison #"+i));
 			
 			ConnectorHelper.createTest(test);
 		}

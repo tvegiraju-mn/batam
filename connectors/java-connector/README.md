@@ -151,9 +151,10 @@ Command line options > Environment properties > External file property > Interna
  		"start_date" : "12341234", // Time in millisecond
  		"end_date" : "12341234" // Time in millisecond,
  		"order": 1,
- 		"status" : success,
- 		"result": 10,
- 		"expected": "10"
+ 		"status" : fail,
+ 		"result": 20,
+ 		"expected": "10",
+ 		"error" : "failed due to reason # 3"
 }
 ```
 
