@@ -65,12 +65,14 @@ function findBuildList(req, res, next){
 			return next(error);
 		}
 			
-		//If no filters need to be applied we return the entire build list.
+		//If no filters need to be applied we keep the entire build list.
 		if(_.isEmpty(filters)){
 			filteredBuilds = builds;
 	    }else{
 	    	_.each(builds, function(element, index, list){
+	    		//Fetch build criterias
 	    		var criterias = element.criterias;
+	    		console.log(util.inspect(criterias));
 	    		//Convert build criterias on same filter format.
 	    		var convertedCriterias = [];
 	    		_.each(criterias, function(element, index, list){
@@ -78,7 +80,7 @@ function findBuildList(req, res, next){
 	    			this[index].name = replaceAll(" ", "_", element.name.toLowerCase());
 	    			this[index].value = replaceAll(" ", "_", element.value.toLowerCase());
 	    		}, convertedCriterias);
-	    		
+	    		console.log(util.inspect(convertedCriterias));
 	    		//Filter builds matching criterias.
 	    		var isValid = true;
 	    		_.each(filters, function(element, index, list){
