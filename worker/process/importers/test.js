@@ -77,13 +77,27 @@ function createTest(report, data, ack){
 						for(var i = 0 ; i < criterias.length; i++){
 							var exist = false;
 							for(var j = 0; j < test_criterias.length; j++){
-								if(criterias[i].name == test_criterias[j].name){
+								if(criterias[i].name == test_criterias[j].name && test_criterias[j].type == 'criteria'){
 									exist = true;
 								}
 							}
 							if(!exist){
 								//This step can be done async
-								collections.testcriterias.insert({name: criterias[i].name}, insertTestCriteriasCallback);
+								collections.testcriterias.insert({name: criterias[i].name, type: 'criteria'}, insertTestCriteriasCallback);
+							}
+						}
+					}
+					if(!_.isNull(tags)){
+						for(var i = 0 ; i < tags.length; i++){
+							var exist = false;
+							for(var j = 0; j < test_criterias.length; j++){
+								if(tags[i] == test_criterias[j].name && test_criterias[j].type == 'tag'){
+									exist = true;
+								}
+							}
+							if(!exist){
+								//This step can be done async
+								collections.testcriterias.insert({name: tags[i], type: 'tag'}, insertTestCriteriasCallback);
 							}
 						}
 					}
@@ -190,6 +204,8 @@ function createTest(report, data, ack){
 	var status = data.status != null ? data.status.toLowerCase() : null;
 	var log = data.log;	
 	var criterias = data.criterias;
+	var tags = data.tags;
+	var steps = data.steps;
 	
 	var test = {};
 	test.status = status;
@@ -268,6 +284,41 @@ function createTest(report, data, ack){
 		}
 	}
 	
+	//Check tags
+	if(!_.isNull(tags) && !_.isArray(tags)){
+		return e.error(data, ack, true, "Tags field not valid.");
+	}
+	if(!_.isNull(tags)){
+		for(var i = 0; i < tags.length; i++){
+			if(_.isUndefined(tags[i]) || _.isNull(tags[i]) || !_.isString(tags[i])){
+				return e.error(data, ack, true, "Tags object "+i+" fields not valid.");
+			}
+		}
+		test.tags = tags;
+	}
+	
+	//Check steps
+	if(!_.isNull(steps) && !_.isArray(steps)){
+		return e.error(data, ack, true, "Steps field not valid.");
+	}
+	if(!_.isNull(steps)){
+		for(var i = 0; i < steps.length; i++){
+			if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
+				return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
+			}
+		
+			if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
+					_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
+					(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
+					(!_.isUndefined(steps[i].result) && !_.isNull(steps[i].result) && !_.isString(steps[i].result)) ||
+					(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
+					(!_.isUndefined(steps[i].error) && !_.isNull(steps[i].error) && !_.isString(steps[i].error))){
+				return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
+			}
+		}
+		test.steps = steps
+	}
+	
 	collections.tests.count({report_id: report.id, name: test.name}, checkTestNotExistCallback);
 }
 
@@ -333,11 +384,58 @@ function updateTestEntrypoint(data, ack){
 function updateTest(report, data, ack){
 	var checkTestExistCallback = function (error, tests){
 		var updateTestInfoCallback = function (error, count){
+		    var findTestCriteriasCallback = function (error, test_criterias){
+				var insertTestCriteriasCallback = function (error, resp){
+					if(error) {
+						return e.error(data, ack, false, "Insert new test criteria failed.");
+				    }
+					
+					console.log("-- Create test criteria.");
+				};
+				
+				if(error){
+					return e.error(data, ack, false, "Find TestCriterias Operation failed.");
+				}
+				if(!_.isNull(criterias)){
+					for(var i = 0 ; i < criterias.length; i++){
+						var exist = false;
+						for(var j = 0; j < test_criterias.length; j++){
+							if(criterias[i].name == test_criterias[j].name && test_criterias[j].type == 'criteria'){
+								exist = true;
+							}
+						}
+						if(!exist){
+							//This step can be done async
+							collections.testcriterias.insert({name: criterias[i].name, type: 'criteria'}, insertTestCriteriasCallback);
+						}
+					}
+				}
+				if(!_.isNull(tags)){
+					for(var i = 0 ; i < tags.length; i++){
+						var exist = false;
+						for(var j = 0; j < test_criterias.length; j++){
+							if(tags[i] == test_criterias[j].name && test_criterias[j].type == 'tag'){
+								exist = true;
+							}
+						}
+						if(!exist){
+							//This step can be done async
+							collections.testcriterias.insert({name: tags[i], type: 'tag'}, insertTestCriteriasCallback);
+						}
+					}
+				}
+				
+				ack.acknowledge();
+			};
+			
 			if(error) {
-				return e.error(data, ack, false, "Update Test operation failed.");
+				return e.error(data, ack, false, "Update Test failed.");
 		    }
 			
-		    ack.acknowledge();
+		    //Persist test criterias
+			collections.testcriterias.find({}).toArray(findTestCriteriasCallback);
+			
+			console.log("-- Update test.");
 		};
 		var findPreviousTestCallback = function (error, previous_tests){
     		if(error){
@@ -424,7 +522,9 @@ function updateTest(report, data, ack){
 		var status = data.status != null ? data.status.toLowerCase() : null;
 		var log = data.log;
 		var criterias = data.criterias;
-	
+		var tags = data.tags;
+		var steps = data.steps;
+		
 		var test = tests[0];
 		
 		if(!_.isNull(description)){
@@ -502,6 +602,73 @@ function updateTest(report, data, ack){
 				var currentName = criterias[i].name.toLowerCase().replace(" ", "_");
 	
 				test[currentName] = criterias[i].value;
+			}
+		}
+		
+		//Update tags, 
+		if(!_.isNull(tags) && !_.isArray(tags)){
+			return e.error(data, ack, true, "Tags field not valid.");
+		}
+		if(_.isNull(test.tags) || !_.isArray(test.tags)){
+			test.tags = [];
+		}
+		
+		var tagsLength = test.tags.length;
+		if(!_.isNull(tags)){
+			for(var i = 0; i < tags.length; i++){
+				if(_.isUndefined(tags[i]) || _.isNull(tags[i]) || !_.isString(tags[i])){
+					return e.error(data, ack, true, "Tags object "+i+" not valid.");
+				}
+				test.tags[tagsLength + i] = tags[i];
+			}
+		}
+		
+		//Update steps, 
+		if(!_.isNull(steps) && !_.isArray(steps)){
+			return e.error(data, ack, true, "Steps field not valid.");
+		}
+		if(_.isNull(test.steps) || !_.isArray(test.steps)){
+			test.steps = [];
+		}
+		
+		
+		if(!_.isNull(steps)){
+			for(var i = 0; i < steps.length; i++){
+				if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
+					return e.error(data, ack, true, "Steps object "+i+" not valid.");
+				}
+				if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
+						_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
+						(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
+						(!_.isUndefined(steps[i].result) && !_.isNull(steps[i].result) && !_.isString(steps[i].result)) ||
+						(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
+						(!_.isUndefined(steps[i].error) && !_.isNull(steps[i].error) && !_.isString(steps[i].error))){
+					return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
+				}
+			}
+			for(var i = 0; i < steps.length; i++){
+				var stepExist = false;
+				for(var j = 0; j < test.steps.length; j++){
+					if(steps[i].order == test.steps[j].order && 
+							steps[i].name == test.steps[j].name){
+						stepExist = true;
+						test.steps[j].status = steps[i].status;
+						test.steps[j].result = steps[i].result;
+						test.steps[j].expected = steps[i].expected;
+						test.steps[j].error = steps[i].error;
+					}
+					
+				}
+				var stepsLength = test.steps.length;
+				if(!stepExist){
+					test.steps[stepsLength] = {};
+					test.steps[stepsLength].name = steps[i].name;
+					test.steps[stepsLength].order = steps[i].order;
+					test.steps[stepsLength].status = steps[i].status;
+					test.steps[stepsLength].result = steps[i].result;
+					test.steps[stepsLength].expected = steps[i].expected;
+					test.steps[stepsLength].error = steps[i].error;
+				}	
 			}
 		}
 

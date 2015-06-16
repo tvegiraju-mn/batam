@@ -192,6 +192,7 @@ public class WorkerTest {
 		List<Commit> commits = new ArrayList<Commit>();
 		commits.add(new Commit(null, null, "1", "10", "100", new Date()));
 		commits.add(new Commit(null, null, "2", "20", "200", new Date(System.currentTimeMillis()+1000)));
+		build.setCommits(commits);
 		
 		ConnectorHelper.createBuild(build);
 		
@@ -243,6 +244,7 @@ public class WorkerTest {
 		commits = new ArrayList<Commit>();
 		commits.add(new Commit(null, null, "3", "30", "300", new Date()));
 		commits.add(new Commit(null, null, "4", "40", "400", new Date(System.currentTimeMillis()+1000)));
+		build.setCommits(commits);
 		
 		ConnectorHelper.updateBuild(build);
 		
@@ -394,6 +396,7 @@ public class WorkerTest {
 		List<Commit> commits = new ArrayList<Commit>();
 		commits.add(new Commit(null, null, "1", "10", "100", new Date()));
 		commits.add(new Commit(null, null, "2", "20", "200", new Date(System.currentTimeMillis()+1000)));
+		build.setCommits(commits);
 		
 		ConnectorHelper.createBuild(build);
 		
@@ -495,6 +498,7 @@ public class WorkerTest {
 		commits = new ArrayList<Commit>();
 		commits.add(new Commit(null, null, "3", "30", "300", new Date()));
 		commits.add(new Commit(null, null, "4", "40", "400", new Date(System.currentTimeMillis()+1000)));
+		build.setCommits(commits);
 		
 		ConnectorHelper.updateBuild(build);
 		
@@ -695,10 +699,12 @@ public class WorkerTest {
 			}else{
 				testTags.add("over 25");
 			}
+			test.setTags(testTags);
 			
 			List<Step> testSteps = new ArrayList<Step>();
 			testSteps.add(new Step(1, "step 1 test"+i, "success", ""+i, ""+i, null));
 			testSteps.add(new Step(2, "step 2 test"+i, "failed", ""+i, ""+(i+1), "raison #"+i));
+			test.setSteps(testSteps);
 			
 			ConnectorHelper.createTest(test);
 		}
@@ -756,6 +762,12 @@ public class WorkerTest {
 			List<Pair> testCriterias = new ArrayList<Pair>();
 			testCriterias.add(new Pair("Author", "employee@company.com"));
 			test.setCriterias(testCriterias);
+			List<String> testTags = new ArrayList<String>();
+			testTags.add("regression");
+			test.setTags(testTags);
+			List<Step> testSteps = new ArrayList<Step>();
+			testSteps.add(new Step(1, "Step 1", null, null, "def", null));
+			test.setSteps(testSteps);
 			
 			ConnectorHelper.createTest(test);
 			
@@ -768,6 +780,9 @@ public class WorkerTest {
 			test.setLog("Success");
 			test.setStatus("pass");
 			test.setEndDate(new Date());
+			testSteps = new ArrayList<Step>();
+			testSteps.add(new Step(1, "Step 1", "failed", "abc", "def", "Null pointer"));
+			test.setSteps(testSteps);
 			
 			ConnectorHelper.updateTest(test);
 		}
