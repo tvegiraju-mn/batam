@@ -175,11 +175,11 @@ function createBuildEntrypoint(data, ack){
 	}
 	
 	//Set duration value if possible
+	build.duration = {};
 	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
 		return e.error(data, ack, true, "End_date field not valid.");
 	}
 	if(!_.isNull(build.date) && !_.isNull(end_date)){
-		build.duration = {};
 		build.duration.value = parseInt(end_date) - parseInt(start_date);
 		build.duration.trend = 0;
 	}
@@ -461,7 +461,6 @@ function updateBuild(build, data, ack){
 		return e.error(data, ack, true, "End_date field not valid.");
 	}
 	if(!_.isNull(build.date) && !_.isNull(end_date) && _.isDate(build.date)){
-		build.duration = {};
 		build.duration.value = parseInt(end_date) - parseInt(build.date.getTime());
 		build.duration.trend = 0;
 	}

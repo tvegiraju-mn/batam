@@ -159,11 +159,11 @@ function createReport(build, data, ack){
 	}
 	
 	//Set duration value if possible
+	report.duration = {};
 	if(!_.isNull(end_date) && (!_.isNumber(parseInt(end_date)) || !_.isDate(new Date(parseInt(end_date))))){
 		return e.error(data, ack, true, "End_date field not valid.");
 	}
 	if(!_.isNull(report.date) && !_.isNull(end_date)){
-		report.duration = {};
 		report.duration.value = parseInt(end_date) - parseInt(report.date.getTime());
 		report.duration.trend = 0;
 		report.end_date = new Date(parseInt(end_date));
@@ -319,7 +319,6 @@ function updateReport(report, data, ack){
 		return e.error(data, ack, true, "End_date field not valid.");
 	}
 	if(!_.isNull(report.date) && !_.isNull(end_date) && _.isDate(report.date)){
-		report.duration = {};
 		report.duration.value = parseInt(end_date) - parseInt(report.date.getTime());
 		report.duration.trend = 0;
 		report.end_date = new Date(parseInt(end_date));
