@@ -29,13 +29,14 @@ import org.json.simple.JSONObject;
 
 /**
  * {
+ * 		"order": 1,
  * 		"name" : "step name",
  * 		"start_date" : "12341234", // Time in millisecond
  * 		"end_date" : "12341234", // Time in millisecond
- *      "order": 1,
- *      "status": "fail",
- *      "result": "1",
+ *      "input": "1",
  *      "expected": "2",
+ *      "output": "1",
+ *      "status": "fail",
  *      "error": "addition doesn't work"
  * }
  * 
@@ -44,19 +45,21 @@ import org.json.simple.JSONObject;
  */
 public class Step {
 	
+	private Integer order;
+	
 	private String name;
 	
 	private Date startDate;
 	
 	private Date endDate;
 	
-	private Integer order;
-	
-	private String status;
-	
-	private String result;
+	private String input;
 	
 	private String expected;
+	
+	private String output;
+	
+	private String status;
 	
 	private String error;
 
@@ -67,26 +70,25 @@ public class Step {
 		this.endDate = endDate;
 	}
 	
-	public Step(Integer order, String name, String status, String result, String expected, String error) {
+	public Step(Integer order, String name, Date startDate, Date endDate, String input, String expected, String output, String status, String error) {
 		super();
 		this.order = order;
-		this.name = name;
-		this.status = status;
-		this.result = result;
-		this.expected = expected;
-		this.error = error;
-	}
-	
-	public Step(String name, Date startDate, Date endDate, Integer order, String status, String result, String expected, String error) {
-		super();
 		this.name = name;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.order = order;
-		this.status = status;
-		this.result = result;
+		this.input = input;
 		this.expected = expected;
+		this.output = output;
+		this.status = status;
 		this.error = error;
+	}
+	
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 
 	public String getName() {
@@ -111,14 +113,30 @@ public class Step {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
-	}
-	
-	public Integer getOrder() {
-		return order;
+	}	
+
+	public String getInput() {
+		return input;
 	}
 
-	public void setOrder(Integer order) {
-		this.order = order;
+	public void setInput(String input) {
+		this.input = input;
+	}
+	
+	public String getExpected() {
+		return expected;
+	}
+
+	public void setExpected(String expected) {
+		this.expected = expected;
+	}
+
+	public String getOutput() {
+		return output;
+	}
+
+	public void setOutput(String output) {
+		this.output = output;
 	}
 
 	public String getStatus() {
@@ -127,22 +145,6 @@ public class Step {
 
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	public String getResult() {
-		return result;
-	}
-
-	public void setResult(String result) {
-		this.result = result;
-	}
-
-	public String getExpected() {
-		return expected;
-	}
-
-	public void setExpected(String expected) {
-		this.expected = expected;
 	}
 	
 	public String getError() {
@@ -161,35 +163,38 @@ public class Step {
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
+		obj.put("order", order);
 		obj.put("name", name);
 		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
-		obj.put("order", order);
-		obj.put("status", status);
-		obj.put("result", result);
+		obj.put("input", input);
 		obj.put("expected", expected);
+		obj.put("output", output);
+		obj.put("status", status);
 		obj.put("error", error);
 		
 		return obj.toJSONString();
 	}
 	
 	public static Step fromJSON(JSONObject obj){
+		Integer order = (Integer)obj.get("order");
 		String name = (String)obj.get("name");
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
-		Integer order = (Integer)obj.get("order");
-		String status = (String)obj.get("status");
-		String result = (String)obj.get("result");
+		String input = (String)obj.get("input");
 		String expected = (String)obj.get("expected");
+		String output = (String)obj.get("output");
+		String status = (String)obj.get("status");
 		String error = (String)obj.get("error");
 		
-		return new Step(name, 
+		return new Step(order,
+				name, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)),
-				order,
-				status,
-				result,
+				input,
 				expected,
+				output,
+				status,
 				error);
 	}
 }

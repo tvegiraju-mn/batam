@@ -12,7 +12,7 @@
     to determine if the build is working correctly.
   </description>
 
-   <taskdef resource="com/modeln/batam/ant/taskdef.properties" classpath="../../../target/batam-ant-1.0.0.jar"/> 
+   <taskdef resource="com/modeln/batam/ant/taskdef.properties" classpath="../../../target/batam-ant-2.0.0.jar"/> 
   <!--
     - Log the progress entries to the build database.
     -->
@@ -35,7 +35,7 @@
     	startDate="${current_date}" 
     	endDate="${current_date}" 
     	dateFormat="yyyy-MM-dd'T'HH:mm:ss.SSSZ" 
-    	status= "status"
+    	status="status"
 		description="description"
 		override="true">
 		<criterias>
@@ -194,8 +194,8 @@
 			<tag value="tag_2" />
 		</tags>
     	<steps>
-			<step order="1" name="step 1" status="success" result="1" expected="1"/>
-    		<step order="2" name="step 2" status="failed" result="2" expected="1" error="soustraction not working"/>
+    	 	<step order="1" name="step 1" startDate="${current_date}" endDate="${current_date}" input="1" expected="1" output="1" status="success"/>
+    		<step order="2" name="step 2" startDate="${current_date}" endDate="${current_date}" input="1" expected="2" output="1" status="failed" error="soustraction not working"/>
 		</steps>
     </batamcreatetest>
     
@@ -226,8 +226,8 @@
 			<tag value="tag_2" />
 		</tags>
 		<steps>
-			<step order="1" name="step 1" status="success" result="1" expected="1"/>
-			<step order="2" name="step 2" status="failed" result="2" expected="1" error="soustraction not working"/>
+			<step order="1" name="step 1" startDate="${current_date}" endDate="${current_date}" input="1" expected="1" output="1" status="success"/>
+			<step order="2" name="step 2" startDate="${current_date}" endDate="${current_date}" input="1" expected="2" output="1" status="failed" error="soustraction not working"/>
 		</steps>
     </batamupdatetest>
   	

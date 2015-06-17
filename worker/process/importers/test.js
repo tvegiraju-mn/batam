@@ -306,12 +306,20 @@ function createTest(report, data, ack){
 			if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
 				return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
 			}
-		
+			if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].start_date) && (
+					!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date))))){
+				return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
+			}
+			if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && (
+					!_.isNumber(parseInt(steps[i].end_date)) || !_.isDate(new Date(parseInt(steps[i].end_date))))){
+				return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
+			}
 			if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
 					_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
-					(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
-					(!_.isUndefined(steps[i].result) && !_.isNull(steps[i].result) && !_.isString(steps[i].result)) ||
+					(!_.isUndefined(steps[i].input) && !_.isNull(steps[i].input) && !_.isString(steps[i].input)) ||		
 					(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
+					(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
+					(!_.isUndefined(steps[i].output) && !_.isNull(steps[i].output) && !_.isString(steps[i].output)) ||
 					(!_.isUndefined(steps[i].error) && !_.isNull(steps[i].error) && !_.isString(steps[i].error))){
 				return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
 			}
@@ -637,11 +645,20 @@ function updateTest(report, data, ack){
 				if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
 					return e.error(data, ack, true, "Steps object "+i+" not valid.");
 				}
+				if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].start_date) && (
+						!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date))))){
+					return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
+				}
+				if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && (
+						!_.isNumber(parseInt(steps[i].end_date)) || !_.isDate(new Date(parseInt(steps[i].end_date))))){
+					return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
+				}
 				if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
 						_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
-						(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
-						(!_.isUndefined(steps[i].result) && !_.isNull(steps[i].result) && !_.isString(steps[i].result)) ||
+						(!_.isUndefined(steps[i].input) && !_.isNull(steps[i].input) && !_.isString(steps[i].input)) ||		
 						(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
+						(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
+						(!_.isUndefined(steps[i].output) && !_.isNull(steps[i].output) && !_.isString(steps[i].output)) ||
 						(!_.isUndefined(steps[i].error) && !_.isNull(steps[i].error) && !_.isString(steps[i].error))){
 					return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
 				}

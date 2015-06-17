@@ -3,6 +3,7 @@ package com.modeln.batam.ant.task;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
@@ -196,7 +197,20 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 		if(!steps.isEmpty()){
 			for(int i = 0; i < steps.get(0).getSteps().size(); i++){
 				Step step = steps.get(0).getSteps().get(i);
-				testSteps.add(new com.modeln.batam.connector.wrapper.Step(step.getOrder(), step.getName(), step.getStatus(), step.getResult(), step.getExpected(), step.getError()));
+				Date sd = null;
+				Date ed = null;
+				try {
+					if(step.getStartDate() != null){
+						sd = formatter.parse(step.getStartDate());
+					}
+					if(step.getEndDate() != null){
+						ed = formatter.parse(step.getEndDate());
+					}
+				} catch (ParseException e) {
+					throw new BuildException("Task failed", e);
+				}
+				
+				testSteps.add(new com.modeln.batam.connector.wrapper.Step(step.getOrder(), step.getName(), sd, ed, step.getInput(), step.getExpected(), step.getOutput(), step.getStatus(), step.getError()));
 			}
 		}
 		test.setSteps(testSteps);

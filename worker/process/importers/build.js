@@ -265,9 +265,6 @@ function createBuildEntrypoint(data, ack){
 					_.isUndefined(steps[i].start_date) || _.isNull(steps[i].start_date)){
 				return e.error(data, ack, true, "Steps object "+i+" field name or start_date not valid.");
 			}
-			if(!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date)))){
-				return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
-			}
 				
 			build.build_timeline.rows[i] = {};
 			build.build_timeline.rows[i].c = [];
@@ -276,11 +273,18 @@ function createBuildEntrypoint(data, ack){
 			build.build_timeline.rows[i].c[1] = {};
 			build.build_timeline.rows[i].c[1].v = steps[i].name;
 			build.build_timeline.rows[i].c[2] = {};
-			build.build_timeline.rows[i].c[2].v = new Date(parseInt(steps[i].start_date));
+			if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].start_date) && (
+					!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date))))){
+				return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
+			}else{
+				build.build_timeline.rows[i].c[2].v = new Date(parseInt(steps[i].start_date));					
+			}
 			build.build_timeline.rows[i].c[3] = {};
-			if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && 
-					_.isNumber(parseInt(steps[i].end_date)) && _.isDate(new Date(parseInt(steps[i].end_date)))){
-				build.build_timeline.rows[i].c[3].v = new Date(parseInt(steps[i].end_date));
+			if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && (
+					!_.isNumber(parseInt(steps[i].end_date)) || !_.isDate(new Date(parseInt(steps[i].end_date))))){
+				return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
+			}else{
+				build.build_timeline.rows[i].c[3].v = new Date(parseInt(steps[i].end_date));					
 			}
 		}
 	}
@@ -563,10 +567,6 @@ function updateBuild(build, data, ack){
 				}
 			}
 			if(currentBuildStep == -1){
-				if(_.isUndefined(steps[i].start_date) || _.isNull(steps[i].start_date) || 
-						!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date)))){
-					return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
-				}
 				build.build_timeline.rows[buildTimelineLength] = {};
 				build.build_timeline.rows[buildTimelineLength].c = [];
 				build.build_timeline.rows[buildTimelineLength].c[0] = {};
@@ -574,15 +574,26 @@ function updateBuild(build, data, ack){
 				build.build_timeline.rows[buildTimelineLength].c[1] = {};
 				build.build_timeline.rows[buildTimelineLength].c[1].v = steps[i].name;
 				build.build_timeline.rows[buildTimelineLength].c[2] = {};
-				build.build_timeline.rows[buildTimelineLength].c[2].v = new Date(parseInt(steps[i].start_date));					
+				if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].start_date) && (
+						!_.isNumber(parseInt(steps[i].start_date)) || !_.isDate(new Date(parseInt(steps[i].start_date))))){
+					return e.error(data, ack, true, "Steps object "+i+" start_date not valid.");
+				}else{
+					build.build_timeline.rows[buildTimelineLength].c[2].v = new Date(parseInt(steps[i].start_date));					
+				}
 				build.build_timeline.rows[buildTimelineLength].c[3] = {};
-				if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].end_date) && 
-						_.isNumber(parseInt(steps[i].end_date)) && _.isDate(new Date(parseInt(steps[i].end_date)))){
+				if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && (
+						!_.isNumber(parseInt(steps[i].end_date)) || !_.isDate(new Date(parseInt(steps[i].end_date))))){
+					return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
+				}else{
 					build.build_timeline.rows[buildTimelineLength].c[3].v = new Date(parseInt(steps[i].end_date));
 				}
 			}else{
-				//We just update the end date
-				if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].end_date) && 
+				//We just update the step
+				if(!_.isUndefined(steps[i].start_date) && !_.isNull(steps[i].start_date) && 
+						_.isNumber(parseInt(steps[i].start_date)) && _.isDate(new Date(parseInt(steps[i].start_date)))){
+					build.build_timeline.rows[currentBuildStep].c[2].v = new Date(parseInt(steps[i].start_date));
+				}
+				if(!_.isUndefined(steps[i].end_date) && !_.isNull(steps[i].end_date) && 
 						_.isNumber(parseInt(steps[i].end_date)) && _.isDate(new Date(parseInt(steps[i].end_date)))){
 					build.build_timeline.rows[currentBuildStep].c[3].v = new Date(parseInt(steps[i].end_date));
 				}

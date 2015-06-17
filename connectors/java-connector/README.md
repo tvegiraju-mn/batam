@@ -147,14 +147,15 @@ Command line options > Environment properties > External file property > Interna
 ### Step
 ```
 {
+		"order": 1,
  		"name" : "step name",
  		"start_date" : "12341234", // Time in millisecond
  		"end_date" : "12341234" // Time in millisecond,
- 		"order": 1,
- 		"status" : fail,
- 		"result": 20,
- 		"expected": "10",
- 		"error" : "failed due to reason # 3"
+ 		"input": "1",
+ 		"expected": "2",
+ 		"output": "1",
+ 		"status" : "fail",
+ 		"error" : "subtraction doesn't work"
 }
 ```
 
