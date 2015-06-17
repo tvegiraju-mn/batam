@@ -53,9 +53,15 @@ public class ConnectorHelper {
 	 */
 	public static String createBuild(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createBuild(build);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createBuild(build);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -69,9 +75,15 @@ public class ConnectorHelper {
 	 */
 	public static String updateBuild(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateBuild(build);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateBuild(build);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -85,9 +97,15 @@ public class ConnectorHelper {
 	 */
 	public static String runAnalysis(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.runAnalysis(build);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.runAnalysis(build);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -101,9 +119,15 @@ public class ConnectorHelper {
 	 */
 	public static String createReport(ReportEntry report) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createReport(report);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createReport(report);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -117,9 +141,15 @@ public class ConnectorHelper {
 	 */
 	public static String updateReport(ReportEntry report) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateReport(report);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateReport(report);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -133,9 +163,15 @@ public class ConnectorHelper {
 	 */
 	public static String createTest(TestEntry test) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createTest(test);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createTest(test);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -149,9 +185,15 @@ public class ConnectorHelper {
 	 */
 	public static String updateTest(TestEntry test) throws IOException {
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateTest(test);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateTest(test);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -186,10 +228,16 @@ public class ConnectorHelper {
 			List<Commit> commits) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createBuild(id, name, startDate, endDate,
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createBuild(id, name, startDate, endDate,
 				status, description, criterias, infos, reports, steps, commits);
-		connector.endConnection();
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -206,9 +254,15 @@ public class ConnectorHelper {
 	public static String addBuildCommits(String id, String name, List<Commit> commits) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.addBuildCommits(id, name, commits);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.addBuildCommits(id, name, commits);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -225,9 +279,15 @@ public class ConnectorHelper {
 	public static String addBuildInfos(String id, String name, List<Pair> infos) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.addBuildInfos(id, name, infos);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.addBuildInfos(id, name, infos);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -244,9 +304,15 @@ public class ConnectorHelper {
 	public static String addBuildReports(String id, String name, List<Pair> reports) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.addBuildReports(id, name, reports);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.addBuildReports(id, name, reports);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -263,9 +329,15 @@ public class ConnectorHelper {
 	public static String addBuildSteps(String id, String name, List<Step> steps) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.addBuildSteps(id, name, steps);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.addBuildSteps(id, name, steps);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -282,9 +354,15 @@ public class ConnectorHelper {
 	public static String updateBuildEndDate(String id, String name, Date endDate) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateBuildEndDate(id, name, endDate);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateBuildEndDate(id, name, endDate);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -301,9 +379,15 @@ public class ConnectorHelper {
 	public static String updateBuildStatus(String id, String name, String status) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateBuildStatus(id, name, status);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateBuildStatus(id, name, status);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -320,10 +404,16 @@ public class ConnectorHelper {
 	public static String runAnalysis(String id, String name, boolean override) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.runAnalysis(id, name, override);
-		connector.endConnection();
-
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.runAnalysis(id, name, override);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
+		
 		return message;
 	}
 
@@ -353,9 +443,15 @@ public class ConnectorHelper {
 			List<String> logs) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -377,10 +473,16 @@ public class ConnectorHelper {
 			String buildName, List<String> logs) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.addReportLogs(id, name, buildId,
-				buildName, logs);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.addReportLogs(id, name, buildId,
+					buildName, logs);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -403,9 +505,15 @@ public class ConnectorHelper {
 			String status) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateReportStatus(id, name, buildId, buildName, status);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+		 	message = connector.updateReportStatus(id, name, buildId, buildName, status);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -428,9 +536,15 @@ public class ConnectorHelper {
 			Date endDate) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateReportEndDate(id, name, buildId, buildName, endDate);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateReportEndDate(id, name, buildId, buildName, endDate);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -465,10 +579,16 @@ public class ConnectorHelper {
 			String log) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.createTest(reportId, reportName, name,
-				description, startDate, endDate, status, criterias, tags, steps, log);
-		connector.endConnection();
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.createTest(reportId, reportName, name,
+					description, startDate, endDate, status, criterias, tags, steps, log);
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 
 		return message;
 	}
@@ -505,10 +625,15 @@ public class ConnectorHelper {
 			boolean override) throws IOException {
 
 		Connector connector = Connector.getInstance();
-		connector.beginConnection();
-		String message = connector.updateTest(reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);
-		connector.endConnection();
-
+		String message = null;
+		try {
+			connector.beginConnection();
+			message = connector.updateTest(reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);	
+		}finally{
+			if(connector != null){
+				connector.endConnection();
+			}
+		}
 		return message;
 	}
 
