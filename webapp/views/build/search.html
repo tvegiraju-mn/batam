@@ -106,9 +106,27 @@
 	        client.on('ready', function(event) {
 	          	client.on('copy', function(event) {
 	              	var query = '?';
+	              	var criteriasIndex = 0;
 	            	for(var j = 0; j < criteriasIds.length; j++){
+	            		if(criteriasIds[j] == 'Tags'){
+	            			var checkedTags = $("#search_tags input:checkbox:checked").map(function(){
+	        			      return $(this).val();
+	        			    }).get();
+	            			if(checkedTags != null && checkedTags.length != 0){
+	            				if(criteriasIndex != 0){
+	    	            			query += '&';
+	    	            		}
+		        				query += "tags="+checkedTags;
+		        				criteriasIndex++;
+		        			}
+	            			continue;
+	            		} 
 	            		if($('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != null && $('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != ''){              		
-	            			query += '&'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();	            		
+	            			if(criteriasIndex != 0){
+		            			query += '&';
+		            		}
+	            			query += ''+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();	            		
+	            			criteriasIndex++;
 	            		}
 	            	}
 	             	var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '')+"/{{build_id}}/search";
@@ -123,10 +141,16 @@
     	function displaySearch(response){
     		var queryParams = getUrlParams();
     		
-      		var criteriasForm = '';
+    		var criteriasForm = '';
+      		var criteriasFormIndex = 0;
       		for(var i = 0; i < response.criterias.length; i++){
+      			//Populate criteriasIds global variable
        			criteriasIds[i] = response.criterias[i].name;
-            	if(i % 2 == 0){
+      			
+       			if(response.criterias[i].name == 'Tags'){
+      				continue;
+      			}
+            	if(criteriasFormIndex % 2 == 0){
               		criteriasForm += '<div class="form-group">' +
 	              	'  <div class="row">' +
               		'    <label for="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
@@ -142,9 +166,9 @@
               		}
               		criteriasForm += '      </select>' +
               		'    </div>';
-              		if(i + 1 >= response.criterias.length){
+              		if(criteriasFormIndex + 1 >= response.criterias.length - 1){
 	                	criteriasForm += '    <div class="col-sm-3">' +
-	                	'     </div>'
+	                	'     </div>' +
 	                	'  </div>' +
 	                	'</div>';
 	              	}
@@ -165,7 +189,28 @@
               		'  </div>' +
               		'</div>';
             	}
-          	} 
+            	criteriasFormIndex++;
+          	}
+      		//Add tags to search form
+      		for(var i = 0; i < response.criterias.length; i++){      			
+       			if(response.criterias[i].name != 'Tags'){
+      				continue;
+      			}
+       			criteriasForm += '<div class="form-group">' +
+              	'  <div class="row">' +
+          		'    <label for="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" class="col-sm-2 control-label">'+response.criterias[i].name+'</label>' +
+          		'    <div id="search_tags" class="col-sm-6">';
+          		for(var j = 0; j < response.criterias[i].values.length; j++){
+          			if(queryParams['tags'] != null && queryParams['tags'].indexOf( response.criterias[i].values[j]) != -1){
+          				criteriasForm += '        <input type="checkbox" name="tags" value="'+response.criterias[i].values[j]+'" checked> '+response.criterias[i].values[j]+' ';
+          			}else{
+          				criteriasForm += '        <input type="checkbox" name="tags" value="'+response.criterias[i].values[j]+'"> '+response.criterias[i].values[j]+' ';
+          			}
+          		}
+          		'    </div>' +
+               	'  </div>' +
+               	'</div>';
+      		}
       		$('#tests_search_criterias').before(criteriasForm); 
      
           	//Submit search button
@@ -209,6 +254,15 @@
 	 		
 	 		var data = {build_id : "{{build_id}}"};
 	 		for(var i = 0; i < criteriasIds.length; i++){
+	 			if(criteriasIds[i] == 'Tags'){
+        			var checkedTags = $("#search_tags input:checkbox:checked").map(function(){
+    			      return $(this).val();
+    			    }).get();
+        			if(checkedTags != null && checkedTags.length != 0){
+        				data['tags'] = ""+checkedTags;
+        			}
+        			continue;
+        		} 
 	 			var currentValue = $('#'+replaceAll(" ", "_", criteriasIds[i].toLowerCase())).val();
 	 			if(currentValue != undefined && currentValue != null && currentValue != ""){
 	 				data[replaceAll(" ","_", criteriasIds[i].toLowerCase())] = $('#'+replaceAll(" ", "_", criteriasIds[i].toLowerCase())).val();

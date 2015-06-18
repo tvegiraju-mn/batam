@@ -35,13 +35,13 @@ function findTestList(req, res, next){
 			
 			//Populate the data array with tests found.
 			for(var index in tests){
-				data[index] = ['<a href="/'+req.query.build_id+'/report/'+req.query.report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time)]; 
+				data[index] = ['<a href="/'+tests[index].build_id+'/report/'+tests[index].report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time), tests[index].tags]; 
 				for(var i = 0; i < criterias.length; i++){
 					var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
 					if(!_.isUndefined(tests[index][currentCriterias])){
-						data[index][4+i] = tests[index][currentCriterias];
+						data[index][5+i] = tests[index][currentCriterias];
 					}else{
-						data[index][4+i] = " ";
+						data[index][5+i] = " ";
 					}
 				}
 			}
@@ -56,7 +56,8 @@ function findTestList(req, res, next){
 		}
 		
 		//Create searchCriteria object.
-		var searchCriterias = createSearchCriterias(req, criterias);
+		var searchCriterias = createSearchObject(req, criterias);
+		console.log(util.inspect(searchCriterias));
 		//Fetch tests based on defined searchCriterias
 		req.collections.tests.find(searchCriterias)
 			.limit(parseInt(req.query.length))
@@ -150,7 +151,7 @@ function findStat(req, res, next){
 		}
 		
 		//Create searchCriteria object.
-		var searchCriterias = createSearchCriterias(req, criterias);
+		var searchCriterias = createSearchObject(req, criterias);
 		
 		//Fetch stats based on search criterias.
 		req.collections.tests.group([req.query.graph],
@@ -185,7 +186,7 @@ function findStat(req, res, next){
  * Function that create a SearchCriterias object based on query param send in the URL.
  * This Object can be then used to filter result while using MongoDb apis.
  */
-function createSearchCriterias(req, criterias){
+function createSearchObject(req, criterias){
 	
 	var searchCriterias = {};
 	//Add static criterias to searchCriterias Object.
@@ -197,6 +198,11 @@ function createSearchCriterias(req, criterias){
 	}
 	if(!_.isNull(req.query.time) && !_.isEmpty(req.query.time)){
 		searchCriterias.time = req.query.time;
+	}
+	if(!_.isNull(req.query.tags) && !_.isEmpty(req.query.tags)){
+		var tagsList = req.query.tags.split(",");
+		searchCriterias.tags = {};
+		searchCriterias.tags.$all = tagsList;
 	}
 
 	//Add dynamic criterias to searchCriterias Object.
@@ -265,7 +271,7 @@ function findTestCriterias(req, res, next){
 				var currentTest = tests[j];
 			
 				for(var index in allCriterias){
-					convertedIndex = replaceAll(" ","_", index.toLowerCase());
+					var convertedIndex = replaceAll(" ","_", index.toLowerCase());
 					if(!_.isUndefined(currentTest[convertedIndex]) && !_.isEmpty(currentTest[convertedIndex]) && !_.isNull(currentTest[convertedIndex])){
 						allCriterias[index][currentTest[convertedIndex]] = true;
 					}
@@ -273,18 +279,34 @@ function findTestCriterias(req, res, next){
 			}
 			
 			//Convert the allCriterias object (Map<String, List>) to the result object (Array of objects with 2 attributes, name and values, values being of type String[])
+			var result = [];
+			var i = 0;
 			_.each(allCriterias, function addCriteriasNameToResult(element, index, list){
 				result[i] = {};
 				result[i].name = index;
 				var l = 0;
 				result[i].values = [];
 				_.each(element, function addCriteriasValueToResult(value, index, list){
-					result[i].values[l] = index;
-					l++;
+					//If the criterias is Tag then we split the current test tag value and add distinct value to the value array
+					if(result[i].name == 'Tags'){
+						var splittedTags = index.split(",");
+						for(var splittedTagsIndex = 0; splittedTagsIndex < splittedTags.length; splittedTagsIndex++){
+							if(!_.contains(result[i].values, splittedTags[splittedTagsIndex])){
+								result[i].values[l] = splittedTags[splittedTagsIndex];
+								l++;
+							}
+						}
+					}else{
+						result[i].values[l] = index;
+						l++;
+					}
+						
 				}, result);
 				i++;
 			}, result);
 			
+			//Transform the Tags criterias into a list of distinct values
+			var tagsCriterias = result.tag
 			//Send result.
 			res.send({criterias: result});
 		};
@@ -292,11 +314,12 @@ function findTestCriterias(req, res, next){
 		if(error){
 			return next(error);
 		}
-		
+		var allCriterias = {};
 		//Add static criterias.
 		allCriterias['Status'] = {};
 		allCriterias['Regression'] = {};
 		allCriterias['Time'] = {};
+		allCriterias['Tags'] = {};
 		
 		//Add dynamic criterias.
 		for(var j = 0; j < criterias.length; j++){
@@ -330,12 +353,11 @@ function findTestCriterias(req, res, next){
 		return next(new Error("Either build_id or report_id should be defined"));
 	}
 	
-	var allCriterias = {};
-	var result = [];
-	var i = 0;
+	
+	
 	
 	//Fetch all tests criterias.
-	req.collections.testcriterias.find().toArray(findTestCriterias);
+	req.collections.testcriterias.find({type: "criteria"}).toArray(findTestCriterias);
 }
 
 /**

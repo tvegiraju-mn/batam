@@ -516,6 +516,10 @@
 	    	// Add Show graphs
           	var graphLink = '<option value="">None</option>';//'<ul class="nav nav-tabs" role="tablist">';
           	for(var i = 0; i < response.criterias.length; i++){
+          		if(response.criterias[i].name == 'Tags'){
+          		//We don't display graphs based on tags values
+        			continue;
+          		}
 				if(graph != null && replaceAll(" ", "_", response.criterias[i].name.toLowerCase()) == graph){
 					graphLink += '<option id="graph_link_'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" value="'+replaceAll(" ", "_", response.criterias[i].name.toLowerCase())+'" selected="selected">'+response.criterias[i].name+'</li>';
 				}else{

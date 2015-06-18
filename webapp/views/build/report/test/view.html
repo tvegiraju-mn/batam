@@ -89,11 +89,34 @@
               </div>
               <div class="row" style="margin-bottom:10px">
 				<div class="col-md-12">
-					<a data-toggle="collapse" href="#collapseHistory" aria-expanded="false" aria-controls="collapseHistory">Show History</a>
+					<a data-toggle="collapse" href="#collapseHistory" aria-expanded="false" aria-controls="collapseHistory">Show details</a>
 					<div class="collapse" id="collapseHistory">
 						<div class="well">
+							<div id="steps" class="row">
+								<div class="col-md-12">
+									<h3>Steps</h3>
+									<table class="table table-condensed table-striped">
+										<thead>
+											<tr style="font-weight: bolder">
+												<td>Order #</td>
+												<td>Name</td>
+												<td>Input</td>
+												<td>Expected</td>
+												<td>Output</td>
+												<td>Status</td>
+												<td>Duration</td>
+												<td>Error</td>
+											</tr>
+										</thead>
+										<tbody id="steps_table">
+										
+										</tbody>
+									</table>
+								</div>
+							</div>
 							<div class="row">
 								<div class="col-md-12">
+									<h3>History</h3>
 									<table id="history" class="display" cellspacing="0" width="100%"></table>
 								</div>
 							</div>
@@ -166,7 +189,8 @@
 	      				field != 'status' &&
 	      				field != 'time' &&
 	      				field != 'regression' &&
-	      				field != 'log'){
+	      				field != 'log'&&
+	      				field != 'steps'){
 	      			if(field == 'duration'){
 	      				var formattedDuration = formatWithLabel(response.test[field].value, response.test[field].trend, 1000, true);
 	      				dynamicFields += '<dt>'+field+'</dt>'+
@@ -185,10 +209,41 @@
 	      	}else{
 	      		$('#test_log').html(response.test.log);
 	      	}
+	      	
+	      	if(response.test.steps == null || response.test.steps.length == 0){
+	    		$('#steps').remove();
+	    	}else{
+	    		var stepsTable = '';
+	    		for(var i = 0; i < response.test.steps.length; i++){
+	    			if(response.test.steps[i].status != null && response.test.steps[i].status == 'pass'){
+	    				stepsTable += '<tr class="success">';
+	    			}else if(response.test.steps[i].status != null && (response.test.steps[i].status == 'fail' || response.test.steps[i].status == 'error')){
+	    				stepsTable += '<tr class="danger">';
+	    			}else{
+	    				stepsTable += '<tr">';
+	    			}
+	    			stepsTable += '<td>'+(response.test.steps[i].order == null ? '' : response.test.steps[i].order)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].name == null ? '' : response.test.steps[i].name)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].input == null ? '' : response.test.steps[i].input)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].expected == null ? '' : response.test.steps[i].expected)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].output == null ? '' : response.test.steps[i].output)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].status == null ? '' : response.test.steps[i].status)+'</td>';
+	    			if(response.test.steps[i].start_date != null && response.test.steps[i].end_date != null &&
+	    					_.isNumber(parseInt(response.test.steps[i].start_date)) && _.isNumber(parseInt(response.test.steps[i].end_date)) &&
+	    					_.isDate(new Date(parseInt(response.test.steps[i].start_date))) && _.isDate(new Date(response.test.steps[i].end_date)) &&
+	    					response.test.steps[i].start_date >= response.test.steps[i].end_date){
+	    				stepsTable += '<td>'+durationToStr(response.test.steps[i].end_date - response.test.steps[i].start_date)+'</td>';
+	    			}else{
+	    				stepsTable += '<td></td>';
+	    			}
+	    			stepsTable += '<td>'+(response.test.steps[i].error == null ? '' : response.test.steps[i].error)+'</td>';
+	    			stepsTable += '</tr>';
+	    		}
+	    		$('#steps_table').html(stepsTable);
+	    	}
 	    }
     	
     	//Dispaly tests history
-
  	    $('#history').DataTable({
  	        "serverSide": true,
  	       	"ajax": {
