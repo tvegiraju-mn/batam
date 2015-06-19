@@ -584,8 +584,8 @@ public class Connector {
 	/**
 	 * Create Report simple API with individual {@link com.modeln.batam.connector.wrapper.ReportEntry ReportEntry} parameters.
 	 * 
-	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param id : Report id (required if name not provided).
+	 * @param name : Report Name (required if id not provided and if report has a unique name in your build).
 	 * @param buildId : buildId (required if id and buildName not provided).
 	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param description : Report Description.
@@ -622,8 +622,8 @@ public class Connector {
 	 * Update Report simple API.
 	 * This API only updates report logs link list.
 	 * 
-	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param id : Report id (required if name not provided).
+	 * @param name : Report Name (required if id not provided and if report has a unique name in your build).
 	 * @param buildId : buildId (required if id and buildName not provided).
 	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param logs : Build Logs links, List of {@see java.lang.String String}.
@@ -651,8 +651,8 @@ public class Connector {
 	 * Update Report simple API.
 	 * This API only updates report status.
 	 * 
-	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param id : Report id (required if name not provided).
+	 * @param name : Report Name (required if id not provided and if report has a unique name in your build).
 	 * @param buildId : buildId (required if id and buildName not provided).
 	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param status : Build Status.
@@ -680,8 +680,8 @@ public class Connector {
 	 * Update Report simple API.
 	 * This API only updates report end date.
 	 * 
-	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param id : Report id (required if name not provided).
+	 * @param name : Report Name (required if id not provided and if report has a unique name in your build).
 	 * @param buildId : buildId (required if id and buildName not provided).
 	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param endDate : Build End date.
