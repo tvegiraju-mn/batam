@@ -33,6 +33,9 @@ import org.json.simple.JSONObject;
 
 /**
  * {
+ * 		"id" : "test identifier",
+ * 		"build_id" : "build identifier this test belong to",
+ * 		"build_name" : "build name this test belong to",
  * 		"report_id" : "report identifier this test belong to",
  * 		"report_name" : "report name this test belong to",
  * 		"name" : "package#testname()",
@@ -50,6 +53,13 @@ import org.json.simple.JSONObject;
  *
  */
 public class TestEntry {
+	
+	private String id;
+	
+	private String buildId;
+	
+	private String buildName;
+	
 	private String reportId; 
 	
 	private String reportName; 
@@ -78,7 +88,10 @@ public class TestEntry {
 		super();
 	}
 	
-	public TestEntry(String reportId, 
+	public TestEntry(String id,
+			String buildId,
+			String buildName,
+			String reportId, 
 			String reportName, 
 			String name, 
 			String description, 
@@ -91,6 +104,9 @@ public class TestEntry {
 			String log, 
 			boolean override) {
 		super();
+		this.id = id;
+		this.buildId = buildId;
+		this.buildName = buildName;
 		this.reportId = reportId;
 		this.reportName = reportName;
 		this.name = name;
@@ -103,6 +119,30 @@ public class TestEntry {
 		this.steps = steps;
 		this.log = log;
 		this.override = override;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+
+	public String getBuildName() {
+		return buildName;
+	}
+
+	public void setBuildName(String buildName) {
+		this.buildName = buildName;
 	}
 
 	public String getReportId() {
@@ -204,6 +244,9 @@ public class TestEntry {
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
+		obj.put("id", id);
+		obj.put("build_id", buildId);
+		obj.put("build_name", buildName);
 		obj.put("report_id", reportId);
 		obj.put("report_name", reportName);
 		obj.put("name", name);
@@ -227,6 +270,9 @@ public class TestEntry {
 	
 	@SuppressWarnings("unchecked")
 	public static TestEntry fromJSON(JSONObject obj){
+		String id = (String)obj.get("id");
+		String buildId = (String)obj.get("build_id");
+		String buildName = (String)obj.get("build_name");
 		String reportId = (String)obj.get("report_id");
 		String reportName = (String)obj.get("report_name");
 		String name = (String)obj.get("name");
@@ -265,7 +311,7 @@ public class TestEntry {
 		
 		String log = (String)obj.get("log");
 		
-		return new TestEntry(reportId, reportName, name, description, 
+		return new TestEntry(id, buildId, buildName, reportId, reportName, name, description, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)), 
 				status, criterias, tags, steps, log, override);

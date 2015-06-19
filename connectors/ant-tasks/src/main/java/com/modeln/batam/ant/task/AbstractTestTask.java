@@ -20,6 +20,12 @@ import com.modeln.batam.ant.typedef.Tags;
 
 public abstract class AbstractTestTask extends AbstractBatamTask {
 	
+	private String id;
+	
+	private String buildId;
+	
+	private String buildName;
+	
 	private String reportId; 
 	
 	private String reportName; 
@@ -64,6 +70,30 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
         return step;
     }
 	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+
+	public String getBuildName() {
+		return buildName;
+	}
+
+	public void setBuildName(String buildName) {
+		this.buildName = buildName;
+	}
+
 	public String getReportId() {
 		return reportId;
 	}
@@ -153,6 +183,9 @@ public abstract class AbstractTestTask extends AbstractBatamTask {
 		
 		//Build test object.
 		TestEntry test = new TestEntry();
+		test.setId(id);
+		test.setBuildId(buildId);
+		test.setBuildName(buildName);
 		test.setReportId(reportId);
 		test.setReportName(reportName);
 		test.setName(name);

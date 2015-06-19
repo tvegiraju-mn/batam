@@ -190,9 +190,9 @@ public class BatamPublisherHelperTest {
 		steps.add(new Step(1, "step 1", new Date(), new Date(), "1", "2", "2", "success", null));
 		steps.add(new Step(2, "step 2", new Date(), new Date(), "0", "1", "2", "failed", "reason"));
 		
-		ConnectorHelper.createTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps,  "11111");
+		ConnectorHelper.createTest("1", "1", "1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps,  "11111");
 		
-		ConnectorHelper.createTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null);
+		ConnectorHelper.createTest("1", "1", "1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null);
 	}
 	
 	@Test
@@ -209,9 +209,9 @@ public class BatamPublisherHelperTest {
 		steps.add(new Step(1, "step 1", new Date(), new Date(), "1", "2", "2", "success", null));
 		steps.add(new Step(2, "step 2", new Date(), new Date(), "0", "1", "2", "failed", "reason"));
 
-		ConnectorHelper.updateTest("1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps, "11111", false);
+		ConnectorHelper.updateTest("1", "1", "1", "1", "11", "2", "desc 1", new Date(), new Date(), "111", criterias, tags, steps, "11111", false);
 		
-		ConnectorHelper.updateTest("1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null, false);
+		ConnectorHelper.updateTest("1", "1", "1", "1", "11", "1", "desc 1", new Date(), new Date(), "111", null, null, null, null, false);
 	}
 
 }

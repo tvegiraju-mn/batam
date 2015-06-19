@@ -246,7 +246,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#addBuildCommits(String, String, List) addBuildCommits} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param commits : Build Commits, List of {@see com.modeln.batam.connector.wrapper.Commit commits}.
 	 * @return published message.
 	 * @throws IOException
@@ -271,7 +271,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#addBuildInfos(String, String, List) addBuildInfos} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param infos : Build Infos, List of {@see com.modeln.batam.connector.wrapper.Info infos}.
 	 * @return published message.
 	 * @throws IOException
@@ -296,7 +296,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#addBuildReports(String, String, List) addBuildReports} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param reports : Build Reports, List of {@see com.modeln.batam.connector.wrapper.Pair reports}.
 	 * @return published message.
 	 * @throws IOException
@@ -321,7 +321,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#addBuildSteps(String, String, List) addBuildSteps} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param steps : Build Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
 	 * @return published message.
 	 * @throws IOException
@@ -346,7 +346,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#updateBuildEndDate(String, String, Date) updateBuildEndDate} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param endDate : Build End Date.
 	 * @return published message.
 	 * @throws IOException
@@ -371,7 +371,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#updateBuildStatus(String, String, String) updateBuildStatus} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param status : Build status.
 	 * @return published message.
 	 * @throws IOException
@@ -396,7 +396,7 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#runAnalysis(String, String, boolean) runAnalysis} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
+	 * @param name : Build Name (required if id not provided and if build has a unique name among all builds ).
 	 * @param override : false if the build is new, Otherwise true if test have been overriding previous test results from already analyzed build.
 	 * @return published message.
 	 * @throws IOException
@@ -420,10 +420,10 @@ public class ConnectorHelper {
 	/**
 	 * Static version of {@see com.modeln.batam.connector.Connector#createReport(String, String, String, String, String, Date, Date, String, List) createReport} function.
 	 * 
-	 * @param id : Report Id.
-	 * @param name : Report Name (required).
-	 * @param buildId : Report Build Id (required if buildName is not provided).
-	 * @param buildName : Report Build Name (required if buildId is not provided).
+	 * @param id : Build id (required if name not provided).
+	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param buildId : buildId (required if id and buildName not provided).
+	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param description : Report Description.
 	 * @param startDate : Report Start Date.
 	 * @param endDate : Report End Date.
@@ -460,9 +460,9 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#addReportLogs(String, String, String, String, List) addReportLogs} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
-	 * @param buildId : buildId (required if id and BuildName not provided).
-	 * @param buildName : buildName (required if id and BuildId not provided).
+	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param buildId : buildId (required if id and buildName not provided).
+	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param logs : Build Logs links, List of {@see java.lang.String String}.
 	 * @return published message.
 	 * @throws IOException
@@ -491,9 +491,9 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#updateReportStatus(String, String, String, String, String) updateReportStatus} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
-	 * @param buildId : buildId (required if id and BuildName not provided).
-	 * @param buildName : buildName (required if id and BuildId not provided).
+	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param buildId : buildId (required if id and buildName not provided).
+	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param status : Build Status.
 	 * @return published message.
 	 * @throws IOException
@@ -522,9 +522,9 @@ public class ConnectorHelper {
 	 * Static version of {@see com.modeln.batam.connector.Connector#updateReportEndDate(String, String, String, String, Date) updateReportEndDate} function.
 	 * 
 	 * @param id : Build id (required if name not provided).
-	 * @param name : Build Name (required if id not provided).
-	 * @param buildId : buildId (required if id and BuildName not provided).
-	 * @param buildName : buildName (required if id and BuildId not provided).
+	 * @param name : Build Name (required if id not provided and if report has a unique name in your build).
+	 * @param buildId : buildId (required if id and buildName not provided).
+	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
 	 * @param endDate : Build End date.
 	 * @return published message.
 	 * @throws IOException
@@ -552,8 +552,15 @@ public class ConnectorHelper {
 	/**
 	 * Static version of {@see com.modeln.batam.connector.Connector#createTest(String, String, String, String, Date, Date, String, List, String) createTest} function.
 	 * 
-	 * @param reportId : Test Report Id (required if reportName is not provided).
-	 * @param reportName : Test Report Id (required if reportName is not provided).
+	 * Identification: There are various ways to specify where the test should be created.
+	 * Option 1: Provide the reportId only (buildId, buildName and reportName become optional).
+	 * Option 2: If reportName is unique in your build, provide the reportName and the buildId (buildName and reportId become optional)
+	 * Option 3: If reportName is unique in your build and buildName is unique among your builds, provide the reportName and the buildName (buildId and reportId become optional)
+	 * 
+	 * @param buildId : Test Build Id.
+	 * @param buildName : Test Build Id.
+	 * @param reportId : Test Report Id.
+	 * @param reportName : Test Report Id.
 	 * @param name : Test Name (required).
 	 * @param description : Test Description.
 	 * @param startDate : Test Start Date.
@@ -566,7 +573,9 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
-	public static String createTest(String reportId, 
+	public static String createTest(String buildId,
+			String buildName,
+			String reportId, 
 			String reportName,
 			String name, 
 			String description, 
@@ -582,7 +591,7 @@ public class ConnectorHelper {
 		String message = null;
 		try {
 			connector.beginConnection();
-			message = connector.createTest(reportId, reportName, name,
+			message = connector.createTest(buildId, buildName, reportId, reportName, name,
 					description, startDate, endDate, status, criterias, tags, steps, log);
 		}finally{
 			if(connector != null){
@@ -596,9 +605,18 @@ public class ConnectorHelper {
 	/**
 	 * Static version of {@see com.modeln.batam.connector.Connector#updateTest(String, String, String, String, Date, Date, String, List, String, boolean) updateTest} function.
 	 * 
-	 * @param reportId : Test Report Id (required if reportName is not provided).
-	 * @param reportName : Test Report Id (required if reportName is not provided).
-	 * @param name : Test Name (required).
+	 * Identification: There are various ways to find which test to update.
+	 * Option 1: Provide the test Id only (buildId, buildName, reportId and reportName and name become optional).
+	 * Option 2: If test name is unique in your report, provide the name and the reportId (buildName, buildId, reportName and id become optional)
+	 * Option 3: If test name is unique in your report and reportName is unique in your build, provide the name and the reportName (buildName, buildId, reportId and id become optional)
+	 * Option 5: If test name is unique in your report and reportName is unique in your build and buildName is unique among your builds, provide the name, reportName and the buildName (buildId and reportId and id become optional)
+	 * 
+	 * @param id : Test Id.
+	 * @param buildId : Test Build Id.
+	 * @param buildName : Test Build Name.
+	 * @param reportId : Test Report Id.
+	 * @param reportName : Test Report Id.
+	 * @param name : Test Name.
 	 * @param description : Test Description.
 	 * @param startDate : Test Start Date.
 	 * @param endDate : Test End Date.
@@ -611,7 +629,10 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
-	public static String updateTest(String reportId, 
+	public static String updateTest(String id,
+			String buildId,
+			String buildName,
+			String reportId, 
 			String reportName,
 			String name, 
 			String description, 
@@ -628,7 +649,7 @@ public class ConnectorHelper {
 		String message = null;
 		try {
 			connector.beginConnection();
-			message = connector.updateTest(reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);	
+			message = connector.updateTest(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);	
 		}finally{
 			if(connector != null){
 				connector.endConnection();

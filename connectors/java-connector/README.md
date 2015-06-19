@@ -122,6 +122,9 @@ Command line options > Environment properties > External file property > Interna
 ### TestEntry
 ```
 {
+		"id" : "test identifier", // Only used to update a test.
+  		"build_id" : "build identifier this test belong to",
+  		"build_name" : "build name this test belong to",
 		"report_id" : "report identifier this test belong to",
 		"report_name" : "report name this test belong to",
 		"name" : "package#testname()",

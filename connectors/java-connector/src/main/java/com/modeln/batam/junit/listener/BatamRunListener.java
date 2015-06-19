@@ -86,7 +86,7 @@ public class BatamRunListener extends RunListener {
         reportName = reportName != null && !reportName.isEmpty() ? reportName : null;
         
         if("true".equals(publish)) {
-            ConnectorHelper.createTest(reportId,
+            ConnectorHelper.createTest(null, null, reportId,
             		reportName,
                     description.getClassName() + "." + description.getMethodName(),
                     null,
@@ -109,7 +109,7 @@ public class BatamRunListener extends RunListener {
         reportName = reportName != null && !reportName.isEmpty() ? reportName : null;
         
         if("true".equals(publish)) {
-            ConnectorHelper.updateTest(reportId,
+            ConnectorHelper.updateTest(null, null, null, reportId,
             		reportName,
                     description.getClassName() + "." + description.getMethodName(),
                     null,
@@ -141,7 +141,7 @@ public class BatamRunListener extends RunListener {
                 failure.getException().printStackTrace(new PrintWriter(errors));
                 String exception = errors.toString();
 
-                ConnectorHelper.updateTest(reportId,
+                ConnectorHelper.updateTest(null, null, null, reportId,
                 		reportName,
                         failure.getDescription().getClassName() + "." + failure.getDescription().getMethodName(),
                         null,
