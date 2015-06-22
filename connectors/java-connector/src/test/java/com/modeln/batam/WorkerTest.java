@@ -11,7 +11,13 @@ import com.modeln.batam.connector.ConnectorHelper;
 import com.modeln.batam.connector.wrapper.*;
 
 /**
+ * NOTE: This is a temporary test helper.
  * This test Suite is intended to test The worker Module.
+ * It has no assertion. Assertion must be done manually. 
+ * It just generate content and push messages to the RabbitMQ instance so that the worker module can consume messages
+ * 
+ * TODO: create automated Unit test in the worker module directly
+ * 
  * @author gzussa
  *
  */
@@ -1045,6 +1051,458 @@ public class WorkerTest {
 		
 		//Analyze
 		//ConnectorHelper.runAnalysis(null, build3.getName(), false);
+	}
+	
+	@Test
+	public void testBuildIdentification() throws IOException {
+		//Create build 1 using name (auto generate report id)
+		BuildEntry build1 = new BuildEntry();
+		build1.setName("test build identification 1");
+		build1.setStartDate(new Date());
+		
+		ConnectorHelper.createBuild(build1);
+		
+		//Create build 2 using name and id 
+		String build2Id = "10_"+System.currentTimeMillis();
+		BuildEntry build2 = new BuildEntry();
+		build2.setName("test build identification 2");
+		build2.setId(build2Id);
+		build2.setStartDate(new Date());
+		
+		ConnectorHelper.createBuild(build2);
+		
+		//Update build 1 using name
+		build1.setStartDate(null);
+		build1.setEndDate(new Date());
+		build1.setStatus("completed");
+		
+		ConnectorHelper.updateBuild(build1);
+		
+		//Update build 2 using name and id
+		build2.setStartDate(null);
+		build2.setEndDate(new Date());
+		build2.setStatus("completed");
+		
+		ConnectorHelper.updateBuild(build2);
+		
+		//Update build 2 bis using  id
+		build2.setName(null);
+		build2.setDescription("desc");
+		
+		ConnectorHelper.updateBuild(build2);
+		
+		BuildEntry build = new BuildEntry();
+		String buildId = "10_"+System.currentTimeMillis();
+		//build.setId(buildId);
+		build.setName("test build identification 1");
+		//Use auto analysis feature to analyse previous build
+		ConnectorHelper.createBuild(build);
+		
+		ConnectorHelper.runAnalysis(build2.getId(), null, false);
+	}
+	
+	@Test
+	public void testReportIdentification() throws IOException {
+		//Create build
+		String buildName = "test report identification";
+		String buildId = "11_"+System.currentTimeMillis();
+		BuildEntry build = new BuildEntry();
+		build.setName(buildName);
+		build.setId(buildId);
+		build.setStartDate(new Date());
+		
+		ConnectorHelper.createBuild(build);
+		
+		//Create report 1 using build Id and report Name (auto generate report id)
+		ReportEntry report1 = new ReportEntry();
+		report1.setBuildId(buildId);
+		report1.setName("11 1");
+		report1.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report1);
+		
+		//Create report 2 using build name and report Name (auto generate report id)
+		ReportEntry report2 = new ReportEntry();
+		report2.setBuildName(buildName);
+		report2.setName("11 2");
+		report2.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report2);
+		
+		//Create report 3 using build id and name and report Name (auto generate report id)
+		ReportEntry report3 = new ReportEntry();
+		report3.setBuildId(buildId);
+		report3.setBuildName(buildName);
+		report3.setName("11 3");
+		report3.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report3);
+		
+		//Create report 4 using build Id and report Name and Id (preset report id)
+		ReportEntry report4 = new ReportEntry();
+		String report4Id = "11_4_"+System.currentTimeMillis();
+		report4.setBuildId(buildId);
+		report4.setName("11 4");
+		report4.setId(report4Id);
+		report4.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report4);
+		
+		//Create report 5 using build name and report name and id (preset report id)
+		ReportEntry report5 = new ReportEntry();
+		String report5Id = "11_5_"+System.currentTimeMillis();
+		report5.setBuildName(buildName);
+		report5.setName("11 5");
+		report5.setId(report5Id);
+		report5.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report5);
+		
+		//Create report 6 using build id and name and report name and id (preset report id)
+		ReportEntry report6 = new ReportEntry();
+		String report6Id = "11_6_"+System.currentTimeMillis();
+		report6.setBuildId(buildId);
+		report6.setBuildName(buildName);
+		report6.setName("11 6");
+		report6.setId(report6Id);
+		report6.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report6);
+		
+		//Update report 1 using build Id and report Name
+		report1.setStartDate(null);
+		report1.setEndDate(new Date());
+		report1.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report1);
+		
+		//Update report 2 using build name and report Name
+		report2.setStartDate(null);
+		report2.setEndDate(new Date());
+		report2.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report2);
+		
+		//Update report 3 using build id and name and report Name
+		report3.setStartDate(null);
+		report3.setEndDate(new Date());
+		report3.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report3);
+		
+		//Update report 4 using build Id and report Name and Id
+		report4.setStartDate(null);
+		report4.setEndDate(new Date());
+		report4.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report4);
+		
+		//Update report 4 bis using build Id and report Id
+		report4.setName(null);
+		report4.setDescription("desc");
+		
+		ConnectorHelper.updateReport(report4);
+		
+		//Update report 5 using build name and report name and id
+		report5.setStartDate(null);
+		report5.setEndDate(new Date());
+		report5.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report5);
+		
+		//Update report 5 bis using build name and report id
+		report5.setName(null);
+		report5.setDescription("desc");
+		
+		ConnectorHelper.updateReport(report5);
+		
+		//Update report 6 using build id and name and report name and id
+		report6.setStartDate(null);
+		report6.setEndDate(new Date());
+		report6.setStatus("completed");
+		
+		ConnectorHelper.updateReport(report6);
+		
+		//Update report 6 bis using build id and name and report id
+		report6.setName(null);
+		report6.setDescription("desc");
+		
+		ConnectorHelper.updateReport(report6);		
+		
+		build = new BuildEntry();
+		build.setId(buildId);
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
+	}
+	
+	@Test
+	public void testTestIdentification() throws IOException {
+		//Create build
+		String buildName = "test test identification";
+		String buildId = "12_"+System.currentTimeMillis();
+		BuildEntry build = new BuildEntry();
+		build.setName(buildName);
+		build.setId(buildId);
+		build.setStartDate(new Date());
+		
+		ConnectorHelper.createBuild(build);
+		
+		//Create report
+		ReportEntry report = new ReportEntry();
+		String reportId = "11_4_"+System.currentTimeMillis();
+		String reportName = "11 4";
+		report.setBuildId(buildId);
+		report.setName("11 4");
+		report.setId(reportId);
+		report.setStartDate(new Date());
+		
+		ConnectorHelper.createReport(report);
+		
+		//Create test 1 using report id only
+		TestEntry test1 = new TestEntry();
+		test1.setReportId(reportId);
+		test1.setName("test 1");
+		test1.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test1);
+		
+		//Create test 2 using report name only
+		TestEntry test2 = new TestEntry();
+		test2.setReportName(reportName);
+		test2.setName("test 2");
+		test2.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test2);
+		
+		//Create test 3 using report name and id
+		TestEntry test3 = new TestEntry();
+		test3.setReportId(reportId);
+		test3.setReportName(reportName);
+		test3.setName("test 3");
+		test3.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test3);
+		
+		//Create test 4 using report name and id and build id
+		TestEntry test4 = new TestEntry();
+		test4.setBuildId(buildId);
+		test4.setReportId(reportId);
+		test4.setReportName(reportName);
+		test4.setName("test 4");
+		test4.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test4);
+		
+		//Create test 5 using report name and id and build name
+		TestEntry test5 = new TestEntry();
+		test5.setBuildName(buildName);
+		test5.setReportId(reportId);
+		test5.setReportName(reportName);
+		test5.setName("test 5");
+		test5.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test5);
+		
+		//Create test 5 using report name and id and build name and id
+		TestEntry test6 = new TestEntry();
+		test6.setBuildId(buildId);
+		test6.setBuildName(buildName);
+		test6.setReportId(reportId);
+		test6.setReportName(reportName);
+		test6.setName("test 6");
+		test6.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test6);
+		
+		//Create test 7 using report id and build id
+		TestEntry test7 = new TestEntry();
+		test7.setBuildId(buildId);
+		test7.setReportId(reportId);
+		test7.setName("test 7");
+		test7.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test7);
+		
+		//Create test 8 using report id and build name
+		TestEntry test8 = new TestEntry();
+		test8.setBuildName(buildName);
+		test8.setReportId(reportId);
+		test8.setReportName(reportName);
+		test8.setName("test 8");
+		test8.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test8);
+		
+		//Create test 9 using report id and build name and id
+		TestEntry test9 = new TestEntry();
+		test9.setBuildId(buildId);
+		test9.setBuildName(buildName);
+		test9.setReportId(reportId);
+		test9.setName("test 9");
+		test9.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test9);
+		
+		//Create test 10 using report name and build id
+		TestEntry test10 = new TestEntry();
+		test10.setBuildId(buildId);
+		test10.setReportId(reportId);
+		test10.setReportName(reportName);
+		test10.setName("test 10");
+		test10.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test10);
+		
+		//Create test 11 using report name and build name
+		TestEntry test11 = new TestEntry();
+		test11.setBuildName(buildName);
+		test11.setReportId(reportId);
+		test11.setReportName(reportName);
+		test11.setName("test 11");
+		test11.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test11);
+		
+		//Create test 12 using report name and build name and id
+		TestEntry test12 = new TestEntry();
+		test12.setBuildId(buildId);
+		test12.setBuildName(buildName);
+		test12.setReportId(reportId);
+		test12.setReportName(reportName);
+		test12.setName("test 12");
+		test12.setStartDate(new Date());
+		
+		ConnectorHelper.createTest(test12);
+		
+		//Update test 1 using report id only
+		test1.setReportId(reportId);
+		test1.setName("test 1");
+		test1.setStartDate(null);
+		test1.setEndDate(new Date());
+		test1.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test1);
+				
+		//Update test 2 using report name only
+		test2.setReportName(reportName);
+		test2.setName("test 2");
+		test2.setStartDate(null);
+		test2.setEndDate(new Date());
+		test2.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test2);
+				
+		//Update test 3 using report name and id
+		test3.setReportId(reportId);
+		test3.setReportName(reportName);
+		test3.setName("test 3");
+		test3.setStartDate(null);
+		test3.setEndDate(new Date());
+		test3.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test3);
+				
+		//Update test 4 using report name and id and build id
+		test4.setBuildId(buildId);
+		test4.setReportId(reportId);
+		test4.setReportName(reportName);
+		test4.setName("test 4");
+		test4.setStartDate(null);
+		test4.setEndDate(new Date());
+		test4.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test4);
+				
+		//Update test 5 using report name and id and build name
+		test5.setBuildName(buildName);
+		test5.setReportId(reportId);
+		test5.setReportName(reportName);
+		test5.setName("test 5");
+		test5.setStartDate(null);
+		test5.setEndDate(new Date());
+		test5.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test5);
+				
+		//Update test 6 using report name and id and build name and id
+		test6.setBuildId(buildId);
+		test6.setBuildName(buildName);
+		test6.setReportId(reportId);
+		test6.setReportName(reportName);
+		test6.setName("test 6");
+		test6.setStartDate(null);
+		test6.setEndDate(new Date());
+		test6.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test6);
+				
+		//Update test 7 using report id and build id
+		test7.setBuildId(buildId);
+		test7.setReportId(reportId);
+		test7.setName("test 7");
+		test7.setStartDate(null);
+		test7.setEndDate(new Date());
+		test7.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test7);
+				
+		//Update test 8 using report id and build name
+		test8.setBuildName(buildName);
+		test8.setReportId(reportId);
+		test8.setReportName(reportName);
+		test8.setName("test 8");
+		test8.setStartDate(null);
+		test8.setEndDate(new Date());
+		test8.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test8);
+				
+		//Update test 9 using report id and build name and id
+		test9.setBuildId(buildId);
+		test9.setBuildName(buildName);
+		test9.setReportId(reportId);
+		test9.setName("test 9");
+		test9.setStartDate(null);
+		test9.setEndDate(new Date());
+		test9.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test9);
+				
+		//Update test 10 using report name and build id
+		test10.setBuildId(buildId);
+		test10.setReportId(reportId);
+		test10.setReportName(reportName);
+		test10.setName("test 10");
+		test10.setStartDate(null);
+		test10.setEndDate(new Date());
+		test10.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test10);
+				
+		//Update test 11 using report name and build name
+		test11.setBuildName(buildName);
+		test11.setReportId(reportId);
+		test11.setReportName(reportName);
+		test11.setName("test 11");
+		test11.setStartDate(null);
+		test11.setEndDate(new Date());
+		test11.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test11);
+		
+		//Update test 12 using report name and build name and id
+		test12.setBuildId(buildId);
+		test12.setBuildName(buildName);
+		test12.setReportId(reportId);
+		test12.setReportName(reportName);
+		test12.setName("test 12");
+		test12.setStartDate(null);
+		test12.setEndDate(new Date());
+		test12.setStatus("pass");
+		
+		ConnectorHelper.updateTest(test12);
+		
+		
+		ConnectorHelper.runAnalysis(build.getId(), null, false);
 	}
 
 }
