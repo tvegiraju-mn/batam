@@ -81,7 +81,7 @@ function findReportList(req, res, next){
 	    }
 	    
 	    req.collections.reports.find({build_id: req.query.build_id}, 
-    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, tests: 1, lifecycle_status: 1})
+    	{_id:0, id: 1, build_id: 1, name: 1, description: 1, status: 1, duration: 1, date: 1, end_date: 1, tests: 1, lifecycle_status: 1})
     		.toArray(findReport);
     };
     

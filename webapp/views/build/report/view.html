@@ -128,6 +128,9 @@
 		</div>
 		<div class="row">
 			<div class="col-md-12">
+				<a id="download_report" class="btn btn-default">
+					<span class="glyphicon glyphicon-cloud-download"></span> Download Reports
+				</a>
 				<a class="btn btn-default" data-toggle="collapse" href="#collapseSearch" aria-expanded="false" aria-controls="collapseSearch"><span class="glyphicon glyphicon-search"></span> Search</a>
 				<h3 id="thumbnails">Tests</h3>
 				
@@ -183,9 +186,7 @@
   		// Initial fetch
     	$.getJSON('/api/reports/{{report_id}}', displayReport)
     		.error(handleError)
-    		.fail(handleFailure);	
-  		
-		createClipboard();
+    		.fail(handleFailure);
         
         function createClipboard(){
 	        var client = new ZeroClipboard($("#copy-clipboard"));
@@ -399,8 +400,14 @@
       		
       		$('#tests_search_criterias').before(criteriasForm); 
      
+      		//create Clipboard
+      		createClipboard();
+      		
           	//Submit search button
           	$('#tests_search').click(handleSearchClick);
+          	
+          	//Submit download button
+          	$('#download_report').click(handleDownloadReportClick);
      
           	//Add show hide bar
           	var showHideLinks = '';
@@ -514,6 +521,26 @@
         	//Display tests
         	//table.destroy();
         	displayTable();
+      	}
+    	
+    	function handleDownloadReportClick(){
+      		//Display graph 
+          	var query = '?build_id={{build_id}}&report_id={{report_id}}';
+        	for(var j = 0; j < criteriasIds.length; j++){
+        		if(criteriasIds[j] == 'Tags'){
+        			var checkedTags = $("#search_tags input:checkbox:checked").map(function(){
+       			      return $(this).val();
+       			    }).get();
+        			if(checkedTags != null && checkedTags.length != 0){
+        				query += "&tags="+checkedTags;
+        			}
+        			continue;
+        		} 
+        		if($('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != null && $('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val() != ''){
+          			query += "&"+replaceAll(" ", "_", criteriasIds[j].toLowerCase())+'='+$('#'+replaceAll(" ", "_", criteriasIds[j].toLowerCase())).val();
+        		}
+        	}
+	        window.location.href = '/{{build_id}}/report/{{report_id}}/download'+query;
       	}
   		
 	 	function displayTable (){

@@ -87,31 +87,36 @@
                   </dl>
                 </div>
               </div>
+              <div id="steps" class="row">
+					<div class="col-md-12">
+						<h3>Steps</h3>
+						<table class="table table-condensed table-striped">
+							<thead>
+								<tr style="font-weight: bolder">
+									<td>Order #</td>
+									<td>Name</td>
+									<td>Input</td>
+									<td>Expected</td>
+									<td>Output</td>
+									<td>Status</td>
+									<td>Duration</td>
+									<td>Error</td>
+								</tr>
+							</thead>
+							<tbody id="steps_table">
+							
+							</tbody>
+						</table>
+					</div>
+				</div>
               <div class="row" style="margin-bottom:10px">
 				<div class="col-md-12">
 					<a data-toggle="collapse" href="#collapseHistory" aria-expanded="false" aria-controls="collapseHistory">Show details</a>
 					<div class="collapse" id="collapseHistory">
 						<div class="well">
-							<div id="steps" class="row">
+							<div class="row">
 								<div class="col-md-12">
-									<h3>Steps</h3>
-									<table class="table table-condensed table-striped">
-										<thead>
-											<tr style="font-weight: bolder">
-												<td>Order #</td>
-												<td>Name</td>
-												<td>Input</td>
-												<td>Expected</td>
-												<td>Output</td>
-												<td>Status</td>
-												<td>Duration</td>
-												<td>Error</td>
-											</tr>
-										</thead>
-										<tbody id="steps_table">
-										
-										</tbody>
-									</table>
+									<div id="test_tags"></div>
 								</div>
 							</div>
 							<div class="row">
@@ -133,6 +138,7 @@
         </div><!-- /.col-md-12 -->
       </div>
       <a href="/api/tests/{{test_id}}">Rest</a>
+      <div id="steps_modals"></div>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -176,6 +182,8 @@
 	      	$('#test_time').html(time);
 	      	var regression = response.test.regression == undefined ? notAvailable : response.test.regression;
 	      	$('#test_regression').html(regression);
+	      	var tags = response.test.tags == undefined ? notAvailable : response.test.tags;
+	      	$('#test_tags').html("<strong>Tags:</strong> "+tags);
 	      	
 	      	var dynamicFields = '';
 	      	for(var field in response.test){
@@ -190,7 +198,8 @@
 	      				field != 'time' &&
 	      				field != 'regression' &&
 	      				field != 'log'&&
-	      				field != 'steps'){
+	      				field != 'steps' &&
+	      				field != 'tags'){
 	      			if(field == 'duration'){
 	      				var formattedDuration = formatWithLabel(response.test[field].value, response.test[field].trend, 1000, true);
 	      				dynamicFields += '<dt>'+field+'</dt>'+
@@ -214,10 +223,11 @@
 	    		$('#steps').remove();
 	    	}else{
 	    		var stepsTable = '';
+	    		var errorModals = '';
 	    		for(var i = 0; i < response.test.steps.length; i++){
-	    			if(response.test.steps[i].status != null && response.test.steps[i].status == 'pass'){
+	    			if(response.test.steps[i].status != null && response.test.steps[i].status.toLowerCase() == 'pass'){
 	    				stepsTable += '<tr class="success">';
-	    			}else if(response.test.steps[i].status != null && (response.test.steps[i].status == 'fail' || response.test.steps[i].status == 'error')){
+	    			}else if(response.test.steps[i].status != null && (response.test.steps[i].status.toLowerCase() == 'fail' || response.test.steps[i].status.toLowerCase() == 'error')){
 	    				stepsTable += '<tr class="danger">';
 	    			}else{
 	    				stepsTable += '<tr">';
@@ -236,10 +246,33 @@
 	    			}else{
 	    				stepsTable += '<td></td>';
 	    			}
-	    			stepsTable += '<td>'+(response.test.steps[i].error == null ? '' : response.test.steps[i].error)+'</td>';
+	    			if(response.test.steps[i].error != null){
+		    			var errorModalButton = '<a href="#"data-toggle="modal" data-target="#error_modal_'+response.test.steps[i].order+'">Details</a>'
+		    			errorModals += 
+		    			'<div id="error_modal_'+response.test.steps[i].order+'" class="modal fade" role="dialog">'+
+		    			'  <div class="modal-dialog">'+
+		    			'    <div class="modal-content">'+
+		    			'      <div class="modal-header">'+
+		    			'        <button type="button" class="close" data-dismiss="modal">&times;</button>'+
+		    			'        <h4 class="modal-title">Error details</h4>'+
+		    			'      </div>'+
+		    			'      <div class="modal-body">'+
+		    			'        <p>'+response.test.steps[i].error+'</p>'+
+		    			'      </div>'+
+		    			'      <div class="modal-footer">'+
+		    			'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+		    			'     </div>'+
+		    			'    </div>'+
+		    			'  </div>'+
+		    			'</div>';
+		    			stepsTable += '<td>'+errorModalButton+'</td>';
+	    			}else{
+	    				stepsTable += '<td></td>';
+	    			}
 	    			stepsTable += '</tr>';
 	    		}
 	    		$('#steps_table').html(stepsTable);
+	    		$('#steps_modals').html(errorModals);
 	    	}
 	    }
     	

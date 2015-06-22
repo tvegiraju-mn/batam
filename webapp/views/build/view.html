@@ -117,7 +117,7 @@
 								</dl>
 							</div>
 						</div><!-- /.row -->
-						<div class="row" style="margin-bottom:10px">
+						<div id="detail_panel" class="row" style="margin-bottom:10px">
 							<div class="col-md-12">
 								<a data-toggle="collapse" href="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">Show Details</a>
 								<div class="collapse" id="collapseDetails">
@@ -185,18 +185,11 @@
 			<div class="row">
 				<div class="col-md-12">
 					<div style="margin-bottom: 5px">
-						<button id="tests_download" type="button" class="btn btn-default">
-							<span class="glyphicon glyphicon-cloud-download"></span> Download
-							Reports
-						</button>
-						<button id="tests_compare" type="button" class="btn btn-default">
-							<span class="glyphicon glyphicon-resize-small"></span> Compare
-							With ...
-						</button>
-						<a href="/{{build_id}}/search">
-							<button id="tests_searches" type="button" class="btn btn-default">
-								<span class="glyphicon glyphicon-search"></span> Search
-							</button>
+						<a class="btn btn-default" href="/{{build_id}}/print">
+							<span class="glyphicon glyphicon-print"></span> Print
+						</a>
+						<a class="btn btn-default" href="/{{build_id}}/search">
+							<span class="glyphicon glyphicon-search"></span> Search
 						</a>
 					</div>
 				</div><!-- /.col-md-12 -->
@@ -240,18 +233,7 @@
 	    
         $.getJSON('/api/tests/criterias?build_id={{build_id}}', initGraph)
         	.error(handleError)
-			.fail(handleFailure);
-	    
-	  	//Submit download button
-      	$('#tests_download').click(handleDownloadClick);
-	  	
-      //Submit download button
-      	$('#tests_download').click(handleDownloadClick);
-        
-      	function handleDownloadClick(){
-        	//Display Graphs
-        	window.location.href = '/{{build_id}}/download';
-  		}
+			.fail(handleFailure);	  	
       	
 	    function displayBuild(response){
 	    	var buildHeader = '';
@@ -364,13 +346,15 @@
 	    	}else{
 	    		$('#build_criterias').remove();	
 	    	} 
+	    	var show_detail_panel = false;
 	    	if(response.build.infos != null && response.build.infos.length != 0){
 	    		var buildInfos = '';
 	    		for(var i = 0; i < response.build.infos.length; i++){
 	    			buildInfos += '<dt>'+response.build.infos[i].name+'</dt>'+
 	    			'<dd>'+response.build.infos[i].value+'</dd>';
 	    		}
-	    		$('#build_info').html(buildInfos);	
+	    		$('#build_info').html(buildInfos);
+	    		show_detail_panel = true;
 	    	}else{
 	    		$('#build_info').remove();
 	    		$('#build_info_title').remove();
@@ -382,6 +366,7 @@
 	    			'<dd>'+response.build.reports[i].value+'</dd>';
 	    		}
 	    		$('#build_reports').html(buildReports);	
+	    		show_detail_panel = true;
 	    	}else{
 	    		$('#build_reports').remove();
 	    		$('#build_reports_title').remove();
@@ -424,11 +409,15 @@
 	    	    	    }
 	    	        }	    	
 	    	    });
+	    	    show_detail_panel = true;
 	    	}else{
 	    		$('#thumbnails').remove();
 	    		$('#commits').remove();
 	    	}
 	    	
+	    	if(show_detail_panel == false){
+	    		$('#detail_panel').remove();
+	    	}
 	    }
 	    
 	    function displayReports(response){
@@ -502,7 +491,7 @@
 	            }else{
 	            	listHtml +=	'			<span class="label label-danger">'+response.reports[i].status+'</span>';
 	            }
-	    		var updateTime = response.reports[i].date == undefined ? notAvailable : moment(response.reports[i].end_date).fromNow();
+	    		var updateTime = response.reports[i].end_date == undefined ? notAvailable : moment(response.reports[i].end_date).fromNow();
 	            listHtml +=	'  			'+updateTime+'</div>' +
 	            '		</div>' +
 	            '</a>';

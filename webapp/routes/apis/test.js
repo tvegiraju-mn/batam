@@ -3,6 +3,7 @@ var util = require('util');
 var mongoskin = require('mongoskin');
 var validator = require('validator');
 var formatter = config = require('../../util/formatter.js');
+var batam_util = config = require('../../util/util.js');
 
 /**
  * API path /api/tests
@@ -21,6 +22,10 @@ function findTestList(req, res, next){
 					count = 0;
 				}				
 				
+				if(req.query.sm != null && req.query.sm == 'true'){
+					result.report_number = req.query.rn;
+				}
+				
 				result.recordsTotal = count;
 				result.recordsFiltered = count;
 				result.data = data;
@@ -35,13 +40,17 @@ function findTestList(req, res, next){
 			
 			//Populate the data array with tests found.
 			for(var index in tests){
-				data[index] = ['<a href="/'+tests[index].build_id+'/report/'+tests[index].report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time), tests[index].tags]; 
-				for(var i = 0; i < criterias.length; i++){
-					var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
-					if(!_.isUndefined(tests[index][currentCriterias])){
-						data[index][5+i] = tests[index][currentCriterias];
-					}else{
-						data[index][5+i] = " ";
+				if(req.query.sm != null && req.query.sm == 'true'){
+					data[index] = [tests[index].name, tests[index].description, tests[index].status]; 					
+				}else{
+					data[index] = ['<a href="/'+tests[index].build_id+'/report/'+tests[index].report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time), tests[index].tags]; 
+					for(var i = 0; i < criterias.length; i++){
+						var currentCriterias = batam_util.replaceAll(" ", "_", criterias[i].name.toLowerCase());
+						if(!_.isUndefined(tests[index][currentCriterias])){
+							data[index][6+i] = tests[index][currentCriterias];
+						}else{
+							data[index][6+i] = " ";
+						}
 					}
 				}
 			}
@@ -56,8 +65,8 @@ function findTestList(req, res, next){
 		}
 		
 		//Create searchCriteria object.
-		var searchCriterias = createSearchObject(req, criterias);
-		console.log(util.inspect(searchCriterias));
+		var searchCriterias = batam_util.createSearchObject(req, criterias);
+
 		//Fetch tests based on defined searchCriterias
 		req.collections.tests.find(searchCriterias)
 			.limit(parseInt(req.query.length))
@@ -143,7 +152,7 @@ function findStat(req, res, next){
 			statName = "Time"
 		}else{
 			for(var i = 0; i < criterias.length; i++){
-				var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
+				var currentCriterias = batam_util.replaceAll(" ", "_", criterias[i].name.toLowerCase());
 				if(currentCriterias == req.query.graph){
 					statName = criterias[i].name;
 				}
@@ -151,7 +160,7 @@ function findStat(req, res, next){
 		}
 		
 		//Create searchCriteria object.
-		var searchCriterias = createSearchObject(req, criterias);
+		var searchCriterias = batam_util.createSearchObject(req, criterias);
 		
 		//Fetch stats based on search criterias.
 		req.collections.tests.group([req.query.graph],
@@ -182,45 +191,7 @@ function findStat(req, res, next){
 	req.collections.testcriterias.find().toArray(findTestCriterias);
 }
 
-/**
- * Function that create a SearchCriterias object based on query param send in the URL.
- * This Object can be then used to filter result while using MongoDb apis.
- */
-function createSearchObject(req, criterias){
-	
-	var searchCriterias = {};
-	//Add static criterias to searchCriterias Object.
-	if(!_.isNull(req.query.status) && !_.isEmpty(req.query.status)){
-		searchCriterias.status = req.query.status;
-	}
-	if(!_.isNull(req.query.regression) && !_.isEmpty(req.query.regression)){
-		searchCriterias.regression = req.query.regression;
-	}
-	if(!_.isNull(req.query.time) && !_.isEmpty(req.query.time)){
-		searchCriterias.time = req.query.time;
-	}
-	if(!_.isNull(req.query.tags) && !_.isEmpty(req.query.tags)){
-		var tagsList = req.query.tags.split(",");
-		searchCriterias.tags = {};
-		searchCriterias.tags.$all = tagsList;
-	}
 
-	//Add dynamic criterias to searchCriterias Object.
-	//Loop through name criterias and convert name field value into searchCriteria attributes set with value fetched from request query.
-	for(var i = 0; i < criterias.length; i++){
-		var currentCriterias = replaceAll(" ", "_", criterias[i].name.toLowerCase());
-		if(!_.isUndefined(req.query[currentCriterias]) && !_.isNull(req.query[currentCriterias]) && !_.isEmpty(req.query[currentCriterias])){
-			searchCriterias[currentCriterias] = req.query[currentCriterias];
-		}
-	}
-	if(req.query.report_id != null && req.query.report_id != '' && req.query.report_id != 'null'){
-		searchCriterias.report_id = req.query.report_id;	
-	}
-	if(req.query.build_id != null && req.query.build_id != '' && req.query.build_id != 'null'){
-		searchCriterias.build_id = req.query.build_id;	
-	}
-	return searchCriterias;
-}
 
 /**
  * API path /api/tests/:test_id
@@ -271,7 +242,7 @@ function findTestCriterias(req, res, next){
 				var currentTest = tests[j];
 			
 				for(var index in allCriterias){
-					var convertedIndex = replaceAll(" ","_", index.toLowerCase());
+					var convertedIndex = batam_util.replaceAll(" ","_", index.toLowerCase());
 					if(!_.isUndefined(currentTest[convertedIndex]) && !_.isEmpty(currentTest[convertedIndex]) && !_.isNull(currentTest[convertedIndex])){
 						allCriterias[index][currentTest[convertedIndex]] = true;
 					}
@@ -352,9 +323,6 @@ function findTestCriterias(req, res, next){
 	if(validator.isNull(req.query.report_id) && validator.isNull(req.query.build_id)){
 		return next(new Error("Either build_id or report_id should be defined"));
 	}
-	
-	
-	
 	
 	//Fetch all tests criterias.
 	req.collections.testcriterias.find({type: "criteria"}).toArray(findTestCriterias);
@@ -445,9 +413,5 @@ function findTestHistory(req, res, next){
 
 	//Fetch all test criterias.
 	req.collections.tests.findOne({_id: mongoskin.helper.toObjectID(req.params.test_id)}, findTest)
-}
-
-function replaceAll(find, replace, str) {
-  return str.replace(new RegExp(find, 'g'), replace);
 }
 

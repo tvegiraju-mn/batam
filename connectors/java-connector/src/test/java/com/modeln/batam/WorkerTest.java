@@ -347,7 +347,6 @@ public class WorkerTest {
 		test3.setReportName("report2");
 		test3.setReportId(report2Id);
 		test3.setName("test3");
-		test3.setName("test1");
 		test3.setDescription("desc test3");
 		
 		ConnectorHelper.createTest(test3);
