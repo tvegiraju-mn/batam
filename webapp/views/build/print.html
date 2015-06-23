@@ -91,11 +91,11 @@
 				<table class="table table-condensed table-bordered">
 					<thead>
 						<tr bgcolor="#D0D0D0" style="font-weight: bolder">
-							<td id="header_cell"><strong>Function Areas</strong></td>
-							<td id="header_cell"><strong>Total</strong></td>
-							<td id="header_cell"><strong>Passes</strong></td>
-							<td id="header_cell"><strong>Failures</strong></td>
-							<td id="header_cell"><strong>Not Completed</strong></td>
+							<td id="header_cell"><div align="center"><strong>Function Areas</strong></div></td>
+							<td id="header_cell"><div align="center"><strong>Total</strong></div></td>
+							<td id="header_cell"><div align="center"><strong>Passes</strong></div></td>
+							<td id="header_cell"><div align="center"><strong>Failures</strong></div></td>
+							<td id="header_cell"><div align="center"><strong>Not Completed</strong></div></td>
 						</tr>
 					</thead>
 					<tbody id="reports_table">
@@ -143,8 +143,16 @@
 	    	}
 			$('#build_tests_all').html(response.build.tests.value);
 			$('#build_tests_passes').html(response.build.passes.value);
-			$('#build_tests_failures').html(response.build.failures.value);
-			$('#build_tests_others').html(response.build.regressions.value - response.build.failures.value);
+			if(response.build.failures.value > 0){
+				$('#build_tests_failures').html('<font id="red_font" color="red">'+response.build.failures.value+'</font>');
+			}else{
+				$('#build_tests_failures').html(response.build.failures.value);
+			}
+			if((response.build.regressions.value - response.build.failures.value) > 0){
+				$('#build_tests_others').html('<font id="red_font" color="red">'+(response.build.regressions.value - response.build.failures.value)+'</font>');
+			}else{
+				$('#build_tests_others').html(response.build.regressions.value - response.build.failures.value);
+			}
 	    	if(response.build.criterias != null && response.build.criterias.length != 0){
 	    		var branch = '';
 	    		for(var i = 0; i < response.build.criterias.length; i++){
@@ -171,17 +179,17 @@
 	    		tests_failures += response.reports[i].tests.failures.value;
 	    		tests_others += (response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value);
 	    		reportSummary += '<tr><td>'+response.reports[i].name+"</td>" +
-	    			"<td>"+response.reports[i].tests.all.value+"</td>" +
-	    			"<td>"+response.reports[i].tests.passes.value+"</td>";
+	    			'<td><div align="center">'+response.reports[i].tests.all.value+"</div></td>" +
+	    			'<td><div align="center">'+response.reports[i].tests.passes.value+"</div></td>";
     			if(response.reports[i].tests.failures.value > 0){
-    				reportSummary += '<td><font id="red_font" color="red">'+response.reports[i].tests.failures.value+"</font></td>";
+    				reportSummary += '<td><div align="center"><font id="red_font" color="red">'+response.reports[i].tests.failures.value+"</font></div></td>";
     			}else{
-    				reportSummary += '<td>'+response.reports[i].tests.failures.value+"</td>";
+    				reportSummary += '<td><div align="center">'+response.reports[i].tests.failures.value+"</div></td>";
     			}
     			if((response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value) > 0){
-    				reportSummary += '<td><font id="red_font" color="red">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+"</font></td></tr>";
+    				reportSummary += '<td><div align="center"><font id="red_font" color="red">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+"</font></div></td></tr>";
     			}else{
-    				reportSummary += '<td>'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+"</td></tr>";
+    				reportSummary += '<td><div align="center">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+"</div></td></tr>";
     			}
 	    	
 	    		reportDetails += '<div class="container page-break">' +
@@ -194,25 +202,25 @@
 							'<table class="table table-condensed table-bordered">' +
 								'<thead>' +
 									'<tr bgcolor="#D0D0D0" style="font-weight: bolder">' +
-										'<td id="header_cell"><strong>Total</strong></td>' +
-										'<td id="header_cell"><strong>Passes</strong></td>' +
-										'<td id="header_cell"><strong>Failures</strong></td>' +
-										'<td id="header_cell"><strong>Not Completed</strong></td>' +
+										'<td id="header_cell"><div align="center"><strong>Total</strong></div></td>' +
+										'<td id="header_cell"><div align="center"><strong>Passes</strong></div></td>' +
+										'<td id="header_cell"><div align="center"><strong>Failures</strong></div></td>' +
+										'<td id="header_cell"><div align="center"><strong>Not Completed</strong></div></td>' +
 									'</tr>' +
 								'</thead>' +
 								'<tbody>' +
 									'<tr>' +
-										'<td>'+response.reports[i].tests.all.value+'</td>' +
-										'<td>'+response.reports[i].tests.passes.value+'</td>';
+										'<td><div align="center">'+response.reports[i].tests.all.value+'</div></td>' +
+										'<td><div align="center">'+response.reports[i].tests.passes.value+'</div></td>';
 										if(response.reports[i].tests.failures.value > 0){
-											reportDetails += '<td><font id="red_font" color="red">'+response.reports[i].tests.failures.value+'</font></td>';
+											reportDetails += '<td><div align="center"><font id="red_font" color="red">'+response.reports[i].tests.failures.value+'</font></div></td>';
 										}else{
-											reportDetails += '<td>'+response.reports[i].tests.failures.value+'</td>';
+											reportDetails += '<td><div align="center">'+response.reports[i].tests.failures.value+'</div></td>';
 										}
 										if((response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value) > 0){
-											reportDetails += '<td><font id="red_font" color="red">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+'</font></td>';
+											reportDetails += '<td><div align="center"><font id="red_font" color="red">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+'</font></div></td>';
 										}else{
-											reportDetails += '<td>'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+'</td>';
+											reportDetails += '<td><div align="center">'+(response.reports[i].tests.regressions.value - response.reports[i].tests.failures.value)+'</div></td>';
 										}
 									reportDetails +='</tr>' +
 								'</tbody>' +
@@ -220,8 +228,8 @@
 							'<table class="table table-condensed table-bordered">' +
 								'<thead>' +
 									'<tr bgcolor="#D0D0D0" style="font-weight: bolder">' +
-										'<td id="header_cell"><strong>TestName / Description</strong></td>' +
-										'<td id="header_cell"><strong>Status</strong></td>' +
+										'<td id="header_cell"><div align="center"><strong>TestName / Description</strong></div></td>' +
+										'<td id="header_cell"><div align="center"><strong>Status</strong></div></td>' +
 									'</tr>' +
 								'</thead>' +
 								'<tbody id="report_tests_'+i+'">' +
@@ -234,17 +242,17 @@
 	    	}
 	    	reportSummary += '<tr bgcolor="#D0D0D0">' +
 	    	'<td id="header_cell"><strong>Total</strong></td>' +
-			'<td id="header_cell"><strong>'+tests_total+"</strong></td>" +
-			'<td id="header_cell"><strong>'+tests_passes+"</strong></td>";
+			'<td id="header_cell"><div align="center"><strong>'+tests_total+"</strong></div></td>" +
+			'<td id="header_cell"><div align="center"><strong>'+tests_passes+"</strong></div></td>";
 			if(tests_failures > 0){
-				reportSummary += '<td id="header_cell"><strong><font id="red_font" color="red">'+tests_failures+"</font></strong></td>";
+				reportSummary += '<td id="header_cell"><div align="center"><strong><font id="red_font" color="red">'+tests_failures+"</font></strong></div></td>";
 			}else{
-				reportSummary += '<td id="header_cell"><strong>'+tests_failures+"</strong></td>";
+				reportSummary += '<td id="header_cell"><div align="center"><strong>'+tests_failures+"</strong></div></td>";
 			}
 			if(tests_failures > 0){
-				reportSummary += '<td id="header_cell"><strong><font id="red_font" color="red">'+tests_others+"</font></strong></td></tr>";
+				reportSummary += '<td id="header_cell"><div align="center"><strong><font id="red_font" color="red">'+tests_others+"</font></strong></div></td></tr>";
 			}else{
-				reportSummary += '<td id="header_cell"><strong>'+tests_others+"</strong></td></tr>";
+				reportSummary += '<td id="header_cell"><div align="center"><strong>'+tests_others+"</strong></div></td></tr>";
 			}
 	   		$('#reports_table').html(reportSummary);
 	   		$('#report_summary').after(reportDetails);
@@ -263,9 +271,9 @@
 	    	for(var i = 0; i < response.data.length; i++){
 	    		htmlList += '<tr><td><strong>'+response.data[i][0]+'</strong> - '+response.data[i][1]+'</td>';
 	    		if(response.data[i][2] == 'pass'){
-	    			htmlList += '<td>'+response.data[i][2]+'</td></tr>';
+	    			htmlList += '<td><div align="center">'+response.data[i][2]+'</div></td></tr>';
 	    		}else{
-	    			htmlList += '<td><font id="red_font" color="red">'+response.data[i][2]+'</font></td></tr>';
+	    			htmlList += '<td><div align="center"><font id="red_font" color="red">'+response.data[i][2]+'</font></div></td></tr>';
 	    		}
 	    	}
 	    	
