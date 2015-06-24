@@ -407,7 +407,33 @@
 	    	    	            alert( 'An error occurred on the server. Please try again in a minute.' );
 	    	    	        }
 	    	    	    }
-	    	        }	    	
+	    	        },
+	    	        columnDefs: [{
+	    	        		targets: 0,
+	    	        		type: "html",
+	    	        		render: function(value, type, row, meta){
+	    	        			if(value != null){
+	    	        				return '<a href="'+value+'">'+row[1]+'</a>';
+	    	        			}else{
+	    	        				return row[1];
+	    	        			}
+	    	        			
+	    	        		}
+	    	        	},{
+	    	        		targets: 1,
+	    	        		render: function(value, type, row, meta){
+	    	        			return row[2];
+	    	        		}
+	    	        	},{
+	    	        		targets: 2,
+	    	        		render: function(value, type, row, meta){
+	    	        			return row[3];
+	    	        		}
+	    	        	},{
+	    	        		targets: 3,
+	    	        		visible: false
+	    	        	}
+	    	        ]
 	    	    });
 	    	    show_detail_panel = true;
 	    	}else{

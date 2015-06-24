@@ -41,7 +41,7 @@ function findCommitList(req, res, next){
 		}
 		
 		for(var index in commits){
-			data[index] = ['<a href="'+commits[index].url+'">'+commits[index].sha+'</a>', commits[index].date_committed.toString(), commits[index].author];      
+			data[index] = [commits[index].url, commits[index].sha, commits[index].date_committed.toString(), commits[index].author];      
 		}
 		
 		req.collections.commits.count({build_id: req.query.build_id}, createCommitListresponse);
@@ -51,7 +51,7 @@ function findCommitList(req, res, next){
 	if(!req.query.build_id || !req.query.draw || !req.query.length || !req.query.start) {
 		return next(new Error('No build_id, draw, length or start query params.'));
 	}	
-	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
+	
 	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
@@ -70,6 +70,7 @@ function findCommitList(req, res, next){
 	req.collections.commits.find({build_id: req.query.build_id}, {_id:0})
 		.limit(parseInt(req.query.length))
 		.skip(parseInt(req.query.start))
+		.sort( { date_committed: -1 } )
 		.toArray(findCommits);
 }
 
