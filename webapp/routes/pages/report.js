@@ -237,8 +237,9 @@ exports.download = function(req, res, next){
 						sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
 						sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
 						sheet.wrap(2, 8+tests[i].steps.length+2, 'true');
-						sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:column - 1,row:8+tests[i].steps.length+2});
-				    }  
+						sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:5,row:8+tests[i].steps.length+2});
+						sheet.height(8+tests[i].steps.length+2, 50);
+					}  
 					
 					// Save it 
 					workbook.save(function(ok){
