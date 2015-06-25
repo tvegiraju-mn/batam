@@ -669,10 +669,24 @@ function updateTest(report, data, ack){
 					if(steps[i].order == test.steps[j].order && 
 							steps[i].name == test.steps[j].name){
 						stepExist = true;
-						test.steps[j].status = steps[i].status;
-						test.steps[j].result = steps[i].result;
-						test.steps[j].expected = steps[i].expected;
-						test.steps[j].error = steps[i].error;
+						if(steps[i].start_date != null){
+							test.steps[j].start_date = steps[i].start_date;
+						}
+						if(steps[i].end_date != null){
+							test.steps[j].end_date = steps[i].end_date;
+						}
+						if(steps[i].status != null){	
+							test.steps[j].status = steps[i].status;
+						}
+						if(steps[i].result != null){	
+							test.steps[j].result = steps[i].result;
+						}
+						if(steps[i].expected != null){
+							test.steps[j].expected = steps[i].expected;
+						}
+						if(steps[i].error != null){	
+							test.steps[j].error = steps[i].error;
+						}		
 					}
 					
 				}
@@ -680,6 +694,8 @@ function updateTest(report, data, ack){
 				if(!stepExist){
 					test.steps[stepsLength] = {};
 					test.steps[stepsLength].name = steps[i].name;
+					test.steps[stepsLength].start_date = steps[i].start_date;
+					test.steps[stepsLength].end_date = steps[i].end_date;
 					test.steps[stepsLength].order = steps[i].order;
 					test.steps[stepsLength].status = steps[i].status;
 					test.steps[stepsLength].result = steps[i].result;

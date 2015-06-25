@@ -241,7 +241,7 @@
 	    			if(response.test.steps[i].start_date != null && response.test.steps[i].end_date != null &&
 	    					_.isNumber(parseInt(response.test.steps[i].start_date)) && _.isNumber(parseInt(response.test.steps[i].end_date)) &&
 	    					_.isDate(new Date(parseInt(response.test.steps[i].start_date))) && _.isDate(new Date(response.test.steps[i].end_date)) &&
-	    					response.test.steps[i].start_date >= response.test.steps[i].end_date){
+	    					response.test.steps[i].start_date <= response.test.steps[i].end_date){
 	    				stepsTable += '<td>'+durationToStr(response.test.steps[i].end_date - response.test.steps[i].start_date)+'</td>';
 	    			}else{
 	    				stepsTable += '<td></td>';

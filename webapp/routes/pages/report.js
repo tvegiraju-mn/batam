@@ -218,7 +218,7 @@ exports.download = function(req, res, next){
 									  if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null &&
 					    					_.isNumber(parseInt(tests[i].steps[j].start_date)) && _.isNumber(parseInt(tests[i].steps[j].end_date)) &&
 					    					_.isDate(new Date(parseInt(tests[i].steps[j].start_date))) && _.isDate(new Date(tests[i].steps[j].end_date)) &&
-					    					tests[i].steps[j].start_date >= tests[i].steps[j].end_date){
+					    					tests[i].steps[j].start_date <= tests[i].steps[j].end_date){
 										  sheet.set(column, 8+j, batam_util.durationToStr(tests[i].steps[j].end_date - tests[i].steps[j].start_date));
 										  sheet.border(column, 8+j, cellBorder);
 										  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
