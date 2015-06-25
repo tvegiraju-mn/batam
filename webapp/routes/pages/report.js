@@ -74,7 +74,7 @@ exports.download = function(req, res, next){
 					for(var i = 0; i < tests.length; i++){
 						// Create a new worksheet with 10 columns and 12 rows 
 						var stepsCount =  tests[i].steps != null? tests[i].steps.length : 0;
-						var sheet = workbook.createSheet(tests[i].name, 8, 9+stepsCount);
+						var sheet = workbook.createSheet(tests[i].name, 8, 11+stepsCount);
 						// Fill some data 
 						  sheet.set(1, 1, 'Test Name');
 						  sheet.font(1, 1, headerTextStyle);
@@ -130,9 +130,10 @@ exports.download = function(req, res, next){
 							  sheet.set(1, 7, 'Step #');
 							  sheet.border(1, 7, cellBorder);
 							  sheet.font(1, 7, headerTextStyle);
-							  sheet.set(2, 7, 'Name');
+							  sheet.set(2, 7, 'Description');
 							  sheet.border(2, 7, cellBorder);
 							  sheet.font(2, 7, headerTextStyle);
+							  sheet.width(2, 50);
 							  var column = 3;
 							  if(inputVisibile){
 								  sheet.set(column, 7, 'Input Data');
@@ -168,34 +169,31 @@ exports.download = function(req, res, next){
 								  sheet.set(column, 7, 'Reason for Failure');
 								  sheet.border(column, 7, cellBorder);
 								  sheet.font(column, 7, headerTextStyle);
+								  sheet.width(column, 75);
 								  column++;
 							  }
 							  for (var j = 0; j < tests[i].steps.length; j++){
 								  sheet.set(1, 8+j, tests[i].steps[j].order);
 								  sheet.border(1, 8+j, cellBorder);
-								  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-									  sheet.fill(1, 8+j, redFont);
-				  				  }
+								  sheet.valign(1, 8+j, 'top');
+
 								  sheet.set(2, 8+j, tests[i].steps[j].name);
 								  sheet.border(2, 8+j, cellBorder);
-								  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-									  sheet.fill(2, 8+j, redFont);
-				  				  }
+								  sheet.valign(2, 8+j, 'top');
+
 								  var column = 3;
 								  if(inputVisibile){
 									  sheet.set(column, 8+j, tests[i].steps[j].input);
 									  sheet.border(column, 8+j, cellBorder);
-									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-										  sheet.fill(column, 8+j, redFont);
-					  				  }
+									  sheet.wrap(column, 8+j, 'true');
+									  sheet.valign(column, 8+j, 'top');
 									  column++;
 								  }
 								  if(expectedVisible){
 									  sheet.set(column, 8+j, tests[i].steps[j].expected);
 									  sheet.border(column, 8+j, cellBorder);
-									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-										  sheet.fill(column, 8+j, redFont);
-					  				  }
+									  sheet.wrap(column, 8+j, 'true');
+									  sheet.valign(column, 8+j, 'top');
 									  column++;
 								  }
 								  if(statusVisible){
@@ -204,14 +202,14 @@ exports.download = function(req, res, next){
 									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
 										  sheet.fill(column, 8+j, redFont);
 					  				  }
+									  sheet.valign(column, 8+j, 'top');
 									  column++;
 								  }
 								  if(outputVisible){
 									  sheet.set(column, 8+j, tests[i].steps[j].output);
 									  sheet.border(column, 8+j, cellBorder);
-									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-										  sheet.fill(column, 8+j, redFont);
-					  				  }
+									  sheet.wrap(column, 8+j, 'true');
+									  sheet.valign(column, 8+j, 'top');
 									  column++;
 								  }
 								  if(durationVisible){
@@ -221,22 +219,22 @@ exports.download = function(req, res, next){
 					    					tests[i].steps[j].start_date <= tests[i].steps[j].end_date){
 										  sheet.set(column, 8+j, batam_util.durationToStr(tests[i].steps[j].end_date - tests[i].steps[j].start_date));
 										  sheet.border(column, 8+j, cellBorder);
-										  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-											  sheet.fill(column, 8+j, redFont);
-						  				  }
+										  sheet.valign(column, 8+j, 'top');
 									  }
 									  column++;
 								  }
 								  if(errorVisible){
 									  sheet.set(column, 8+j, tests[i].steps[j].error);
 									  sheet.border(column, 8+j, cellBorder);
-									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-										  sheet.fill(column, 8+j, redFont);
-					  				  }
+									  sheet.wrap(column, 8+j, 'true');
+									  sheet.valign(column, 8+j, 'top');
 									  column++;
 								  }
 							  }
 						}
+						sheet.set(1, 8+tests[i].steps.length+2, "Logs");
+						sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
+						sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
 				    }  
 					
 					// Save it 
