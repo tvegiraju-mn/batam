@@ -181,7 +181,7 @@ exports.download = function(req, res, next){
 								  sheet.border(2, 8+j, cellBorder);
 								  sheet.valign(2, 8+j, 'top');
 
-								  var column = 3;
+								  column = 3;
 								  if(inputVisibile){
 									  sheet.set(column, 8+j, tests[i].steps[j].input);
 									  sheet.border(column, 8+j, cellBorder);
@@ -233,8 +233,11 @@ exports.download = function(req, res, next){
 							  }
 						}
 						sheet.set(1, 8+tests[i].steps.length+2, "Logs");
+						sheet.valign(1, 8+tests[i].steps.length+2, 'top');
 						sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
 						sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
+						sheet.wrap(2, 8+tests[i].steps.length+2, 'true');
+						sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:column - 1,row:8+tests[i].steps.length+2});
 				    }  
 					
 					// Save it 
