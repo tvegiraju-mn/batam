@@ -97,3 +97,8 @@ if(require.main === module){
   exports.port = app.get('port');
 }
 
+//Prototype changes
+String.prototype.capitalize = function() {
+    return this.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+};
+

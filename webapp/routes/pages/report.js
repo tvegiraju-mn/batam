@@ -70,6 +70,45 @@ exports.download = function(req, res, next){
 					var headerTextStyle = {bold: true};
 					var cellBorder = {left:'thin',top:'thin',right:'thin',bottom:'thin'};
 					var redFont = {fgColor:'FFFF0000', type:'solid'};
+					
+					//Create summary sheet
+					var summarySheet = workbook.createSheet("Summary", 2, 8+tests.length);
+					summarySheet.width(1, 75);
+					summarySheet.set(1, 1, 'Functional Area');
+					summarySheet.font(1, 1, headerTextStyle);
+					summarySheet.set(2, 1, report.name);
+					summarySheet.set(1, 2, 'Total');
+					summarySheet.font(1, 2, headerTextStyle);
+					summarySheet.set(2, 2, report.tests.all.value);
+					summarySheet.set(1, 3, 'Passes');
+					summarySheet.font(1, 3, headerTextStyle);
+					summarySheet.set(2, 3, report.tests.passes.value);
+					summarySheet.set(1, 4, 'Failures');
+					summarySheet.font(1, 4, headerTextStyle);
+					summarySheet.set(2, 4, report.tests.failures.value);
+					summarySheet.set(1, 5, 'Not Completed');
+					summarySheet.font(1, 5, headerTextStyle);
+					summarySheet.set(2, 5, report.tests.regressions.value - report.tests.failures.value);
+					
+					summarySheet.set(1, 7, 'Test Name');
+					summarySheet.font(1, 7, headerTextStyle);
+					summarySheet.border(1, 7, cellBorder);
+					summarySheet.set(2, 7, 'Status');
+					summarySheet.font(2, 7, headerTextStyle);
+					summarySheet.border(2, 7, cellBorder);
+					for(var i = 0; i < tests.length; i++){
+						summarySheet.set(1, 8+i, tests[i].name);
+						summarySheet.font(1, 8+i, headerTextStyle);
+						summarySheet.border(1, 8+i, cellBorder);
+						summarySheet.set(2, 8+i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
+						if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
+							summarySheet.fill(2, 8+i, redFont);
+		  				}
+						summarySheet.valign(2, 8+i, 'top');
+						summarySheet.font(2, 8+i, headerTextStyle);
+						summarySheet.border(2, 8+i, cellBorder);
+					}
+					
 					//Populate the data array with tests found.
 					for(var i = 0; i < tests.length; i++){
 						// Create a new worksheet with 10 columns and 12 rows 
@@ -93,7 +132,7 @@ exports.download = function(req, res, next){
 		  					_.isDate(new Date(tests[i].start_date)) && _.isDate(new Date(tests[i].end_date))){
 							  sheet.set(2, 3, batam_util.durationToStr(tests[i].end_date - tests[i].start_date));
 						  }
-						  sheet.set(2, 4, tests[i].status);
+						  sheet.set(2, 4, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
 						  if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
 							  sheet.fill(2, 4, redFont);
 		  				  }
@@ -197,7 +236,7 @@ exports.download = function(req, res, next){
 									  column++;
 								  }
 								  if(statusVisible){
-									  sheet.set(column, 8+j, tests[i].steps[j].status);
+									  sheet.set(column, 8+j, tests[i].steps[j].status != null ? tests[i].steps[j].status.capitalize() : tests[i].steps[j].status);
 									  sheet.border(column, 8+j, cellBorder);
 									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
 										  sheet.fill(column, 8+j, redFont);
