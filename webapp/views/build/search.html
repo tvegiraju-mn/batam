@@ -285,6 +285,24 @@
 		    	        else {
 		    	            alert( 'An error occurred on the server. Please try again in a minute.' );
 		    	        }
+		    	    },
+		    	    dataSrc: function ( json ) {
+		    	    	var result = [];
+		    	    	result.draw = json.draw;
+		    	    	result.recordsFiltered = json.recordsFiltered;
+		    	    	result.recordsTotal = result.recordsTotal;
+		    	        for ( var i = 0 ; i < json.data.length ; i++ ) {
+		    	        	result[i] = [];
+		    	        	result[i][0] = '<a href="/'+json.data[i][0]+'/report/'+json.data[i][1]+'/test/'+json.data[i][2]+'">'+json.data[i][3]+'</a>';
+		    	        	result[i][1] = formatStatus(json.data[i][5]);
+		    	        	result[i][2] = formatRegression(json.data[i][5], json.data[i][6]); 
+		    	        	result[i][3] = formatTime(json.data[i][7]);
+							result[i][4] = ''+json.data[i][8];
+		    	        	for(var j = 9; j < json.data[i].length; j++){
+		    	        		result[i][j-4] = json.data[i][j];
+		    	        	}
+		    	        }
+		    	        return result;
 		    	    }
 	 	        },
 	 	    	columns: columns,

@@ -2,7 +2,6 @@ var _ = require('underscore');
 var util = require('util');
 var mongoskin = require('mongoskin');
 var validator = require('validator');
-var formatter = config = require('../../util/formatter.js');
 var batam_util = config = require('../../util/util.js');
 
 /**
@@ -22,9 +21,9 @@ function findTestList(req, res, next){
 					count = 0;
 				}				
 				
-				if(req.query.sm != null && req.query.sm == 'true'){
-					result.report_number = req.query.rn;
-				}
+//				if(req.query.sm != null && req.query.sm == 'true'){
+//					result.report_number = req.query.rn;
+//				}
 				
 				result.recordsTotal = count;
 				result.recordsFiltered = count;
@@ -40,19 +39,16 @@ function findTestList(req, res, next){
 			
 			//Populate the data array with tests found.
 			for(var index in tests){
-				if(req.query.sm != null && req.query.sm == 'true'){
-					data[index] = [tests[index].name, tests[index].description, tests[index].status]; 					
-				}else{
-					data[index] = ['<a href="/'+tests[index].build_id+'/report/'+tests[index].report_id+'/test/'+tests[index]._id+'">'+tests[index].name+'</a>', formatter.formatStatus(tests[index].status), formatter.formatRegression(tests[index].status, tests[index].regression), formatter.formatTime(tests[index].time), tests[index].tags]; 
-					for(var i = 0; i < criterias.length; i++){
-						var currentCriterias = batam_util.replaceAll(" ", "_", criterias[i].name.toLowerCase());
-						if(!_.isUndefined(tests[index][currentCriterias])){
-							data[index][6+i] = tests[index][currentCriterias];
-						}else{
-							data[index][6+i] = " ";
-						}
+				data[index] = [tests[index].build_id, tests[index].report_id, tests[index]._id, tests[index].name, tests[index].description, tests[index].status, tests[index].regression, tests[index].time, tests[index].tags]; 
+				for(var i = 0; i < criterias.length; i++){
+					var currentCriterias = batam_util.replaceAll(" ", "_", criterias[i].name.toLowerCase());
+					if(!_.isUndefined(tests[index][currentCriterias])){
+						data[index][9+i] = tests[index][currentCriterias];
+					}else{
+						data[index][9+i] = " ";
 					}
 				}
+				
 			}
 			
 			//Count number of retuned tests and send response.
@@ -204,10 +200,6 @@ function findTest(req, res, next){
 		if(error) {
 			return next(error);
 		}
-		var status = test.status;
-		test.status = formatter.formatStatus(status);
-		test.regression = formatter.formatRegression(status, test.regression);
-		test.time = formatter.formatTime(test.time);
 		//Send response.
 	    res.send({test: test});
 	};
@@ -364,8 +356,8 @@ function findTestHistory(req, res, next){
 	               tests[index].report_id, 
 				   tests[index]._id, 
 	               tests[index].start_date, 
-	               formatter.formatTime(tests[index].time),
-	               formatter.formatStatus(tests[index].status)]; 
+	               tests[index].time,
+	               tests[index].status]; 
 			}
 			
 			//Count number of retuned tests and send response.

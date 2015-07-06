@@ -232,7 +232,7 @@
 										'<td id="header_cell"><div align="center"><strong>Status</strong></div></td>' +
 									'</tr>' +
 								'</thead>' +
-								'<tbody id="report_tests_'+i+'">' +
+								'<tbody id="report_tests_'+replaceAll(" ", "_", response.reports[i].id)+'">' +
 								'</tbody>' +
 							'</table>' +
 						'</div>' +
@@ -259,7 +259,7 @@
 	   		
 	   		//Print tests
 	   		for(var i = 0; i < response.reports.length; i++){
-	   			$.getJSON('/api/tests?build_id={{build_id}}&report_id='+response.reports[i].id+'&draw=0&length='+response.reports[i].tests.all.value+'&start=0&sm=true&rn='+i, displayTests)
+	   			$.getJSON('/api/tests?build_id={{build_id}}&report_id='+response.reports[i].id+'&draw=0&length='+response.reports[i].tests.all.value+'&start=0', displayTests)
 			    .error(handleError)
 			    .fail(handleFailure);
 	   		}
@@ -268,16 +268,18 @@
 	    
 	    function displayTests(response){
 	    	var htmlList = '';
+	    	var reportId = '';
 	    	for(var i = 0; i < response.data.length; i++){
-	    		htmlList += '<tr><td><strong>'+response.data[i][0]+'</strong> - '+response.data[i][1]+'</td>';
+	    		reportId = replaceAll(" ", "_", response.data[i][1]);
+	    		htmlList += '<tr><td><strong>'+response.data[i][3]+'</strong> - '+response.data[i][4]+'</td>';
 	    		if(response.data[i][2] == 'pass'){
-	    			htmlList += '<td><div align="center">'+response.data[i][2]+'</div></td></tr>';
+	    			htmlList += '<td><div align="center">'+response.data[i][5]+'</div></td></tr>';
 	    		}else{
-	    			htmlList += '<td><div align="center"><font id="red_font" color="red">'+response.data[i][2]+'</font></div></td></tr>';
+	    			htmlList += '<td><div align="center"><font id="red_font" color="red">'+response.data[i][5]+'</font></div></td></tr>';
 	    		}
 	    	}
 	    	
-	    	$('#report_tests_'+response.report_number).html(htmlList);
+	    	$('#report_tests_'+reportId).html(htmlList);
 	    }
 	    
 	});

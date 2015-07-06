@@ -176,11 +176,11 @@
 	      	var end_date = response.test.end_date == undefined ? notAvailable : moment(response.test.end_date).format('MMM Do YYYY, h:mm:ss a');
 	      	$('#test_end_date').html(end_date);
 	      	if(response.test.status != null){
-	    		$('#test_status').html(response.test.status);
+	    		$('#test_status').html(formatStatus(response.test.status));
 	    	}
-	      	var time = response.test.time == undefined ? notAvailable : response.test.time;
+	      	var time = response.test.time == undefined ? notAvailable : formatTime(response.test.time);
 	      	$('#test_time').html(time);
-	      	var regression = response.test.regression == undefined ? notAvailable : response.test.regression;
+	      	var regression = response.test.regression == undefined ? notAvailable : formatRegression(response.test.status, response.test.regression);
 	      	$('#test_regression').html(regression);
 	      	var tags = response.test.tags == undefined ? notAvailable : response.test.tags;
 	      	$('#test_tags').html("<strong>Tags:</strong> "+tags);
@@ -307,11 +307,17 @@
        	    	"targets": 4,
        	    	"name": "Duration",
     	    	"title": "Duration",
+    	    	"render": function ( data, type, full, meta ) {
+   	    			return formatTime(data);
+   	    		}
        	    },
        	 	{
        	    	"targets": 5,
        	    	"name": "Status",
     	    	"title": "Status",
+    	    	"render": function ( data, type, full, meta ) {
+   	    			return formatStatus(data);
+   	    		}
        	    },],
     	    "searching": false,
  	        "ordering": false,

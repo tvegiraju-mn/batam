@@ -85,3 +85,58 @@ function getUrlParams(){
     }
     return vars;
 }
+
+function formatStatus(status){
+	if(status == null){
+		return null;
+	}
+	
+	if(status == 'pass'){
+		return '<span class="label label-success">'+status+'</span>';
+	}else if(status == 'fail' || status == 'error'){
+		return '<span class="label label-danger">'+status+'</span>';
+	}else{
+		return '<span class="label label-default">'+status+'</span>';
+	}
+}
+
+formatRegression = function formatRegression(status, regression){
+	if(regression == null){
+		return null;
+	}
+	
+	if(status == 'pass'){
+		if(regression != 'new'){
+			return '<span class="label label-success">'+regression+'</span>';
+		}else{
+			return '<span class="label label-default">'+regression+'</span>';
+		}
+	}else if(status == 'fail' || status == 'error'){
+		if(regression == 'same'){
+			return '<span class="label label-danger">'+regression+'</span>';
+		}else if(regression == 'new'){
+			return '<span class="label label-warning">'+regression+'</span>';
+		}else{
+			return '<span class="label label-default">'+regression+'</span>';
+		}
+	}else{
+		return '<span class="label label-default">'+regression+'</span>';
+	}
+}
+
+function formatTime(time){
+	if(time == null){
+		return null;
+	}
+	
+	if(!_.isUndefined(time) && !_.isNull(time)){
+		if(time.indexOf('h') != -1){
+			return '<span class="label label-danger">'+time+'</span>';
+		}
+		if(time.indexOf('s') != -1){
+			return '<span class="label label-success">'+time+'</span>';
+		}
+	}
+		
+	return '<span class="label label-warning">'+time+'</span>';
+}

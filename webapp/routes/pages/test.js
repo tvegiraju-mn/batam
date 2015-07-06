@@ -2,7 +2,6 @@ var _ = require('underscore');
 var util = require('util');
 var mongoskin = require('mongoskin');
 var validator = require('validator');
-var formatter = config = require('../../util/formatter.js');
 
 /**
  * PAGE path /:build_id/report/:report_id/test/:test_id
