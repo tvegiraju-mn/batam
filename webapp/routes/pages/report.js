@@ -72,41 +72,93 @@ exports.download = function(req, res, next){
 					var redFont = {fgColor:'FFFF0000', type:'solid'};
 					
 					//Create summary sheet
-					var summarySheet = workbook.createSheet("Summary", 2, 8+tests.length);
-					summarySheet.width(1, 75);
+					var summarySheet = workbook.createSheet("Summary", 4, 14+tests.length);
+					summarySheet.width(1, 25);
+					summarySheet.width(2, 100);
 					summarySheet.set(1, 1, 'Functional Area');
 					summarySheet.font(1, 1, headerTextStyle);
 					summarySheet.set(2, 1, report.name);
-					summarySheet.set(1, 2, 'Total');
-					summarySheet.font(1, 2, headerTextStyle);
-					summarySheet.set(2, 2, report.tests.all.value);
-					summarySheet.set(1, 3, 'Passes');
-					summarySheet.font(1, 3, headerTextStyle);
-					summarySheet.set(2, 3, report.tests.passes.value);
-					summarySheet.set(1, 4, 'Failures');
-					summarySheet.font(1, 4, headerTextStyle);
-					summarySheet.set(2, 4, report.tests.failures.value);
-					summarySheet.set(1, 5, 'Not Completed');
-					summarySheet.font(1, 5, headerTextStyle);
-					summarySheet.set(2, 5, report.tests.regressions.value - report.tests.failures.value);
 					
-					summarySheet.set(1, 7, 'Test Name');
-					summarySheet.font(1, 7, headerTextStyle);
-					summarySheet.border(1, 7, cellBorder);
-					summarySheet.set(2, 7, 'Status');
-					summarySheet.font(2, 7, headerTextStyle);
-					summarySheet.border(2, 7, cellBorder);
+					summarySheet.set(1, 2, 'Description');
+					summarySheet.font(1, 2, headerTextStyle);
+					summarySheet.set(2, 2, report.description);
+					
+					summarySheet.set(1, 3, 'Start Date');
+					summarySheet.font(1, 3, headerTextStyle);
+					summarySheet.set(2, 3, report.date);
+					
+					summarySheet.set(1, 4, 'End Date');
+					summarySheet.font(1, 4, headerTextStyle);
+					summarySheet.set(2, 4, report.end_date);
+					
+					summarySheet.set(1, 5, 'Status');
+					summarySheet.font(1, 5, headerTextStyle);
+					summarySheet.set(2, 5, report.status != null ? report.status.capitalize() : report.status);
+					if(report.status != null && report.status.toLowerCase() != 'pass' && report.status.toLowerCase() != 'completed'){
+						summarySheet.fill(2, 5, redFont);
+	  				}
+					summarySheet.set(2, 5, report.status);
+					
+					summarySheet.set(1, 6, 'Duration');
+					summarySheet.font(1, 6, headerTextStyle);
+					summarySheet.set(2, 6, batam_util.durationToStr(report.duration.value));
+					
+					summarySheet.set(1, 8, 'Total');
+					summarySheet.font(1, 8, headerTextStyle);
+					summarySheet.set(2, 8, report.tests.all.value); 
+					
+					summarySheet.set(1, 9, 'Passes');
+					summarySheet.font(1, 9, headerTextStyle);
+					summarySheet.set(2, 9, report.tests.passes.value);
+					
+					summarySheet.set(1, 10, 'Failures');
+					summarySheet.font(1, 10, headerTextStyle);
+					summarySheet.set(2, 10, report.tests.failures.value);
+					if(report.tests.failures.value > 0){
+						summarySheet.fill(2, 10, redFont);
+					}
+					
+					summarySheet.set(1, 11, 'Not Completed');
+					summarySheet.font(1, 11, headerTextStyle);
+					summarySheet.set(2, 11, report.tests.regressions.value - report.tests.failures.value);
+					if((report.tests.regressions.value - report.tests.failures.value) > 0){
+						summarySheet.fill(2, 11, redFont);
+					}
+					
+					summarySheet.set(1, 13, '#');
+					summarySheet.font(1, 13, headerTextStyle);
+					summarySheet.border(1, 13, cellBorder);
+					
+					summarySheet.set(2, 13, 'Test Name');
+					summarySheet.font(2, 13, headerTextStyle);
+					summarySheet.border(2, 13, cellBorder);
+					
+					summarySheet.set(3, 13, 'Status');
+					summarySheet.font(3, 13, headerTextStyle);
+					summarySheet.border(3, 13, cellBorder);
+					
+					summarySheet.set(4, 13, 'Duration');
+					summarySheet.font(4, 13, headerTextStyle);
+					summarySheet.border(4, 13, cellBorder);
+					
 					for(var i = 0; i < tests.length; i++){
-						summarySheet.set(1, 8+i, tests[i].name);
-						summarySheet.font(1, 8+i, headerTextStyle);
-						summarySheet.border(1, 8+i, cellBorder);
-						summarySheet.set(2, 8+i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
+						summarySheet.set(1, 14+i, i+1);
+						summarySheet.border(1, 14+i, cellBorder);
+						var testName = tests[i].name;
+						if(tests[i].description != null){
+							testName += ' - '+tests[i].description;
+						}
+						summarySheet.set(2, 14+i, testName);
+						summarySheet.border(2, 14+i, cellBorder);
+						summarySheet.wrap(2, 14+i, 'true');
+						summarySheet.set(3, 14+i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
 						if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
-							summarySheet.fill(2, 8+i, redFont);
+							summarySheet.fill(3, 14+i, redFont);
 		  				}
-						summarySheet.valign(2, 8+i, 'top');
-						summarySheet.font(2, 8+i, headerTextStyle);
-						summarySheet.border(2, 8+i, cellBorder);
+						summarySheet.valign(3, 14+i, 'top');
+						summarySheet.border(3, 14+i, cellBorder);
+						summarySheet.set(4, 14+i, batam_util.durationToStr(tests[i].duration.value));
+						summarySheet.border(4, 14+i, cellBorder);
 					}
 					
 					//Populate the data array with tests found.
@@ -117,25 +169,28 @@ exports.download = function(req, res, next){
 						// Fill some data 
 						  sheet.set(1, 1, 'Test Name');
 						  sheet.font(1, 1, headerTextStyle);
+						  sheet.set(2, 1, tests[i].name);
+						  
 						  sheet.set(1, 2, 'Test Description');
 						  sheet.font(1, 2, headerTextStyle);
+						  sheet.set(2, 2, tests[i].description);
+						  
 						  sheet.set(1, 3, 'Duration');
 						  sheet.font(1, 3, headerTextStyle);
-						  sheet.set(1, 4, 'Status');
-						  sheet.font(1, 4, headerTextStyle);
-						  sheet.set(1, 5, 'Tags');
-						  sheet.font(1, 5, headerTextStyle);
-						  
-						  sheet.set(2, 1, tests[i].name);
-						  sheet.set(2, 2, tests[i].description);
 						  if(tests[i].start_date != null && tests[i].end_date != null &&
 		  					_.isDate(new Date(tests[i].start_date)) && _.isDate(new Date(tests[i].end_date))){
 							  sheet.set(2, 3, batam_util.durationToStr(tests[i].end_date - tests[i].start_date));
 						  }
+						  
+						  sheet.set(1, 4, 'Status');
+						  sheet.font(1, 4, headerTextStyle);
 						  sheet.set(2, 4, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
 						  if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
 							  sheet.fill(2, 4, redFont);
 		  				  }
+						  
+						  sheet.set(1, 5, 'Tags');
+						  sheet.font(1, 5, headerTextStyle);
 						  sheet.set(2, 5, tests[i].tags);
 						  
 						  if(tests[i].steps != null && tests[i].steps.length != 0){

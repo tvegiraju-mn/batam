@@ -19,11 +19,7 @@ function findTestList(req, res, next){
 				}
 				if(_.isNull(count)){
 					count = 0;
-				}				
-				
-//				if(req.query.sm != null && req.query.sm == 'true'){
-//					result.report_number = req.query.rn;
-//				}
+				}	
 				
 				result.recordsTotal = count;
 				result.recordsFiltered = count;
@@ -31,6 +27,14 @@ function findTestList(req, res, next){
 				//Send result.
 				res.send(result);
 			};
+			var updateTestStatusCallback = function(error, count){
+				//Handle Error.
+				if(error){
+					return next(error);
+				}			
+				
+				console.log("-- Update test status.");
+			}
 			
 			//Handle Error.
 			if(error){
@@ -48,7 +52,11 @@ function findTestList(req, res, next){
 						data[index][9+i] = " ";
 					}
 				}
-				
+				//Count number of retuned tests and send response.
+				if(req.query.draw == "-1"){
+					tests[index].status = "pending";
+					req.collections.tests.updateById(tests[index]._id, {$set: tests[index]}, updateTestStatusCallback);
+				}
 			}
 			
 			//Count number of retuned tests and send response.

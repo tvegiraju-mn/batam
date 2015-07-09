@@ -1,4 +1,6 @@
 var _ = require('underscore');
+var util = require('util');
+
 /**
  * Function that create a SearchCriterias object based on query param send in the URL.
  * This Object can be then used to filter result while using MongoDb apis.
@@ -7,7 +9,7 @@ exports.createSearchObject = function (req, criterias){
 	
 	var searchCriterias = {};
 	//Add static criterias to searchCriterias Object.
-	if(!_.isNull(req.query.status) && !_.isEmpty(req.query.status)){
+	if(!_.isNull(req.query.status) && !_.isUndefined(req.query.status)){
 		searchCriterias.status = req.query.status;
 	}
 	if(!_.isNull(req.query.regression) && !_.isEmpty(req.query.regression)){
@@ -40,6 +42,10 @@ exports.createSearchObject = function (req, criterias){
 }
 
 exports.durationToStr = function (milliseconds) {
+	if(milliseconds == null){
+		return "0 ms"
+	}
+	
 	var result = '';
     var temp = Math.floor(milliseconds / 1000);
 
