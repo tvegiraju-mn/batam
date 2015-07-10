@@ -373,11 +373,9 @@ exports.download = function(req, res, next){
 		req.collections.tests.find(searchCriterias).toArray(findTests);
 	};
 
-	//if(validator.isNull(req.query.build_id) || !validator.isLength(req.query.build_id, 5, 30) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.query.build_id) || !validator.matches(req.query.build_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	//if(validator.isNull(req.query.report_id) || !validator.isLength(req.query.report_id, 5, 60) || !validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
 	if(!validator.isNull(req.query.report_id)){
 		if(!validator.matches(req.query.report_id, '[0-9a-zA-Z_-]+')){
 			return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
