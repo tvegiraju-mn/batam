@@ -272,7 +272,7 @@
 	    	for(var i = 0; i < response.data.length; i++){
 	    		reportId = replaceAll(" ", "_", response.data[i][1]);
 	    		htmlList += '<tr><td><strong>'+response.data[i][3]+'</strong> - '+response.data[i][4]+'</td>';
-	    		if(response.data[i][2] == 'pass'){
+	    		if(response.data[i][5] == 'pass'){
 	    			htmlList += '<td><div align="center">'+response.data[i][5]+'</div></td></tr>';
 	    		}else{
 	    			htmlList += '<td><div align="center"><font id="red_font" color="red">'+response.data[i][5]+'</font></div></td></tr>';
