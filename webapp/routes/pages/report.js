@@ -105,24 +105,33 @@ exports.download = function(req, res, next){
 					
 					summarySheet.set(1, 8, 'Total');
 					summarySheet.font(1, 8, headerTextStyle);
-					summarySheet.set(2, 8, report.tests.all.value); 
+					if(!_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)){
+						summarySheet.set(2, 8, report.tests.all.value); 
+					}
 					
 					summarySheet.set(1, 9, 'Passes');
 					summarySheet.font(1, 9, headerTextStyle);
-					summarySheet.set(2, 9, report.tests.passes.value);
+					if(!_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)){
+						summarySheet.set(2, 9, report.tests.passes.value);
+					}
 					
 					summarySheet.set(1, 10, 'Failures');
 					summarySheet.font(1, 10, headerTextStyle);
-					summarySheet.set(2, 10, report.tests.failures.value);
-					if(report.tests.failures.value > 0){
-						summarySheet.fill(2, 10, redFont);
-					}
+					if(!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
+						summarySheet.set(2, 10, report.tests.failures.value);
+						if(report.tests.failures.value > 0){
+							summarySheet.fill(2, 10, redFont);
+						}
+					}	
 					
 					summarySheet.set(1, 11, 'Not Completed');
 					summarySheet.font(1, 11, headerTextStyle);
-					summarySheet.set(2, 11, report.tests.regressions.value - report.tests.failures.value);
-					if((report.tests.regressions.value - report.tests.failures.value) > 0){
-						summarySheet.fill(2, 11, redFont);
+					if(!_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && 
+							!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
+						summarySheet.set(2, 11, report.tests.regressions.value - report.tests.failures.value);
+						if((report.tests.regressions.value - report.tests.failures.value) > 0){
+							summarySheet.fill(2, 11, redFont);
+						}
 					}
 					
 					summarySheet.set(1, 13, 'Serial Number');
