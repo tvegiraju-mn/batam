@@ -87,7 +87,7 @@ function createTest(report, data, ack){
 							}
 						}
 					}
-					if(!_.isNull(tags)){
+					if(!_.isUndefined(tags) && !_.isNull(tags)){
 						for(var i = 0 ; i < tags.length; i++){
 							var exist = false;
 							for(var j = 0; j < test_criterias.length; j++){
@@ -285,10 +285,10 @@ function createTest(report, data, ack){
 	}
 	
 	//Check tags
-	if(!_.isNull(tags) && !_.isArray(tags)){
+	if(!_.isUndefined(tags) && !_.isNull(tags) && !_.isArray(tags)){
 		return e.error(data, ack, true, "Tags field not valid.");
 	}
-	if(!_.isNull(tags)){
+	if(!_.isUndefined(tags) && !_.isNull(tags)){
 		for(var i = 0; i < tags.length; i++){
 			if(_.isUndefined(tags[i]) || _.isNull(tags[i]) || !_.isString(tags[i])){
 				return e.error(data, ack, true, "Tags object "+i+" fields not valid.");
@@ -298,10 +298,10 @@ function createTest(report, data, ack){
 	}
 	
 	//Check steps
-	if(!_.isNull(steps) && !_.isArray(steps)){
+	if(!_.isUndefined(steps) && !_.isNull(steps) && !_.isArray(steps)){
 		return e.error(data, ack, true, "Steps field not valid.");
 	}
-	if(!_.isNull(steps)){
+	if(!_.isUndefined(steps) && !_.isNull(steps)){
 		for(var i = 0; i < steps.length; i++){
 			if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
 				return e.error(data, ack, true, "Steps object "+i+" fields not valid.");
@@ -418,7 +418,7 @@ function updateTest(report, data, ack){
 						}
 					}
 				}
-				if(!_.isNull(tags)){
+				if(!_.isUndefined(tags) && !_.isNull(tags)){
 					for(var i = 0 ; i < tags.length; i++){
 						var exist = false;
 						for(var j = 0; j < test_criterias.length; j++){
@@ -614,15 +614,15 @@ function updateTest(report, data, ack){
 		}
 		
 		//Update tags, 
-		if(!_.isNull(tags) && !_.isArray(tags)){
+		if(!_.isUndefined(tags) && !_.isNull(tags) && !_.isArray(tags)){
 			return e.error(data, ack, true, "Tags field not valid.");
 		}
-		if(_.isNull(test.tags) || !_.isArray(test.tags)){
+		if(_.isUndefined(tags) || _.isNull(test.tags) || !_.isArray(test.tags)){
 			test.tags = [];
 		}
 		
 		var tagsLength = test.tags.length;
-		if(!_.isNull(tags)){
+		if(!_.isUndefined(tags) && !_.isNull(tags)){
 			for(var i = 0; i < tags.length; i++){
 				if(_.isUndefined(tags[i]) || _.isNull(tags[i]) || !_.isString(tags[i])){
 					return e.error(data, ack, true, "Tags object "+i+" not valid.");
@@ -632,15 +632,15 @@ function updateTest(report, data, ack){
 		}
 		
 		//Update steps, 
-		if(!_.isNull(steps) && !_.isArray(steps)){
+		if(!_.isUndefined(steps) && !_.isNull(steps) && !_.isArray(steps)){
 			return e.error(data, ack, true, "Steps field not valid.");
 		}
-		if(_.isNull(test.steps) || !_.isArray(test.steps)){
+		if(_.isUndefined(steps) || _.isNull(test.steps) || !_.isArray(test.steps)){
 			test.steps = [];
 		}
 		
 		
-		if(!_.isNull(steps)){
+		if(!_.isUndefined(steps) && !_.isNull(steps)){
 			for(var i = 0; i < steps.length; i++){
 				if(_.isUndefined(steps[i]) || _.isNull(steps[i]) || !_.isObject(steps[i])){
 					return e.error(data, ack, true, "Steps object "+i+" not valid.");

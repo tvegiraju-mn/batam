@@ -125,7 +125,7 @@ exports.download = function(req, res, next){
 						summarySheet.fill(2, 11, redFont);
 					}
 					
-					summarySheet.set(1, 13, '#');
+					summarySheet.set(1, 13, 'Serial Number');
 					summarySheet.font(1, 13, headerTextStyle);
 					summarySheet.border(1, 13, cellBorder);
 					
@@ -326,13 +326,15 @@ exports.download = function(req, res, next){
 								  }
 							  }
 						}
-						sheet.set(1, 8+tests[i].steps.length+2, "Logs");
-						sheet.valign(1, 8+tests[i].steps.length+2, 'top');
-						sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
-						sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
-						sheet.wrap(2, 8+tests[i].steps.length+2, 'true');
-						sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:5,row:8+tests[i].steps.length+2});
-						sheet.height(8+tests[i].steps.length+2, 50);
+						if(tests[i].steps != null && !_.isUndefined(tests[i].steps)){
+							sheet.set(1, 8+tests[i].steps.length+2, "Logs");
+							sheet.valign(1, 8+tests[i].steps.length+2, 'top');
+							sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
+							sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
+							sheet.wrap(2, 8+tests[i].steps.length+2, 'true');
+							sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:5,row:8+tests[i].steps.length+2});
+							sheet.height(8+tests[i].steps.length+2, 50);
+						}
 					}  
 					
 					// Save it 

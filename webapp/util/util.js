@@ -38,6 +38,9 @@ exports.createSearchObject = function (req, criterias){
 	if(req.query.build_id != null && req.query.build_id != '' && req.query.build_id != 'null'){
 		searchCriterias.build_id = req.query.build_id;	
 	}
+	if(req.query.build_name != null && req.query.build_name != '' && req.query.build_name != 'null'){
+		searchCriterias.build_name = req.query.build_name;	
+	}
 	return searchCriterias;
 }
 

@@ -53,8 +53,12 @@
 						<td id="build_name" style="padding-left:20px"></td>
 					</tr>
 					<tr>
-						<td><h4>Date</h4></td>
-						<td id="build_date" style="padding-left:20px"></td>
+						<td><h4>Start Date</h4></td>
+						<td id="build_start_date" style="padding-left:20px"></td>
+					</tr>
+					<tr>
+						<td><h4>End Date</h4></td>
+						<td id="build_end_date" style="padding-left:20px"></td>
 					</tr>
 					<tr>
 						<td><h4>Product Version</h4></td>
@@ -136,8 +140,9 @@
 	    	
 	    	$('#build_name').html(response.build.name);
 	    	var date = response.build.date == undefined ? notAvailable : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
-	    	$('#build_date').html(date);
-	    	
+	    	$('#build_start_date').html(date);
+	    	var end_date = response.build.end_date == undefined ? notAvailable : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss a');
+	    	$('#build_end_date').html(end_date);
 	    	if(response.build.duration != undefined){
 	    		$('#build_duration').html(durationToStr(response.build.duration.value));
 	    	}
