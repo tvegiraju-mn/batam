@@ -26,7 +26,9 @@ package com.modeln.batam.connector;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import com.jcabi.aspects.RetryOnFailure;
 import com.modeln.batam.connector.wrapper.BuildEntry;
 import com.modeln.batam.connector.wrapper.Commit;
 import com.modeln.batam.connector.wrapper.Pair;
@@ -43,7 +45,11 @@ import com.modeln.batam.connector.wrapper.ReportEntry;
  * 
  */
 public class ConnectorHelper {
-
+	
+	private final static int RETRY_ON_FAILURE_ATTEMPTS = 3;
+	
+	private final static int RETRY_ON_FAILURE_DELAY = 2;
+	
 	/**
 	 * Static version of {@see com.modeln.batam.connector.Connector#createBuild(BuildEntry) createBuild} function.
 	 * 
@@ -51,6 +57,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createBuild(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -73,6 +80,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateBuild(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -95,6 +103,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String runAnalysis(BuildEntry build) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -117,6 +126,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createReport(ReportEntry report) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -139,6 +149,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateReport(ReportEntry report) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -163,6 +174,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createTest(TestEntry test) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -185,6 +197,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateTest(TestEntry test) throws IOException {
 		Connector connector = Connector.getInstance();
 		String message = null;
@@ -217,6 +230,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createBuild(String id, 
 			String name, 
 			Date startDate,
@@ -253,6 +267,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String addBuildCommits(String id, String name, List<Commit> commits) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -278,6 +293,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String addBuildInfos(String id, String name, List<Pair> infos) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -303,6 +319,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String addBuildReports(String id, String name, List<Pair> reports) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -328,6 +345,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String addBuildSteps(String id, String name, List<Step> steps) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -353,6 +371,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateBuildEndDate(String id, String name, Date endDate) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -378,6 +397,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateBuildStatus(String id, String name, String status) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -403,6 +423,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String runAnalysis(String id, String name, boolean override) throws IOException {
 
 		Connector connector = Connector.getInstance();
@@ -434,6 +455,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createReport(String id, 
 			String name,
 			String buildId, 
@@ -469,6 +491,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String addReportLogs(String id, 
 			String name,
 			String buildId, 
@@ -500,6 +523,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateReportStatus(String id, 
 			String name,
 			String buildId, 
@@ -531,6 +555,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateReportEndDate(String id, 
 			String name,
 			String buildId, 
@@ -575,6 +600,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String createTest(String buildId,
 			String buildName,
 			String reportId, 
@@ -631,6 +657,7 @@ public class ConnectorHelper {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public static String updateTest(String id,
 			String buildId,
 			String buildName,

@@ -17,7 +17,7 @@
 #####################################################################################################################
  
 ## Connector jar location.
-CONNECTOR=../../connectors/java-connector/target/batam-connector-1.0.0.jar
+CONNECTOR=../../connectors/java-connector/target/batam-connector-2.0.0.jar
 ## Build name.
 BUILD_NAME="Build"
 
