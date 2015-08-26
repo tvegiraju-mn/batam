@@ -26,7 +26,9 @@ package com.modeln.batam.connector;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import com.jcabi.aspects.RetryOnFailure;
 import com.modeln.batam.connector.exception.InvalidArgumentException;
 import com.modeln.batam.connector.exception.NoConnectionFoundException;
 import com.modeln.batam.connector.util.ConfigHelper;
@@ -59,6 +61,9 @@ import com.rabbitmq.client.ConnectionFactory;
  *
  */
 public class Connector {
+	
+	private final static int RETRY_ON_FAILURE_ATTEMPTS = 3;
+	private final static int RETRY_ON_FAILURE_DELAY = 1;
 	
 	private final static String ACTION_FIELD = "action";
 	private final static String DATA_FIELD = "data";
@@ -144,6 +149,7 @@ public class Connector {
 	 * 
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public void beginConnection(String host, String username, String password, Integer port, String vhost, String queue, String publisher) throws IOException {
 		ConfigHelper.loadProperties(null);
 		
@@ -197,6 +203,7 @@ public class Connector {
 	 * End Connector connection.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public void endConnection() throws IOException {
 		if(channel != null){
 			channel.close();
@@ -228,6 +235,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String createBuild(BuildEntry build) throws IOException {
 		
 		checkConnection();
@@ -253,6 +261,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String updateBuild(BuildEntry build) throws IOException {
 		
 		checkConnection();
@@ -278,6 +287,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String runAnalysis(BuildEntry build) throws IOException {
 		
 		checkConnection();
@@ -303,6 +313,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String createReport(ReportEntry report) throws IOException {
 		
 		checkConnection();
@@ -328,6 +339,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String updateReport(ReportEntry report) throws IOException {
 		
 		checkConnection();
@@ -355,6 +367,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String createTest(TestEntry test) throws IOException {
 		
 		checkConnection();
@@ -380,6 +393,7 @@ public class Connector {
 	 * @return published message.
 	 * @throws IOException
 	 */
+	@RetryOnFailure(attempts = RETRY_ON_FAILURE_ATTEMPTS, delay = RETRY_ON_FAILURE_DELAY, unit = TimeUnit.SECONDS)
 	public String updateTest(TestEntry test) throws IOException {
 		
 		checkConnection();
