@@ -80,7 +80,13 @@ public class Connector {
 	
 	private Boolean publish;
 
+	private String host;
+	private String username;
+	private String password;
+	private Integer port;
+	private String vhost;
 	private String queue;
+	
 	private Connection connection;
 	private Channel channel;
 
@@ -153,30 +159,41 @@ public class Connector {
 	public void beginConnection(String host, String username, String password, Integer port, String vhost, String queue, String publisher) throws IOException {
 		ConfigHelper.loadProperties(null);
 		
-		if(host == null){
-			host = ConfigHelper.HOST;
+		if(host == null && this.host == null){
+			this.host = ConfigHelper.HOST;
+		}else if(host != null){
+			this.host = host;
 		}
 		
-		if(username == null){
-			username = ConfigHelper.USER;
+		if(username == null && this.username == null){
+			this.username = ConfigHelper.USER;
+		}else if(username != null){
+			this.username = username;
 		}
 		
-		if(password == null){
-			password = ConfigHelper.PASSWORD;
+		if(password == null && this.password == null){
+			this.password = ConfigHelper.PASSWORD;
+		}else if(password != null){
+			this.password = password;
 		}
 		
-		if(port == null){
-			port = ConfigHelper.PORT;
+		if(port == null && this.port == null){
+			this.port = ConfigHelper.PORT;
+		}else if(port != null){
+			this.port = port;
 		}
 		
-		if(vhost == null){
-			vhost = ConfigHelper.VHOST;
+		if(vhost == null && this.vhost == null){
+			this.vhost = ConfigHelper.VHOST;
+		}else if(vhost != null){
+			this.vhost = vhost;
 		}
 		
-		if(queue == null){
-			queue = ConfigHelper.QUEUE;
+		if(queue == null && this.queue == null){
+			this.queue = ConfigHelper.QUEUE;
+		}else if(queue != null){
+			this.queue = queue;
 		}
-		this.queue = queue;
 		
 		if(publisher == null){
 			publisher = ConfigHelper.PUBLISHER;
@@ -189,14 +206,14 @@ public class Connector {
 		}
 		
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost(host);
-		factory.setPort(port);
-		factory.setUsername(username);
-		factory.setPassword(password);
-		factory.setVirtualHost(vhost);
-		connection = factory.newConnection();
-		channel = connection.createChannel();
-		channel.queueDeclare(queue, false, false, false, null);
+		factory.setHost(this.host);
+		factory.setPort(this.port);
+		factory.setUsername(this.username);
+		factory.setPassword(this.password);
+		factory.setVirtualHost(this.vhost);
+		this.connection = factory.newConnection();
+		this.channel = this.connection.createChannel();
+		this.channel.queueDeclare(queue, false, false, false, null);
 	}
 
 	/**
@@ -215,12 +232,26 @@ public class Connector {
 
 	/**
 	 * Check connection has been initialized.
+	 * @throws IOException 
 	 */
-	private void checkConnection(){
+	private void checkConnection() throws IOException{
 		if(channel == null || connection == null){
 			if(publish == null || publish){
 				throw new NoConnectionFoundException("Establish a connection before to publish any information.");
 			}
+		}
+		//If the channel or connection is closed then we attempt to reopen it.
+		//This logic should be called after a retry on a ChannelAlreadyClosedException.
+		if(!channel.isOpen() || !connection.isOpen()){
+			//First we close channel before to recreate one.
+			if(channel.isOpen()){
+				channel.close();
+			}
+			//First we close connection before to recreate one.
+			if(connection.isOpen()){
+				connection.close();
+			}
+			beginConnection(this.host, this.username, this.password, this.port, this.vhost, this.queue, this.publish == true ? "on" : "off");
 		}
 	}
 	
