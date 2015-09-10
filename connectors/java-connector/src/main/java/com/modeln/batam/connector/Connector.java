@@ -213,7 +213,7 @@ public class Connector {
 		factory.setVirtualHost(this.vhost);
 		this.connection = factory.newConnection();
 		this.channel = this.connection.createChannel();
-		this.channel.queueDeclare(queue, false, false, false, null);
+		this.channel.queueDeclare(this.queue, false, false, false, null);
 	}
 
 	/**
@@ -242,13 +242,13 @@ public class Connector {
 		}
 		//If the channel or connection is closed then we attempt to reopen it.
 		//This logic should be called after a retry on a ChannelAlreadyClosedException.
-		if(!channel.isOpen() || !connection.isOpen()){
+		if(channel == null || channel.isOpen() || !connection.isOpen()){
 			//First we close channel before to recreate one.
-			if(channel.isOpen()){
+			if(channel != null && channel.isOpen()){
 				channel.close();
 			}
 			//First we close connection before to recreate one.
-			if(connection.isOpen()){
+			if(connection != null && connection.isOpen()){
 				connection.close();
 			}
 			beginConnection(this.host, this.username, this.password, this.port, this.vhost, this.queue, this.publish == true ? "on" : "off");
