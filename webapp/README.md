@@ -4,16 +4,20 @@ This module corresponds to the front end of the BATAM application.
 
 ## Install and Run
 
-1. Install [Node JS](http://nodejs.org/) (See [how-to-install-nodejs](http://howtonode.org/how-to-install-nodejs) or [node-and-npm-in-30-seconds.sh](https://gist.github.com/isaacs/579814)).
-2. Install [MongoDB](http://www.mongodb.org/) (See [http://docs.mongodb.org/manual/installation/](http://docs.mongodb.org/manual/installation/)).
+1. (If not already installed) Install [Node JS](http://nodejs.org/) (See [how-to-install-nodejs](http://howtonode.org/how-to-install-nodejs) or [node-and-npm-in-30-seconds.sh](https://gist.github.com/isaacs/579814)).
+2. (If not already installed) Install and start [MongoDB](http://www.mongodb.org/) (See [http://docs.mongodb.org/manual/installation/](http://docs.mongodb.org/manual/installation/)).
+	- Make sure to install Python 2.5 at least. Otherwise you will run into an error when you will start the worker.
+	- Start MongoDB with the following command: ```mongod``` (Make sure to add your MongoDB bin directory your PATH variable)
+	- (Optional) Start your MongoDB client to query your instance: ```mongo```
 3. Configure the config.js file to point to your MongoDB instance.
 ```
 database:{
 	URL: 'mongodb://@localhost:27017/batam' 
 }
 ```
-The schema name here is `batam`.
-
-4. Start your server with ```node index.js```.
-5. Access your application on port 3000.
- 
+The MongoDB schema name here is `batam`.
+4. Install and start your webapp module.
+	- Fetch Batam source code either by cloning the repository or by manually downloading the source from the GitHub website.
+	- Go to the webapp folder and run command ```node index.js``` or ```npm start``` to start the server. 
+	- Access your application on port 3000.
+5. (If not already installed) Deploy the worker module (See [Documentation](https://github.com/ModelN/batam/tree/master/worker) ).

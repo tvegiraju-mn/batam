@@ -3,13 +3,20 @@
 This module corresponds to the back end of the BATAM application.
 
 ## Install and Run
-1. Install [RabbitM](http://www.rabbitmq.com/).
+1. Install [RabbitMQ](http://www.rabbitmq.com/).
+	- RabbitMQ Server (and its dependencies) based on your operating system (see [documentation](https://www.rabbitmq.com/download.html))
+	- start or stop the server using the following command: ```/sbin/service rabbitmq-server stop/start```. (As documented, you can also use ```rabbitmqctl stop/start```)
 	- Enable the [Management User Interface](https://www.rabbitmq.com/management.html) for ease of use.
+		- Enable plugin with the following command and restart your RabbitMQ Server : ```rabbitmq-plugins enable rabbitmq_management```
+		- From the localhost web browser, connect to the web UI ([http://localhost:15672/](http://localhost:15672/)) with default guest account using username/password as guest/guest.
 	- Create a User with a password (username and password should not be the same!).
 	- Create a VHost and give User permission over the created vhost.
 	- There is no need to create a Queue since it will be created automatically by the Worker module.
-2. Install [Node JS](http://nodejs.org/) (See [how-to-install-nodejs](http://howtonode.org/how-to-install-nodejs) or [node-and-npm-in-30-seconds.sh](https://gist.github.com/isaacs/579814)).
-3. Install [MongoDB](http://www.mongodb.org/) (See [http://docs.mongodb.org/manual/installation/](http://docs.mongodb.org/manual/installation/)).
+2. (If not already installed) Install [Node JS](http://nodejs.org/) (See [how-to-install-nodejs](http://howtonode.org/how-to-install-nodejs) or [node-and-npm-in-30-seconds.sh](https://gist.github.com/isaacs/579814)).
+3. (If not already installed) Install and start [MongoDB](http://www.mongodb.org/) (See [http://docs.mongodb.org/manual/installation/](http://docs.mongodb.org/manual/installation/)).
+	- Make sure to install Python 2.5 at least. Otherwise you will run into an error when you will start the worker.
+	- Start MongoDB with the following command: ```mongod``` (Make sure to add your MongoDB bin directory your PATH variable)
+	- (Optional) Start your MongoDB client to query your instance: ```mongo```
 4. Configure the [config.js](https://github.com/ModelN/batam/blob/master/worker/config.js) file to point to your RabbitMQ and MongoDB instance.
 	```
 	message_broker: {
@@ -24,9 +31,13 @@ This module corresponds to the back end of the BATAM application.
 		URL: 'mongodb://@localhost:27017/batam' 
 	}
 	```
-	The schema name here is `batam`.
-
-5. Start your server with ```node index.js```.
+	The schema name for MongoDB is `batam`. MongoDb will create the schema automatically when the worker module will start to write to the database.
+	In this configuration, we created a user called batam with password batam2 and a vhost named batam. We gave the batam user all permissions over the batam vhost.
+	
+5. Install and start your worker module.
+	- Fetch Batam source code either by cloning the repository or by manually downloading the source from the GitHub website.
+	- Go to the worker folder and run command ```node index.js``` or ```npm start``` to start the server. 
+6. Install and deploy the webapp module (See [Documentation](https://github.com/ModelN/batam/tree/master/webapp) ).
 
 NOTE: You can run as many workers as you need and each worker can be configured with a distinct configuration.
 
