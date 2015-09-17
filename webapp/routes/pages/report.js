@@ -3,7 +3,8 @@ var util = require('util');
 var validator = require('validator');
 var excelbuilder = require('msexcel-builder-colorfix');
 var fs = require('fs');
-var batam_util = config = require('../../util/util.js');
+var batam_util = require('../../util/util.js');
+var config = require('../../config.js');
 var mkdirp = require('mkdirp');
 
 /**
@@ -70,279 +71,410 @@ exports.download = function(req, res, next){
 					var headerTextStyle = {bold: true};
 					var cellBorder = {left:'thin',top:'thin',right:'thin',bottom:'thin'};
 					var redFont = {fgColor:'FFFF0000', type:'solid'};
+					var summaryDisplayConfig = config.reports.report.display.summary;
+					var testDisplayConfig = config.reports.report.display.test;
+					var indexColumn = 1;
+					var indexRow = 1;
+					var maxRow = 0;
+					maxRow += (_.isEqual(summaryDisplayConfig.name, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.description, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.start_date, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.end_date, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.status, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.duration, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.total, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.passes, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.failures, true) ? 1 : 0);
+					maxRow += (_.isEqual(summaryDisplayConfig.errors, true) ? 1 : 0);
+					var maxTestRow = 0;
+					maxTestRow += (_.isEqual(testDisplayConfig.name, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.description, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.start_date, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.end_date, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.duration, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.status, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.tags, true) ? 1 : 0);
+					maxTestRow += (_.isEqual(testDisplayConfig.log, true) ? 1 : 0);
 					
 					//Create summary sheet
-					var summarySheet = workbook.createSheet("Summary", 4, 14+tests.length);
+					var summarySheet = workbook.createSheet("Summary", 4, maxRow + 2 + tests.length);
 					summarySheet.width(1, 25);
 					summarySheet.width(2, 100);
-					summarySheet.set(1, 1, 'Functional Area');
-					summarySheet.font(1, 1, headerTextStyle);
-					summarySheet.set(2, 1, report.name);
-					
-					summarySheet.set(1, 2, 'Description');
-					summarySheet.font(1, 2, headerTextStyle);
-					summarySheet.set(2, 2, report.description);
-					
-					summarySheet.set(1, 3, 'Start Date');
-					summarySheet.font(1, 3, headerTextStyle);
-					summarySheet.set(2, 3, report.date);
-					
-					summarySheet.set(1, 4, 'End Date');
-					summarySheet.font(1, 4, headerTextStyle);
-					summarySheet.set(2, 4, report.end_date);
-					
-					summarySheet.set(1, 5, 'Status');
-					summarySheet.font(1, 5, headerTextStyle);
-					summarySheet.set(2, 5, report.status != null ? report.status.capitalize() : report.status);
-					if(report.status != null && report.status.toLowerCase() != 'pass' && report.status.toLowerCase() != 'completed'){
-						summarySheet.fill(2, 5, redFont);
-	  				}
-					summarySheet.set(2, 5, report.status);
-					
-					summarySheet.set(1, 6, 'Duration');
-					summarySheet.font(1, 6, headerTextStyle);
-					summarySheet.set(2, 6, batam_util.durationToStr(report.duration.value));
-					
-					summarySheet.set(1, 8, 'Total');
-					summarySheet.font(1, 8, headerTextStyle);
-					if(!_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)){
-						summarySheet.set(2, 8, report.tests.all.value); 
+					if(_.isEqual(summaryDisplayConfig.name, true)){
+						summarySheet.set(1, indexRow, 'Functional Area');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.name);
+						indexRow++;
+					}
+						
+					if(_.isEqual(summaryDisplayConfig.description, true)){
+						summarySheet.set(1, indexRow, 'Description');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.description);
+						indexRow++;
 					}
 					
-					summarySheet.set(1, 9, 'Passes');
-					summarySheet.font(1, 9, headerTextStyle);
-					if(!_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)){
-						summarySheet.set(2, 9, report.tests.passes.value);
+					if(_.isEqual(summaryDisplayConfig.start_date, true)){
+						summarySheet.set(1, indexRow, 'Start Date');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.date);
+						indexRow++;
 					}
 					
-					summarySheet.set(1, 10, 'Failures');
-					summarySheet.font(1, 10, headerTextStyle);
-					if(!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
-						summarySheet.set(2, 10, report.tests.failures.value);
-						if(report.tests.failures.value > 0){
-							summarySheet.fill(2, 10, redFont);
+					if(_.isEqual(summaryDisplayConfig.end_date, true)){
+						summarySheet.set(1, indexRow, 'End Date');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.end_date);
+						indexRow++;
+					}
+						
+					if(_.isEqual(summaryDisplayConfig.status, true)){
+						summarySheet.set(1, indexRow, 'Status');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.status != null ? report.status.capitalize() : report.status);
+						if(report.status != null && report.status.toLowerCase() != 'pass' && report.status.toLowerCase() != 'completed'){
+							summarySheet.fill(2, indexRow, redFont);
 						}
-					}	
+						summarySheet.set(2, indexRow, report.status);
+						indexRow++;
+					}
 					
-					summarySheet.set(1, 11, 'Not Completed');
-					summarySheet.font(1, 11, headerTextStyle);
-					if(!_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && 
-							!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
-						summarySheet.set(2, 11, report.tests.regressions.value - report.tests.failures.value);
-						if((report.tests.regressions.value - report.tests.failures.value) > 0){
-							summarySheet.fill(2, 11, redFont);
+					if(_.isEqual(summaryDisplayConfig.duration, true)){
+						summarySheet.set(1, indexRow, 'Duration');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, batam_util.durationToStr(report.duration.value));
+						indexRow++;
+					}
+					indexRow++;
+					if(_.isEqual(summaryDisplayConfig.total, true)){
+						summarySheet.set(1, indexRow, 'Total');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if(!_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)){
+							summarySheet.set(2, indexRow, report.tests.all.value); 
+						}
+						indexRow++;
+					}
+					
+					if(_.isEqual(summaryDisplayConfig.passes, true)){
+						summarySheet.set(1, indexRow, 'Passes');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if(!_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)){
+							summarySheet.set(2, indexRow, report.tests.passes.value);
+						}
+						indexRow++;
+					}
+					
+					if(_.isEqual(summaryDisplayConfig.failures, true)){
+						summarySheet.set(1, indexRow, 'Failures');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if(!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
+							summarySheet.set(2, indexRow, report.tests.failures.value);
+							if(report.tests.failures.value > 0){
+								summarySheet.fill(2, indexRow, redFont);
+							}
+						}
+						indexRow++;
+					}
+						
+					if(_.isEqual(summaryDisplayConfig.errors, true)){
+						summarySheet.set(1, indexRow, 'Not Completed');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if(!_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && 
+								!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
+							summarySheet.set(2, indexRow, report.tests.regressions.value - report.tests.failures.value);
+							if((report.tests.regressions.value - report.tests.failures.value) > 0){
+								summarySheet.fill(2, indexRow, redFont);
+							}
 						}
 					}
 					
-					summarySheet.set(1, 13, 'Serial Number');
-					summarySheet.font(1, 13, headerTextStyle);
-					summarySheet.border(1, 13, cellBorder);
+					indexRow++;	
+					if(_.isEqual(summaryDisplayConfig.columns.order, true)){
+						summarySheet.set(indexColumn, indexRow, 'Serial Number');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
 					
-					summarySheet.set(2, 13, 'Test Name');
-					summarySheet.font(2, 13, headerTextStyle);
-					summarySheet.border(2, 13, cellBorder);
+					if(_.isEqual(summaryDisplayConfig.columns.name, true)){
+						summarySheet.set(indexColumn, indexRow, 'Test Name');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
+						
+					if(_.isEqual(summaryDisplayConfig.columns.status, true)){
+						summarySheet.set(indexColumn, indexRow, 'Status');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
 					
-					summarySheet.set(3, 13, 'Status');
-					summarySheet.font(3, 13, headerTextStyle);
-					summarySheet.border(3, 13, cellBorder);
-					
-					summarySheet.set(4, 13, 'Duration');
-					summarySheet.font(4, 13, headerTextStyle);
-					summarySheet.border(4, 13, cellBorder);
-					
+					if(_.isEqual(summaryDisplayConfig.columns.duration, true)){
+						summarySheet.set(indexColumn, indexRow, 'Duration');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++
+					}
+					indexRow++;
 					for(var i = 0; i < tests.length; i++){
-						summarySheet.set(1, 14+i, i+1);
-						summarySheet.border(1, 14+i, cellBorder);
-						var testName = tests[i].name;
-						if(tests[i].description != null){
-							testName += ' - '+tests[i].description;
+						indexColumn = 1;
+						if(_.isEqual(summaryDisplayConfig.columns.order, true)){
+							summarySheet.set(1, indexRow + i, i+1);
+							summarySheet.border(1, indexRow + i, cellBorder);
+							indexColumn++;
 						}
-						summarySheet.set(2, 14+i, testName);
-						summarySheet.border(2, 14+i, cellBorder);
-						summarySheet.wrap(2, 14+i, 'true');
-						summarySheet.set(3, 14+i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
-						if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
-							summarySheet.fill(3, 14+i, redFont);
-		  				}
-						summarySheet.valign(3, 14+i, 'top');
-						summarySheet.border(3, 14+i, cellBorder);
-						summarySheet.set(4, 14+i, batam_util.durationToStr(tests[i].duration.value));
-						summarySheet.border(4, 14+i, cellBorder);
+						
+						if(_.isEqual(summaryDisplayConfig.columns.name, true)){	
+							var testName = tests[i].name;
+							if(tests[i].description != null){
+								testName += ' - '+tests[i].description;
+							}
+							summarySheet.set(indexColumn, indexRow + i, testName);
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							summarySheet.wrap(indexColumn, indexRow + i, 'true');
+							indexColumn++;
+						}
+							
+						if(_.isEqual(summaryDisplayConfig.columns.status, true)){	
+							summarySheet.set(indexColumn, indexRow + i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
+							if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
+								summarySheet.fill(indexColumn, indexRow + i, redFont);
+			  				}
+							summarySheet.valign(indexColumn, indexRow + i, 'top');
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							indexColumn++;
+						}
+						
+						if(_.isEqual(summaryDisplayConfig.columns.status, true)){	
+							summarySheet.set(indexColumn, indexRow + i, batam_util.durationToStr(tests[i].duration.value));
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							indexColumn++;
+						}
 					}
 					
 					//Populate the data array with tests found.
+					var firstBodyRow = 0;
 					for(var i = 0; i < tests.length; i++){
-						// Create a new worksheet with 10 columns and 12 rows 
+						indexRow = 1;
+						indexColumn = 1;
+						// Create a new worksheet with 10 columns and 14 rows (+ step rows) 
 						var stepsCount =  tests[i].steps != null? tests[i].steps.length : 0;
-						var sheet = workbook.createSheet(tests[i].name, 8, 11+stepsCount);
+						var sheet = workbook.createSheet(tests[i].name, 8, maxTestRow + 2 + stepsCount);
 						// Fill some data 
-						  sheet.set(1, 1, 'Test Name');
-						  sheet.font(1, 1, headerTextStyle);
-						  sheet.set(2, 1, tests[i].name);
+						if(_.isEqual(testDisplayConfig.name, true)){
+							sheet.set(1, indexRow, 'Test Name');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].name);
+							indexRow++;
+						}
+						
+						if(_.isEqual(testDisplayConfig.description, true)){
+							sheet.set(1, indexRow, 'Test Description');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].description);
+							indexRow++;
+						}
+						 
+						if(_.isEqual(testDisplayConfig.start_date, true)){
+							sheet.set(1, indexRow, 'Start Date');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].start_date);
+							indexRow++;
+						}
+							
+						if(_.isEqual(testDisplayConfig.end_date, true)){	
+							sheet.set(1, indexRow, 'End Date');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].end_date);
+							indexRow++;
+						}
+						
+						if(_.isEqual(testDisplayConfig.duration, true)){	
+							sheet.set(1, indexRow, 'Duration');
+							sheet.font(1, indexRow, headerTextStyle);
+							if(tests[i].start_date != null && tests[i].end_date != null &&
+									_.isDate(new Date(tests[i].start_date)) && _.isDate(new Date(tests[i].end_date))){
+								sheet.set(2, indexRow, batam_util.durationToStr(tests[i].end_date - tests[i].start_date));
+							}
+							indexRow++;
+						} 
+						
+						if(_.isEqual(testDisplayConfig.status, true)){	
+							sheet.set(1, indexRow, 'Status');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
+							if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
+								sheet.fill(2, indexRow, redFont);
+		  				  	}
+							indexRow++;
+						}
 						  
-						  sheet.set(1, 2, 'Test Description');
-						  sheet.font(1, 2, headerTextStyle);
-						  sheet.set(2, 2, tests[i].description);
-						  
-						  sheet.set(1, 3, 'Duration');
-						  sheet.font(1, 3, headerTextStyle);
-						  if(tests[i].start_date != null && tests[i].end_date != null &&
-		  					_.isDate(new Date(tests[i].start_date)) && _.isDate(new Date(tests[i].end_date))){
-							  sheet.set(2, 3, batam_util.durationToStr(tests[i].end_date - tests[i].start_date));
-						  }
-						  
-						  sheet.set(1, 4, 'Status');
-						  sheet.font(1, 4, headerTextStyle);
-						  sheet.set(2, 4, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
-						  if(tests[i].status != null && tests[i].status.toLowerCase() != 'pass'){
-							  sheet.fill(2, 4, redFont);
-		  				  }
-						  
-						  sheet.set(1, 5, 'Tags');
-						  sheet.font(1, 5, headerTextStyle);
-						  sheet.set(2, 5, tests[i].tags);
-						  
-						  if(tests[i].steps != null && tests[i].steps.length != 0){
-							  var inputVisibile = false;
-							  var expectedVisible = false;
-							  var statusVisible = false;
-							  var outputVisible = false;
-							  var durationVisible = false;
-							  var errorVisible = false;
-							  for (var j = 0; j < tests[i].steps.length; j++){
-								  if(tests[i].steps[j].input != null){
-									  inputVisibile = true;
-								  }
-								  if(tests[i].steps[j].expected != null){
-									  expectedVisible = true;
-								  }
-								  if(tests[i].steps[j].status != null){
-									  statusVisible = true;
-								  }
-								  if(tests[i].steps[j].output != null){
-									  outputVisible = true;
-								  }
-								  if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null){
-									  durationVisible = true;
-								  }
-								  if(tests[i].steps[j].error != null){
-									  errorVisible = true;
-								  }
-							  }
+						if(_.isEqual(testDisplayConfig.tags, true)){	  
+							sheet.set(1, indexRow, 'Tags');
+							sheet.font(1, indexRow, headerTextStyle);
+							sheet.set(2, indexRow, tests[i].tags);
+							indexRow++;
+						}
+						
+						indexRow++;	
+						
+						if(tests[i].steps != null && tests[i].steps.length != 0){
+							var inputVisibile = false;
+							var expectedVisible = false;
+							var statusVisible = false;
+							var outputVisible = false;
+							var durationVisible = false;
+							var errorVisible = false;
+							for (var j = 0; j < tests[i].steps.length; j++){
+								if(tests[i].steps[j].input != null){
+									inputVisibile = true;
+								}
+								if(tests[i].steps[j].expected != null){
+									expectedVisible = true;
+								}
+								if(tests[i].steps[j].status != null){
+									statusVisible = true;
+								}
+								if(tests[i].steps[j].output != null){
+									outputVisible = true;
+								}
+								if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null){
+									durationVisible = true;
+								}
+								if(tests[i].steps[j].error != null){
+									errorVisible = true;
+								}
+							}
+							
+							if(_.isEqual(testDisplayConfig.columns.order, true)){
+								sheet.set(indexColumn, indexRow, 'Step #');
+								sheet.border(indexColumn, indexRow, cellBorder);
+								sheet.font(indexColumn, indexRow, headerTextStyle);
+								indexColumn++;
+							}
+							if(_.isEqual(testDisplayConfig.columns.name, true)){	
+								sheet.set(indexColumn, indexRow, 'Description');
+								sheet.border(indexColumn, indexRow, cellBorder);
+								sheet.font(indexColumn, indexRow, headerTextStyle);
+								sheet.width(indexColumn, 50);
+								indexColumn++;
+							}
+								
+							var column = indexColumn+1;
 							  
-							  sheet.set(1, 7, 'Step #');
-							  sheet.border(1, 7, cellBorder);
-							  sheet.font(1, 7, headerTextStyle);
-							  sheet.set(2, 7, 'Description');
-							  sheet.border(2, 7, cellBorder);
-							  sheet.font(2, 7, headerTextStyle);
-							  sheet.width(2, 50);
-							  var column = 3;
-							  if(inputVisibile){
-								  sheet.set(column, 7, 'Input Data');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  column++;
-							  }
-							  if(expectedVisible){
-								  sheet.set(column, 7, 'Expected Result');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  column++;
-							  }
-							  if(statusVisible){
-								  sheet.set(column, 7, 'Status');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  column++;
-							  }
-							  if(outputVisible){
-								  sheet.set(column, 7, 'Output Data');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  column++;
-							  }
-							  if(durationVisible){
-								  sheet.set(column, 7, 'Execution Time');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  column++;
-							  }
-							  if(errorVisible){
-								  sheet.set(column, 7, 'Reason for Failure');
-								  sheet.border(column, 7, cellBorder);
-								  sheet.font(column, 7, headerTextStyle);
-								  sheet.width(column, 75);
-								  column++;
-							  }
-							  for (var j = 0; j < tests[i].steps.length; j++){
-								  sheet.set(1, 8+j, tests[i].steps[j].order);
-								  sheet.border(1, 8+j, cellBorder);
-								  sheet.valign(1, 8+j, 'top');
-
-								  sheet.set(2, 8+j, tests[i].steps[j].name);
-								  sheet.border(2, 8+j, cellBorder);
-								  sheet.valign(2, 8+j, 'top');
-
-								  column = 3;
-								  if(inputVisibile){
-									  sheet.set(column, 8+j, tests[i].steps[j].input);
-									  sheet.border(column, 8+j, cellBorder);
-									  sheet.wrap(column, 8+j, 'true');
-									  sheet.valign(column, 8+j, 'top');
-									  column++;
-								  }
-								  if(expectedVisible){
-									  sheet.set(column, 8+j, tests[i].steps[j].expected);
-									  sheet.border(column, 8+j, cellBorder);
-									  sheet.wrap(column, 8+j, 'true');
-									  sheet.valign(column, 8+j, 'top');
-									  column++;
-								  }
-								  if(statusVisible){
-									  sheet.set(column, 8+j, tests[i].steps[j].status != null ? tests[i].steps[j].status.capitalize() : tests[i].steps[j].status);
-									  sheet.border(column, 8+j, cellBorder);
-									  if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
-										  sheet.fill(column, 8+j, redFont);
-					  				  }
-									  sheet.valign(column, 8+j, 'top');
-									  column++;
-								  }
-								  if(outputVisible){
-									  sheet.set(column, 8+j, tests[i].steps[j].output);
-									  sheet.border(column, 8+j, cellBorder);
-									  sheet.wrap(column, 8+j, 'true');
-									  sheet.valign(column, 8+j, 'top');
-									  column++;
-								  }
-								  if(durationVisible){
-									  if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null &&
+							if(inputVisibile && _.isEqual(testDisplayConfig.columns.input, true)){
+								sheet.set(column, indexRow, 'Input Data');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+								column++;
+							}
+							if(expectedVisible && _.isEqual(testDisplayConfig.columns.expected, true)){
+								sheet.set(column, indexRow, 'Expected Result');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+							  	column++;
+							}
+							if(statusVisible && _.isEqual(testDisplayConfig.columns.status, true)){
+								sheet.set(column, indexRow, 'Status');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+								column++;
+							}
+							if(outputVisible && _.isEqual(testDisplayConfig.columns.output, true)){
+								sheet.set(column, indexRow, 'Output Data');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+								column++;
+							}
+							if(durationVisible && _.isEqual(testDisplayConfig.columns.duration, true)){
+								sheet.set(column, indexRow, 'Execution Time');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+								column++;
+							}
+							if(errorVisible && _.isEqual(testDisplayConfig.columns.error, true)){
+								sheet.set(column, indexRow, 'Reason for Failure');
+								sheet.border(column, indexRow, cellBorder);
+								sheet.font(column, indexRow, headerTextStyle);
+								sheet.width(column, 75);
+								column++;
+							}
+							firstBodyRow = indexRow + 1;
+							for (var j = 0; j < tests[i].steps.length; j++){
+								indexColumn = 1;
+								if(_.isEqual(testDisplayConfig.columns.order, true)){
+									sheet.set(indexColumn, firstBodyRow + j, tests[i].steps[j].order);
+									sheet.border(indexColumn, firstBodyRow + j, cellBorder);
+									sheet.valign(indexColumn, firstBodyRow + j, 'top');
+									indexColumn++;
+								}
+							
+								if(_.isEqual(testDisplayConfig.columns.name, true)){
+									sheet.set(2, firstBodyRow + j, tests[i].steps[j].name);
+									sheet.border(2, firstBodyRow + j, cellBorder);
+									sheet.valign(2, firstBodyRow + j, 'top');
+									indexColumn++;
+								}
+								column = indexColumn+1;
+								if(inputVisibile && _.isEqual(testDisplayConfig.columns.input, true)){
+									sheet.set(column, firstBodyRow + j, tests[i].steps[j].input);
+									sheet.border(column, firstBodyRow + j, cellBorder);
+									sheet.wrap(column, firstBodyRow + j, 'true');
+									sheet.valign(column, firstBodyRow + j, 'top');
+									column++;
+								}
+								if(expectedVisible && _.isEqual(testDisplayConfig.columns.expected, true)){
+									sheet.set(column, firstBodyRow + j, tests[i].steps[j].expected);
+									sheet.border(column, firstBodyRow + j, cellBorder);
+									sheet.wrap(column, firstBodyRow + j, 'true');
+									sheet.valign(column, firstBodyRow + j, 'top');
+									column++;
+								}
+								if(statusVisible && _.isEqual(testDisplayConfig.columns.status, true)){
+									sheet.set(column, firstBodyRow + j, tests[i].steps[j].status != null ? tests[i].steps[j].status.capitalize() : tests[i].steps[j].status);
+									sheet.border(column, firstBodyRow + j, cellBorder);
+									if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
+										sheet.fill(column, firstBodyRow + j, redFont);
+					  				}
+									sheet.valign(column, firstBodyRow + j, 'top');
+									column++;
+								}
+								if(outputVisible && _.isEqual(testDisplayConfig.columns.output, true)){
+									sheet.set(column, firstBodyRow + j, tests[i].steps[j].output);
+									sheet.border(column, firstBodyRow + j, cellBorder);
+									sheet.wrap(column, firstBodyRow + j, 'true');
+									sheet.valign(column, firstBodyRow + j, 'top');
+									column++;
+								}
+								if(durationVisible && _.isEqual(testDisplayConfig.columns.duration, true)){
+									if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null &&
 					    					_.isNumber(parseInt(tests[i].steps[j].start_date)) && _.isNumber(parseInt(tests[i].steps[j].end_date)) &&
 					    					_.isDate(new Date(parseInt(tests[i].steps[j].start_date))) && _.isDate(new Date(tests[i].steps[j].end_date)) &&
 					    					tests[i].steps[j].start_date <= tests[i].steps[j].end_date){
-										  sheet.set(column, 8+j, batam_util.durationToStr(tests[i].steps[j].end_date - tests[i].steps[j].start_date));
-										  sheet.border(column, 8+j, cellBorder);
-										  sheet.valign(column, 8+j, 'top');
-									  }
-									  column++;
-								  }
-								  if(errorVisible){
-									  sheet.set(column, 8+j, tests[i].steps[j].error);
-									  sheet.border(column, 8+j, cellBorder);
-									  sheet.wrap(column, 8+j, 'true');
-									  sheet.valign(column, 8+j, 'top');
-									  column++;
-								  }
-							  }
+										sheet.set(column, firstBodyRow + j, batam_util.durationToStr(tests[i].steps[j].end_date - tests[i].steps[j].start_date));
+										sheet.border(column, firstBodyRow + j, cellBorder);
+										sheet.valign(column, firstBodyRow + j, 'top');
+									}
+									column++;
+								}
+								if(errorVisible && _.isEqual(testDisplayConfig.columns.error, true)){
+									sheet.set(column, firstBodyRow + j, tests[i].steps[j].error);
+									sheet.border(column, firstBodyRow + j, cellBorder);
+									sheet.wrap(column, firstBodyRow + j, 'true');
+									sheet.valign(column, firstBodyRow + j, 'top');
+									column++;
+								}
+							}
 						}
 						if(tests[i].steps != null && !_.isUndefined(tests[i].steps)){
-							sheet.set(1, 8+tests[i].steps.length+2, "Logs");
-							sheet.valign(1, 8+tests[i].steps.length+2, 'top');
-							sheet.font(1, 8+tests[i].steps.length+2, headerTextStyle);
-							sheet.set(2, 8+tests[i].steps.length+2, tests[i].log);
-							sheet.wrap(2, 8+tests[i].steps.length+2, 'true');
-							sheet.merge({col:2,row:8+tests[i].steps.length+2},{col:5,row:8+tests[i].steps.length+2});
-							sheet.height(8+tests[i].steps.length+2, 50);
+							sheet.set(1, firstBodyRow + tests[i].steps.length + 2, "Logs");
+							sheet.valign(1, firstBodyRow + tests[i].steps.length + 2, 'top');
+							sheet.font(1, firstBodyRow + tests[i].steps.length + 2, headerTextStyle);
+							sheet.set(2, firstBodyRow + tests[i].steps.length + 2, tests[i].log);
+							sheet.wrap(2, firstBodyRow + tests[i].steps.length + 2, 'true');
+							sheet.merge({col:2, row:firstBodyRow + tests[i].steps.length + 2},{col:5, row:firstBodyRow + tests[i].steps.length + 2});
+							sheet.height(firstBodyRow + tests[i].steps.length + 2, 50);
 						}
 					}  
 					
