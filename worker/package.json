@@ -10,7 +10,7 @@
   "author": "Gregory Zussa",
   "license": "MIT",
   "dependencies": {
-    "amqp": "^0.2.0"
+    "amqp": "^0.2.0",
     "mongoskin": "^1.4.4",
     "underscore": "^1.7.0"
   },
