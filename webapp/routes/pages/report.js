@@ -347,13 +347,13 @@ exports.download = function(req, res, next){
 								}
 							}
 							
-							if(_.isEqual(testDisplayConfig.columns.order, true)){
+							if(_.isEqual(testDisplayConfig.steps.order, true)){
 								sheet.set(indexColumn, indexRow, 'Step #');
 								sheet.border(indexColumn, indexRow, cellBorder);
 								sheet.font(indexColumn, indexRow, headerTextStyle);
 								indexColumn++;
 							}
-							if(_.isEqual(testDisplayConfig.columns.name, true)){	
+							if(_.isEqual(testDisplayConfig.steps.name, true)){	
 								sheet.set(indexColumn, indexRow, 'Description');
 								sheet.border(indexColumn, indexRow, cellBorder);
 								sheet.font(indexColumn, indexRow, headerTextStyle);
@@ -363,37 +363,37 @@ exports.download = function(req, res, next){
 								
 							var column = indexColumn+1;
 							  
-							if(inputVisibile && _.isEqual(testDisplayConfig.columns.input, true)){
+							if(inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)){
 								sheet.set(column, indexRow, 'Input Data');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
 								column++;
 							}
-							if(expectedVisible && _.isEqual(testDisplayConfig.columns.expected, true)){
+							if(expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)){
 								sheet.set(column, indexRow, 'Expected Result');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
 							  	column++;
 							}
-							if(statusVisible && _.isEqual(testDisplayConfig.columns.status, true)){
+							if(statusVisible && _.isEqual(testDisplayConfig.steps.status, true)){
 								sheet.set(column, indexRow, 'Status');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
 								column++;
 							}
-							if(outputVisible && _.isEqual(testDisplayConfig.columns.output, true)){
+							if(outputVisible && _.isEqual(testDisplayConfig.steps.output, true)){
 								sheet.set(column, indexRow, 'Output Data');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
 								column++;
 							}
-							if(durationVisible && _.isEqual(testDisplayConfig.columns.duration, true)){
+							if(durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)){
 								sheet.set(column, indexRow, 'Execution Time');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
 								column++;
 							}
-							if(errorVisible && _.isEqual(testDisplayConfig.columns.error, true)){
+							if(errorVisible && _.isEqual(testDisplayConfig.steps.error, true)){
 								sheet.set(column, indexRow, 'Reason for Failure');
 								sheet.border(column, indexRow, cellBorder);
 								sheet.font(column, indexRow, headerTextStyle);
@@ -403,35 +403,35 @@ exports.download = function(req, res, next){
 							firstBodyRow = indexRow + 1;
 							for (var j = 0; j < tests[i].steps.length; j++){
 								indexColumn = 1;
-								if(_.isEqual(testDisplayConfig.columns.order, true)){
+								if(_.isEqual(testDisplayConfig.steps.order, true)){
 									sheet.set(indexColumn, firstBodyRow + j, tests[i].steps[j].order);
 									sheet.border(indexColumn, firstBodyRow + j, cellBorder);
 									sheet.valign(indexColumn, firstBodyRow + j, 'top');
 									indexColumn++;
 								}
 							
-								if(_.isEqual(testDisplayConfig.columns.name, true)){
+								if(_.isEqual(testDisplayConfig.steps.name, true)){
 									sheet.set(2, firstBodyRow + j, tests[i].steps[j].name);
 									sheet.border(2, firstBodyRow + j, cellBorder);
 									sheet.valign(2, firstBodyRow + j, 'top');
 									indexColumn++;
 								}
 								column = indexColumn+1;
-								if(inputVisibile && _.isEqual(testDisplayConfig.columns.input, true)){
+								if(inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].input);
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
 									column++;
 								}
-								if(expectedVisible && _.isEqual(testDisplayConfig.columns.expected, true)){
+								if(expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].expected);
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
 									column++;
 								}
-								if(statusVisible && _.isEqual(testDisplayConfig.columns.status, true)){
+								if(statusVisible && _.isEqual(testDisplayConfig.steps.status, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].status != null ? tests[i].steps[j].status.capitalize() : tests[i].steps[j].status);
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									if(tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass'){
@@ -440,14 +440,14 @@ exports.download = function(req, res, next){
 									sheet.valign(column, firstBodyRow + j, 'top');
 									column++;
 								}
-								if(outputVisible && _.isEqual(testDisplayConfig.columns.output, true)){
+								if(outputVisible && _.isEqual(testDisplayConfig.steps.output, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].output);
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
 									column++;
 								}
-								if(durationVisible && _.isEqual(testDisplayConfig.columns.duration, true)){
+								if(durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)){
 									if(tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null &&
 					    					_.isNumber(parseInt(tests[i].steps[j].start_date)) && _.isNumber(parseInt(tests[i].steps[j].end_date)) &&
 					    					_.isDate(new Date(parseInt(tests[i].steps[j].start_date))) && _.isDate(new Date(tests[i].steps[j].end_date)) &&
@@ -458,7 +458,7 @@ exports.download = function(req, res, next){
 									}
 									column++;
 								}
-								if(errorVisible && _.isEqual(testDisplayConfig.columns.error, true)){
+								if(errorVisible && _.isEqual(testDisplayConfig.steps.error, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].error);
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
