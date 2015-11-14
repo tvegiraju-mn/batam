@@ -149,7 +149,8 @@ exports.download = function(req, res, next){
 					if(_.isEqual(summaryDisplayConfig.total, true)){
 						summarySheet.set(1, indexRow, 'Total');
 						summarySheet.font(1, indexRow, headerTextStyle);
-						if(!_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)){
+						if(!_.isUndefined(report.tests) && !_.isNull(report.tests) && 
+								!_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)){
 							summarySheet.set(2, indexRow, report.tests.all.value); 
 						}
 						indexRow++;
@@ -158,7 +159,8 @@ exports.download = function(req, res, next){
 					if(_.isEqual(summaryDisplayConfig.passes, true)){
 						summarySheet.set(1, indexRow, 'Passes');
 						summarySheet.font(1, indexRow, headerTextStyle);
-						if(!_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)){
+						if(!_.isUndefined(report.tests) && !_.isNull(report.tests) &&
+								!_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)){
 							summarySheet.set(2, indexRow, report.tests.passes.value);
 						}
 						indexRow++;
@@ -167,7 +169,8 @@ exports.download = function(req, res, next){
 					if(_.isEqual(summaryDisplayConfig.failures, true)){
 						summarySheet.set(1, indexRow, 'Failures');
 						summarySheet.font(1, indexRow, headerTextStyle);
-						if(!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
+						if(!_.isUndefined(report.tests) && !_.isNull(report.tests) &&
+								!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
 							summarySheet.set(2, indexRow, report.tests.failures.value);
 							if(report.tests.failures.value > 0){
 								summarySheet.fill(2, indexRow, redFont);
@@ -179,7 +182,8 @@ exports.download = function(req, res, next){
 					if(_.isEqual(summaryDisplayConfig.errors, true)){
 						summarySheet.set(1, indexRow, 'Not Completed');
 						summarySheet.font(1, indexRow, headerTextStyle);
-						if(!_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && 
+						if(!_.isUndefined(report.tests) && !_.isNull(report.tests) &&
+								!_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && 
 								!_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)){
 							summarySheet.set(2, indexRow, report.tests.regressions.value - report.tests.failures.value);
 							if((report.tests.regressions.value - report.tests.failures.value) > 0){
@@ -260,7 +264,7 @@ exports.download = function(req, res, next){
 						indexColumn = 1;
 						// Create a new worksheet with 10 columns and 14 rows (+ step rows) 
 						var stepsCount =  tests[i].steps != null? tests[i].steps.length : 0;
-						var sheet = workbook.createSheet(tests[i].name, 8, maxTestRow + 2 + stepsCount);
+						var sheet = workbook.createSheet(tests[i].name, 8, maxTestRow + 1 + stepsCount + 3);
 						// Fill some data 
 						if(_.isEqual(testDisplayConfig.name, true)){
 							sheet.set(1, indexRow, 'Test Name');
@@ -317,8 +321,6 @@ exports.download = function(req, res, next){
 							indexRow++;
 						}
 						
-						indexRow++;	
-						
 						if(tests[i].steps != null && tests[i].steps.length != 0){
 							var inputVisibile = false;
 							var expectedVisible = false;
@@ -346,7 +348,7 @@ exports.download = function(req, res, next){
 									errorVisible = true;
 								}
 							}
-							
+							indexRow ++;
 							if(_.isEqual(testDisplayConfig.steps.order, true)){
 								sheet.set(indexColumn, indexRow, 'Step #');
 								sheet.border(indexColumn, indexRow, cellBorder);
@@ -361,7 +363,7 @@ exports.download = function(req, res, next){
 								indexColumn++;
 							}
 								
-							var column = indexColumn+1;
+							var column = indexColumn;
 							  
 							if(inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)){
 								sheet.set(column, indexRow, 'Input Data');
@@ -416,7 +418,7 @@ exports.download = function(req, res, next){
 									sheet.valign(2, firstBodyRow + j, 'top');
 									indexColumn++;
 								}
-								column = indexColumn+1;
+								column = indexColumn;
 								if(inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)){
 									sheet.set(column, firstBodyRow + j, tests[i].steps[j].input);
 									sheet.border(column, firstBodyRow + j, cellBorder);

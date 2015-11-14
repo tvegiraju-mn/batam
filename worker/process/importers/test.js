@@ -678,8 +678,11 @@ function updateTest(report, data, ack){
 						if(steps[i].status != null){	
 							test.steps[j].status = steps[i].status;
 						}
-						if(steps[i].result != null){	
-							test.steps[j].result = steps[i].result;
+						if(steps[i].input != null){	
+							test.steps[j].input = steps[i].input;
+						}
+						if(steps[i].output != null){	
+							test.steps[j].output = steps[i].output;
 						}
 						if(steps[i].expected != null){
 							test.steps[j].expected = steps[i].expected;
@@ -698,7 +701,8 @@ function updateTest(report, data, ack){
 					test.steps[stepsLength].end_date = steps[i].end_date;
 					test.steps[stepsLength].order = steps[i].order;
 					test.steps[stepsLength].status = steps[i].status;
-					test.steps[stepsLength].result = steps[i].result;
+					test.steps[stepsLength].input = steps[i].input;
+					test.steps[stepsLength].output = steps[i].output;
 					test.steps[stepsLength].expected = steps[i].expected;
 					test.steps[stepsLength].error = steps[i].error;
 				}	

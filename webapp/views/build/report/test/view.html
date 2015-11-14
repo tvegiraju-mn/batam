@@ -233,10 +233,10 @@
 	    				stepsTable += '<tr">';
 	    			}
 	    			stepsTable += '<td>'+(response.test.steps[i].order == null ? '' : response.test.steps[i].order)+'</td>';
-	    			stepsTable += '<td>'+(response.test.steps[i].name == null ? '' : response.test.steps[i].name)+'</td>';
-	    			stepsTable += '<td>'+(response.test.steps[i].input == null ? '' : response.test.steps[i].input)+'</td>';
-	    			stepsTable += '<td>'+(response.test.steps[i].expected == null ? '' : response.test.steps[i].expected)+'</td>';
-	    			stepsTable += '<td>'+(response.test.steps[i].output == null ? '' : response.test.steps[i].output)+'</td>';
+	    			stepsTable += '<td>'+(response.test.steps[i].name == null ? '' : response.test.steps[i].name)+'</td>';	    			
+	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].input == null ? '' : response.test.steps[i].input)+'</td>';
+	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].expected == null ? '' : response.test.steps[i].expected)+'</td>';
+	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].output == null ? '' : response.test.steps[i].output)+'</td>';
 	    			stepsTable += '<td>'+(response.test.steps[i].status == null ? '' : response.test.steps[i].status)+'</td>';
 	    			if(response.test.steps[i].start_date != null && response.test.steps[i].end_date != null &&
 	    					_.isNumber(parseInt(response.test.steps[i].start_date)) && _.isNumber(parseInt(response.test.steps[i].end_date)) &&
@@ -275,6 +275,34 @@
 	    		$('#steps_modals').html(errorModals);
 	    	}
 	    }
+    	
+    	function formatStepsVariables(input){
+    		var result = '';
+    		var splittedInput =  input.split("|");
+			if(splittedInput.length > 1){
+    			for(var i = 0; i < splittedInput.length; i++){
+    				var pair = splittedInput[i];
+    				var splittedPair = pair.split(":");
+    				if(splittedPair.length == 2){
+	    				if(i != 0){
+	    					result += "<br />";
+	    				}
+	    				result += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];				    					
+    				}else{
+    					result = input;
+    					break;
+    				}
+    			}
+			}else{
+				var splittedPair = pair.split(":");
+				if(splittedPair.length == 2){
+					inputsToDisplay += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];		
+				}else{
+					result = input;
+				}
+			}
+			return result;
+    	}
     	
     	//Dispaly tests history
  	    $('#history').DataTable({
