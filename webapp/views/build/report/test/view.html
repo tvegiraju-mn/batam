@@ -279,26 +279,17 @@
     	function formatStepsVariables(input){
     		var result = '';
     		var splittedInput =  input.split("|");
-			if(splittedInput.length > 1){
-    			for(var i = 0; i < splittedInput.length; i++){
-    				var pair = splittedInput[i];
-    				var splittedPair = pair.split(":");
-    				if(splittedPair.length == 2){
-	    				if(i != 0){
-	    					result += "<br />";
-	    				}
-	    				result += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];				    					
-    				}else{
-    					result = input;
-    					break;
-    				}
-    			}
-			}else{
+			for(var i = 0; i < splittedInput.length; i++) {
+				var pair = splittedInput[i];
 				var splittedPair = pair.split(":");
 				if(splittedPair.length == 2){
-					inputsToDisplay += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];		
+					if(i != 0){
+						result += "<br />";
+					}
+					result += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];
 				}else{
 					result = input;
+					break;
 				}
 			}
 			return result;
