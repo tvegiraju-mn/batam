@@ -233,7 +233,7 @@
 	    				stepsTable += '<tr">';
 	    			}
 	    			stepsTable += '<td>'+(response.test.steps[i].order == null ? '' : response.test.steps[i].order)+'</td>';
-	    			stepsTable += '<td>'+(response.test.steps[i].name == null ? '' : response.test.steps[i].name)+'</td>';	    			
+	    			stepsTable += '<td>'+(response.test.steps[i].name == null ? '' : response.test.steps[i].name)+'</td>';
 	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].input == null ? '' : response.test.steps[i].input)+'</td>';
 	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].expected == null ? '' : response.test.steps[i].expected)+'</td>';
 	    			stepsTable += '<td>'+formatStepsVariables(response.test.steps[i].output == null ? '' : response.test.steps[i].output)+'</td>';
@@ -275,25 +275,51 @@
 	    		$('#steps_modals').html(errorModals);
 	    	}
 	    }
-    	
-    	function formatStepsVariables(input){
-    		var result = '';
-    		var splittedInput =  input.split("|");
-			for(var i = 0; i < splittedInput.length; i++) {
-				var pair = splittedInput[i];
-				var splittedPair = pair.split(":");
-				if(splittedPair.length == 2){
-					if(i != 0){
-						result += "<br />";
-					}
-					result += "<b>"+splittedPair[0]+" : </b> "+splittedPair[1];
-				}else{
-					result = input;
-					break;
+
+		function formatStepObject(value, result) {
+			$.each(value, function(vKey, vValue) {
+				if ($.type(vValue) === "object") {
+					result += '<label style="text-decoration:underline;font-size:14px;"><b>' + vKey + '</b></label>';
+					result += '<br/>';
+					result = formatStepObject(vValue, result);
+					result += '<br/>';
+				} else {
+					result += '<label style="font-size:12px;"><b>' + vKey + '</b></label>';
+					result += ' : ' + vValue + '<br/>';
 				}
+			});
+			return result;
+		}
+
+		function formatStepsVariables(input) {
+			try {
+				var obj = JSON.parse(input);
+
+				var result = '';
+				if (_.isNull(obj) || _.isUndefined(obj)) {
+					result = 'Data is not valid. Please correct the data string.';
+					return result;
+				}
+
+				var i = 0;
+				$.each(obj, function (key, value) {
+					if ($.type(value) === "object") {
+						result += '<label style="text-decoration:underline;font-size:16px;"><b>' + key + '</b></label>';
+						result += '<br/><br/>';
+						result = formatStepObject(value, result);
+						if(i++ != 0) {
+							result += '<br/><br/>';
+						}
+					} else if($.type(value) === "string" || $.type(value) === "number") {
+						result += '<label style="font-size:14px;"><b>' + key + '</b></label>';
+						result += ' : ' + value + '<br/>';
+					}
+				});
+			} catch(exception) {
+				result = input;
 			}
 			return result;
-    	}
+		}
     	
     	//Dispaly tests history
  	    $('#history').DataTable({

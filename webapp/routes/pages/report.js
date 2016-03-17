@@ -360,6 +360,7 @@ exports.download = function(req, res, next){
 								sheet.border(indexColumn, indexRow, cellBorder);
 								sheet.font(indexColumn, indexRow, headerTextStyle);
 								sheet.width(indexColumn, 50);
+								sheet.wrap(column, firstBodyRow + j, 'true');
 								indexColumn++;
 							}
 								
@@ -411,26 +412,29 @@ exports.download = function(req, res, next){
 									sheet.valign(indexColumn, firstBodyRow + j, 'top');
 									indexColumn++;
 								}
-							
 								if(_.isEqual(testDisplayConfig.steps.name, true)){
 									sheet.set(2, firstBodyRow + j, tests[i].steps[j].name);
 									sheet.border(2, firstBodyRow + j, cellBorder);
 									sheet.valign(2, firstBodyRow + j, 'top');
+									sheet.wrap(2, firstBodyRow + j, 'true');
+									sheet.width(2, 30);
 									indexColumn++;
 								}
 								column = indexColumn;
 								if(inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)){
-									sheet.set(column, firstBodyRow + j, tests[i].steps[j].input);
+									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].input));
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
+									sheet.width(column, 30);
 									column++;
 								}
 								if(expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)){
-									sheet.set(column, firstBodyRow + j, tests[i].steps[j].expected);
+									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].expected));
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
+									sheet.width(column, 30);
 									column++;
 								}
 								if(statusVisible && _.isEqual(testDisplayConfig.steps.status, true)){
@@ -443,10 +447,11 @@ exports.download = function(req, res, next){
 									column++;
 								}
 								if(outputVisible && _.isEqual(testDisplayConfig.steps.output, true)){
-									sheet.set(column, firstBodyRow + j, tests[i].steps[j].output);
+									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].output));
 									sheet.border(column, firstBodyRow + j, cellBorder);
 									sheet.wrap(column, firstBodyRow + j, 'true');
 									sheet.valign(column, firstBodyRow + j, 'top');
+									sheet.width(column, 30);
 									column++;
 								}
 								if(durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)){
@@ -495,6 +500,51 @@ exports.download = function(req, res, next){
 					    }
 					  });
 				});
+				 var formatStepObject = function(value, result) {
+					_.each(value, function(vValue, vKey, value) {
+						if (_.isObject(vValue)) {
+							result +=  vKey + '\r\n';
+							result = formatStepObject(vValue, result);
+							result += '\r\n';
+						} else {
+							result += vKey;
+							result += ' : ' + vValue + '\r\n';
+						}
+					});
+					return result;
+				}
+
+				var formatStepsVariables = function(input) {
+					if(validator.isJSON(input)) {
+						try {
+							var obj = JSON.parse(input);
+
+							var result = '';
+							if (_.isNull(obj) || _.isUndefined(obj)) {
+								result = 'Data is not valid. Please correct the data string.';
+								return result;
+							}
+
+							var i = 0;
+							_.each(obj, function (value, key, obj) {
+								if (_.isObject(value)) {
+									result += key + '\r\n';
+									result = formatStepObject(value, result);
+									if (i++ != 0) {
+										result += '\r\n';
+									}
+								} else if (_.isString(value) || _.isNumber(value)) {
+									result += key;
+									result += ' : ' + value + '\r\n';
+								}
+
+							});
+						} catch (exception) {
+							result = input;
+						}
+					}
+					return result;
+				}
 			}
 				
 			//Handle Error.
