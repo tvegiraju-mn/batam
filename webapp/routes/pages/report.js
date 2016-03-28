@@ -515,6 +515,9 @@ exports.download = function(req, res, next){
 
 				var formatStepsVariables = function (input) {
 					var result = '';
+					if (_.isNull(input) || _.isUndefined(input)) {
+						return result;
+					}
 					try {
 						var obj = JSON.parse(input);
 
@@ -550,7 +553,7 @@ exports.download = function(req, res, next){
 			}
 			
 			//Fetch report.
-			req.collections.reports.findOne({id: req.query.report_id}, fetchReport);	
+			req.collections.reports.findOne({id: req.query.report_id}, fetchReport);
 			
 		};
 		
