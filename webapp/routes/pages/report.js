@@ -529,7 +529,6 @@ exports.download = function(req, res, next){
 						var i = 0;
 						_.each(obj, function (value, key, obj) {
 							if (_.isObject(value)) {
-								result += key + '\r\n';
 								result = formatStepObject(value, result);
 								if (i++ != 0) {
 									result += '\r\n';

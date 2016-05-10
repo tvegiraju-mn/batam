@@ -302,16 +302,14 @@
 				}
 
 				var i = 0;
-				$.each(obj, function (key, value) {
+				$.each(obj, function (index, value) {
 					if ($.type(value) === "object") {
-						result += '<label style="text-decoration:underline;font-size:16px;"><b>' + key + '</b></label>';
-						result += '<br/><br/>';
 						result = formatStepObject(value, result);
 						if(i++ != 0) {
 							result += '<br/><br/>';
 						}
 					} else if($.type(value) === "string" || $.type(value) === "number") {
-						result += '<label style="font-size:14px;"><b>' + key + '</b></label>';
+						result += '<label style="font-size:14px;"><b>' + index + '</b></label>';
 						result += ' : ' + value + '<br/>';
 					}
 				});
