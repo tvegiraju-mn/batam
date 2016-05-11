@@ -46,7 +46,10 @@ import org.json.simple.JSONObject;
  * 		"criterias" : [{@link com.modeln.batam.connector.wrapper.Pair}],
  * 		"tags" : [{@link java.lang.String}],
  *    	"steps" : [{@link com.modeln.batam.connector.wrapper.Step}],
- * 		"override" : false
+ * 		"override" : false,
+ * 	    "isCustomFormatEnabled" : false,
+ * 	    "customFormat" : customFormat to be followed
+ * 	    "customEntry" :  special entry to be added on the report
  * }
  * 
  * @author gzussa
@@ -83,6 +86,12 @@ public class TestEntry {
 	private List<Step> steps;
 	
 	private boolean override = false;
+
+	private boolean isCustomFormatEnabled = false;
+
+	private String customFormat;
+
+	private String customEntry;
 	
 	public TestEntry() {
 		super();
@@ -119,6 +128,30 @@ public class TestEntry {
 		this.steps = steps;
 		this.log = log;
 		this.override = override;
+	};
+
+	public TestEntry(String id,
+					 String buildId,
+					 String buildName,
+					 String reportId,
+					 String reportName,
+					 String name,
+					 String description,
+					 Date startDate,
+					 Date endDate,
+					 String status,
+					 List<Pair> criterias,
+					 List<String> tags,
+					 List<Step> steps,
+					 String log,
+					 boolean override,
+					 boolean isCustomFormatEnabled,
+					 String customFormat,
+					 String customEntry) {
+		this(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+		this.customFormat = customFormat;
+		this.customEntry = customEntry;
 	}
 
 	public String getId() {
@@ -241,6 +274,30 @@ public class TestEntry {
 		this.override = override;
 	}
 
+	public boolean isCustomFormatEnabled() {
+		return isCustomFormatEnabled;
+	}
+
+	public void setCustomFormatEnabled(boolean isCustomFormatEnabled) {
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+	}
+
+	public String getCustomFormat() {
+		return customFormat;
+	}
+
+	public void setCustomFormat(String customFormat) {
+		this.customFormat = customFormat;
+	}
+
+	public String getCustomEntry() {
+		return customEntry;
+	}
+
+	public void setCustomEntry(String customEntry) {
+		this.customEntry = customEntry;
+	}
+
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
@@ -259,7 +316,9 @@ public class TestEntry {
 		obj.put("steps", steps);
 		obj.put("log", log);
 		obj.put("override", override);
-		
+		obj.put("isCustomFormatEnabled", isCustomFormatEnabled);
+		obj.put("customFormat", customFormat);
+		obj.put("customEntry", customEntry);
 		return obj.toJSONString();
 	}
 	
@@ -310,10 +369,14 @@ public class TestEntry {
 		}
 		
 		String log = (String)obj.get("log");
+
+		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
+		String customFormat = (String)obj.get("customFormat");
+		String customEntry = (String)obj.get("customEntry");
 		
 		return new TestEntry(id, buildId, buildName, reportId, reportName, name, description, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)), 
-				status, criterias, tags, steps, log, override);
+				status, criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry);
 	}
 }

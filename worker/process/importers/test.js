@@ -206,7 +206,7 @@ function createTest(report, data, ack){
 	var criterias = data.criterias;
 	var tags = data.tags;
 	var steps = data.steps;
-	
+
 	var test = {};
 	test.status = status;
 	test.report_id = report.id;
@@ -237,7 +237,7 @@ function createTest(report, data, ack){
 	if(!_.isNull(end_date)){
 		test.end_date = new Date(parseInt(end_date));
 	}
-	
+
 	//Set duration value if possible and time
 	test.duration = {};
 	if(!_.isNull(test.start_date) && !_.isNull(test.end_date) && _.isDate(test.end_date) && _.isDate(test.start_date)){	
@@ -532,13 +532,20 @@ function updateTest(report, data, ack){
 		var criterias = data.criterias;
 		var tags = data.tags;
 		var steps = data.steps;
-		
+		var customEntry = data.customEntry;
+
+
+
 		var test = tests[0];
 		
 		if(!_.isNull(description)){
 			test.description = description;
 		}
-		
+
+		if(!_.isNull(customEntry)){
+			test.customEntry = customEntry;
+		}
+
 		//Check start date
 		if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
 			return e.error(data, ack, true, "Start_date field not valid.");
@@ -704,6 +711,9 @@ function updateTest(report, data, ack){
 					test.steps[stepsLength].input = steps[i].input;
 					test.steps[stepsLength].output = steps[i].output;
 					test.steps[stepsLength].expected = steps[i].expected;
+					test.steps[stepsLength].isCustomFormatEnabled = steps[i].isCustomFormatEnabled;
+					test.steps[stepsLength].customFormat = steps[i].customFormat;
+					test.steps[stepsLength].customEntry = steps[i].customEntry;
 					test.steps[stepsLength].error = steps[i].error;
 				}	
 			}

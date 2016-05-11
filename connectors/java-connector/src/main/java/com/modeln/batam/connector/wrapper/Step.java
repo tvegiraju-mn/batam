@@ -38,6 +38,9 @@ import org.json.simple.JSONObject;
  *      "output": "1",
  *      "status": "fail",
  *      "error": "addition doesn't work"
+ *      "isCustomFormatEnabled" : false,
+ * 	    "customFormat" : customFormat to be followed
+ * 	    "customEntry" :  special entry to be added on the report
  * }
  * 
  * @author gzussa
@@ -63,6 +66,12 @@ public class Step {
 	
 	private String error;
 
+	private boolean isCustomFormatEnabled = false;
+
+	private String customFormat;
+
+	private String customEntry;
+
 	public Step(String name, Date startDate, Date endDate) {
 		super();
 		this.name = name;
@@ -81,6 +90,14 @@ public class Step {
 		this.output = output;
 		this.status = status;
 		this.error = error;
+	};
+
+	public Step(Integer order, String name, Date startDate, Date endDate, String input, String expected, String output, String status, String error,
+				boolean isCustomFormatEnabled, String customFormat, String customEntry) {
+		this(order, name, startDate, endDate, input, expected, output, status, error);
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+		this.customFormat = customFormat;
+		this.customEntry = customEntry;
 	}
 	
 	public Integer getOrder() {
@@ -155,6 +172,30 @@ public class Step {
 		this.error = error;
 	}
 
+	public boolean isCustomFormatEnabled() {
+		return isCustomFormatEnabled;
+	}
+
+	public void setCustomFormatEnabled(boolean isCustomFormatEnabled) {
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+	}
+
+	public String getCustomFormat() {
+		return customFormat;
+	}
+
+	public void setCustomFormat(String customFormat) {
+		this.customFormat = customFormat;
+	}
+
+	public String getCustomEntry() {
+		return customEntry;
+	}
+
+	public void setCustomEntry(String customEntry) {
+		this.customEntry = customEntry;
+	}
+
 	@Override
 	public String toString() {
 		return toJSONString();
@@ -172,7 +213,11 @@ public class Step {
 		obj.put("output", output);
 		obj.put("status", status);
 		obj.put("error", error);
-		
+		obj.put("isCustomFormatEnabled", isCustomFormatEnabled);
+		obj.put("customFormat", customFormat);
+		obj.put("customEntry", customEntry);
+
+
 		return obj.toJSONString();
 	}
 	
@@ -186,6 +231,9 @@ public class Step {
 		String output = (String)obj.get("output");
 		String status = (String)obj.get("status");
 		String error = (String)obj.get("error");
+		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
+		String customFormat = (String)obj.get("customFormat");
+		String customEntry = (String)obj.get("customEntry");
 		
 		return new Step(order,
 				name, 
@@ -195,6 +243,9 @@ public class Step {
 				expected,
 				output,
 				status,
-				error);
+				error,
+				isCustomFormatEnabled,
+				customFormat,
+				customEntry);
 	}
 }

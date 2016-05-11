@@ -43,7 +43,7 @@ import com.modeln.batam.connector.wrapper.ReportEntry;
  * 
  */
 public class ConnectorHelper {
-	
+
 	/**
 	 * Static version of {@see com.modeln.batam.connector.Connector#createBuild(BuildEntry) createBuild} function.
 	 * 
@@ -229,12 +229,48 @@ public class ConnectorHelper {
 			List<Step> steps, 
 			List<Commit> commits) throws IOException {
 
+		  return createBuild(id, name, startDate, endDate,
+				status, description, criterias, infos, reports, steps, commits, false, null, null);
+	}
+
+	/**
+	 * Static version of {@see com.modeln.batam.connector.Connector#createBuild(String, String, Date, Date, String, String, List, List, List, List, List) createBuild} function.
+	 *
+	 * @param id : Build Unique Identifier.
+	 * @param name : Build Name (required).
+	 * @param startDate : Build Start Date.
+	 * @param endDate : Build End Date.
+	 * @param status : Build Status.
+	 * @param description : Build Description.
+	 * @param criterias : Build Criterias, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param infos : Build Infos, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param reports : Build Reports, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param steps : Build Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
+	 * @param commits : Build Commits, List of {@see com.modeln.batam.connector.wrapper.Commit commits}.
+	 * @return published message.
+	 * @throws IOException
+	 */
+	public static String createBuild(String id,
+									 String name,
+									 Date startDate,
+									 Date endDate,
+									 String status,
+									 String description,
+									 List<Pair> criterias,
+									 List<Pair> infos,
+									 List<Pair> reports,
+									 List<Step> steps,
+									 List<Commit> commits,
+									 boolean isCustomFormatEnabled,
+									 String customFormat,
+									 String customEntry) throws IOException {
+
 		Connector connector = Connector.getInstance();
 		String message = null;
 		try {
 			connector.beginConnection();
 			message = connector.createBuild(id, name, startDate, endDate,
-				status, description, criterias, infos, reports, steps, commits);
+					status, description, criterias, infos, reports, steps, commits, isCustomFormatEnabled, customFormat, customEntry);
 		}finally{
 			if(connector != null){
 				connector.endConnection();
@@ -444,11 +480,44 @@ public class ConnectorHelper {
 			String status, 
 			List<String> logs) throws IOException {
 
+		return createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs, false, null, null);
+	}
+
+	/**
+	 * Static version of {@see com.modeln.batam.connector.Connector#createReport(String, String, String, String, String, Date, Date, String, List, boolean, String) createReport} function.
+	 *
+	 * @param id : Report id (required if name not provided).
+	 * @param name : Report Name (required if id not provided and if report has a unique name in your build).
+	 * @param buildId : buildId (required if id and buildName not provided).
+	 * @param buildName : buildName (required if id and buildId not provided and if build has a unique name among all builds).
+	 * @param description : Report Description.
+	 * @param startDate : Report Start Date.
+	 * @param endDate : Report End Date.
+	 * @param status : Report Status.
+	 * @param logs : Report logs, List of {@see java.lang.String String}.
+	 * @param isCustomFormatEnabled : isCustomFormatEnabled.
+	 * @param customFormat : customFormat.
+	 * @return published message.
+	 * @throws IOException
+	 */
+	public static String createReport(String id,
+									  String name,
+									  String buildId,
+									  String buildName,
+									  String description,
+									  Date startDate,
+									  Date endDate,
+									  String status,
+									  List<String> logs,
+									  boolean isCustomFormatEnabled,
+									  String customFormat,
+									  String customEntry) throws IOException {
+
 		Connector connector = Connector.getInstance();
 		String message = null;
 		try {
 			connector.beginConnection();
-			message = connector.createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs);
+			message = connector.createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, customFormat, customEntry);
 		}finally{
 			if(connector != null){
 				connector.endConnection();
@@ -634,14 +703,14 @@ public class ConnectorHelper {
 	public static String updateTest(String id,
 			String buildId,
 			String buildName,
-			String reportId, 
+			String reportId,
 			String reportName,
-			String name, 
-			String description, 
-			Date startDate, 
+			String name,
+			String description,
+			Date startDate,
 			Date endDate,
-			String status, 
-			List<Pair> criterias, 
+			String status,
+			List<Pair> criterias,
 			List<String> tags,
 			List<Step> steps,
 			String log,
@@ -651,7 +720,7 @@ public class ConnectorHelper {
 		String message = null;
 		try {
 			connector.beginConnection();
-			message = connector.updateTest(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);	
+			message = connector.updateTest(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);
 		}finally{
 			if(connector != null){
 				connector.endConnection();

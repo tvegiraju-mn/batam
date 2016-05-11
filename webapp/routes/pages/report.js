@@ -19,30 +19,30 @@ function showReport(req, res, next){
 			if(error) {
 				return next(error);
 			}
-			
+
 		    if(!_.isNull(report)){
 		    	res.render('build/report/view', {build_id: build.id, build_name: build.name, report_id: report.id});
 		    }else{
 		    	return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
 		   	}
 		};
-		
+
 		//Handle Error.
 		if(error) {
 			return next(error);
 		}
-			
+
 		if(_.isNull(build)){
 			return next('Build '+req.params.build_id+' not found.');
 		}
-		
-		req.collections.reports.findOne({id: req.params.report_id}, findReport);	
+
+		req.collections.reports.findOne({id: req.params.report_id}, findReport);
 	};
-	
+
 	//Validate inputs.
 	if(!req.params.build_id || !req.params.report_id) {
 		return next(new Error('No build_id or report_id params in url.'));
-	}	
+	}
 	//if(validator.isNull(req.params.build_id) || !validator.isLength(req.params.build_id, 5, 30) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
 	if(validator.isNull(req.params.build_id) || !validator.matches(req.params.build_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('build_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
@@ -51,12 +51,23 @@ function showReport(req, res, next){
 	if(validator.isNull(req.params.report_id) || !validator.matches(req.params.report_id, '[0-9a-zA-Z_-]+')){
 		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
-	
+
     //Check if the report exist
 	req.collections.builds.findOne({id: req.params.build_id}, findBuild);
 }
 
 exports.download = function(req, res, next){
+
+	var headerTextStyle = {bold: true};
+	var cellBorder = {left: 'thin', top: 'thin', right: 'thin', bottom: 'thin'};
+	var redFont = {fgColor: 'FFFF0000', type: 'solid'};
+	var summaryDisplayConfig = config.reports.report.display.summary;
+	var testDisplayConfig = config.reports.report.display.test;
+	var indexColumn = 1;
+	var indexRow = 1;
+	var maxRow = 0;
+	var maxTestRow = 0;
+
 	var findTestCriterias = function (error, criterias){
 		var findTests = function (error, tests){
 			var fetchReport = function (error, report) {
@@ -65,17 +76,8 @@ exports.download = function(req, res, next){
 					return next(error);
 				}
 				mkdirp('./tmp/', function (err) {
-
-					// Create a new workbook file in current working-path 
+					// Create a new workbook file in current working-path
 					var workbook = excelbuilder.createWorkbook('./tmp/', report.name + '.xlsx');
-					var headerTextStyle = {bold: true};
-					var cellBorder = {left: 'thin', top: 'thin', right: 'thin', bottom: 'thin'};
-					var redFont = {fgColor: 'FFFF0000', type: 'solid'};
-					var summaryDisplayConfig = config.reports.report.display.summary;
-					var testDisplayConfig = config.reports.report.display.test;
-					var indexColumn = 1;
-					var indexRow = 1;
-					var maxRow = 0;
 					maxRow += (_.isEqual(summaryDisplayConfig.name, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.description, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.start_date, true) ? 1 : 0);
@@ -86,7 +88,6 @@ exports.download = function(req, res, next){
 					maxRow += (_.isEqual(summaryDisplayConfig.passes, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.failures, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.errors, true) ? 1 : 0);
-					var maxTestRow = 0;
 					maxTestRow += (_.isEqual(testDisplayConfig.name, true) ? 1 : 0);
 					maxTestRow += (_.isEqual(testDisplayConfig.description, true) ? 1 : 0);
 					maxTestRow += (_.isEqual(testDisplayConfig.start_date, true) ? 1 : 0);
@@ -95,172 +96,27 @@ exports.download = function(req, res, next){
 					maxTestRow += (_.isEqual(testDisplayConfig.status, true) ? 1 : 0);
 					maxTestRow += (_.isEqual(testDisplayConfig.tags, true) ? 1 : 0);
 					maxTestRow += (_.isEqual(testDisplayConfig.log, true) ? 1 : 0);
-
-					//Create summary sheet
-					var summarySheet = workbook.createSheet("Summary", 4, maxRow + 2 + tests.length);
-					summarySheet.width(1, 25);
-					summarySheet.width(2, 100);
-					if (_.isEqual(summaryDisplayConfig.name, true)) {
-						summarySheet.set(1, indexRow, 'Functional Area');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, report.name);
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.description, true)) {
-						summarySheet.set(1, indexRow, 'Description');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, report.description);
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.start_date, true)) {
-						summarySheet.set(1, indexRow, 'Start Date');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, report.date);
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.end_date, true)) {
-						summarySheet.set(1, indexRow, 'End Date');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, report.end_date);
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.status, true)) {
-						summarySheet.set(1, indexRow, 'Status');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, report.status != null ? report.status.capitalize() : report.status);
-						if (report.status != null && report.status.toLowerCase() != 'pass' && report.status.toLowerCase() != 'completed') {
-							summarySheet.fill(2, indexRow, redFont);
-						}
-						summarySheet.set(2, indexRow, report.status);
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.duration, true)) {
-						summarySheet.set(1, indexRow, 'Duration');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						summarySheet.set(2, indexRow, batam_util.durationToStr(report.duration.value));
-						indexRow++;
-					}
-					indexRow++;
-					if (_.isEqual(summaryDisplayConfig.total, true)) {
-						summarySheet.set(1, indexRow, 'Total');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)) {
-							summarySheet.set(2, indexRow, report.tests.all.value);
-						}
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.passes, true)) {
-						summarySheet.set(1, indexRow, 'Passes');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)) {
-							summarySheet.set(2, indexRow, report.tests.passes.value);
-						}
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.failures, true)) {
-						summarySheet.set(1, indexRow, 'Failures');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)) {
-							summarySheet.set(2, indexRow, report.tests.failures.value);
-							if (report.tests.failures.value > 0) {
-								summarySheet.fill(2, indexRow, redFont);
+					var customFormat = report.customFormat;
+					if (!report.isCustomFormatEnabled) {
+						createStandardFormatSummarySheet(workbook);
+					} else {
+						if (!_.isUndefined(customFormat) && !_.isNull(customFormat)) {
+							if (customFormat == 'PERFORMANCE_FORMAT') {
+								createPerfFormatSummarySheet(workbook);
 							}
-						}
-						indexRow++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.errors, true)) {
-						summarySheet.set(1, indexRow, 'Not Completed');
-						summarySheet.font(1, indexRow, headerTextStyle);
-						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && !_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)) {
-							summarySheet.set(2, indexRow, report.tests.regressions.value - report.tests.failures.value);
-							if ((report.tests.regressions.value - report.tests.failures.value) > 0) {
-								summarySheet.fill(2, indexRow, redFont);
-							}
+						} else {
+							console.log('isCustomFormatEnabled is set to true and Custom Format is not provided');
 						}
 					}
-
-					indexRow++;
-					if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Serial Number');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Test Name');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Status');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
-
-					if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Duration');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++
-					}
-					indexRow++;
-					for (var i = 0; i < tests.length; i++) {
-						indexColumn = 1;
-						if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
-							summarySheet.set(1, indexRow + i, i + 1);
-							summarySheet.border(1, indexRow + i, cellBorder);
-							indexColumn++;
-						}
-
-						if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
-							var testName = tests[i].name;
-							if (tests[i].description != null) {
-								testName += ' - ' + tests[i].description;
-							}
-							summarySheet.set(indexColumn, indexRow + i, testName);
-							summarySheet.border(indexColumn, indexRow + i, cellBorder);
-							summarySheet.wrap(indexColumn, indexRow + i, 'true');
-							indexColumn++;
-						}
-
-						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-							summarySheet.set(indexColumn, indexRow + i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
-							if (tests[i].status != null && tests[i].status.toLowerCase() != 'pass') {
-								summarySheet.fill(indexColumn, indexRow + i, redFont);
-							}
-							summarySheet.valign(indexColumn, indexRow + i, 'top');
-							summarySheet.border(indexColumn, indexRow + i, cellBorder);
-							indexColumn++;
-						}
-
-						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-							summarySheet.set(indexColumn, indexRow + i, batam_util.durationToStr(tests[i].duration.value));
-							summarySheet.border(indexColumn, indexRow + i, cellBorder);
-							indexColumn++;
-						}
-					}
-
 					//Populate the data array with tests found.
 					var firstBodyRow = 0;
 					for (var i = 0; i < tests.length; i++) {
 						indexRow = 1;
 						indexColumn = 1;
-						// Create a new worksheet with 10 columns and 14 rows (+ step rows) 
+						// Create a new worksheet with 10 columns and 14 rows (+ step rows)
 						var stepsCount = tests[i].steps != null ? tests[i].steps.length : 0;
 						var sheet = workbook.createSheet(tests[i].name, 8, maxTestRow + 1 + stepsCount + 3);
-						// Fill some data 
+						// Fill some data
 						if (_.isEqual(testDisplayConfig.name, true)) {
 							sheet.set(1, indexRow, 'Test Name');
 							sheet.font(1, indexRow, headerTextStyle);
@@ -483,7 +339,7 @@ exports.download = function(req, res, next){
 						}
 					}
 
-					// Save it 
+					// Save it
 					workbook.save(function (ok) {
 						if (!ok) {
 							var file = fs.readFileSync('./tmp/' + report.name + '.xlsx', 'binary');
@@ -498,6 +354,228 @@ exports.download = function(req, res, next){
 						}
 					});
 				});
+
+				var writePerformanceFormatHeader = function (worksheet) {
+					var headings = Object.keys(JSON.parse(tests[0].customEntry));
+						if(headings) {
+							for (var i = 0; i < headings.length+1; i++) {
+								if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
+									worksheet.set(indexColumn, indexRow, headings[i]);
+									worksheet.font(indexColumn, indexRow, headerTextStyle);
+									worksheet.border(indexColumn, indexRow, cellBorder);
+									indexColumn++
+								}
+							}
+					}
+					indexRow++;
+					return worksheet;
+				}
+
+				var writeStandardTemplateHeader = function (summarySheet) {
+						if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Serial Number');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Test Name');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Status');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Duration');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++
+						}
+					indexRow++;
+					return summarySheet;
+				}
+
+				var writeStandardTableData = function (summarySheet) {
+					for (var i = 0; i < tests.length; i++) {
+						indexColumn = 1;
+						if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
+							summarySheet.set(1, indexRow + i, i + 1);
+							summarySheet.border(1, indexRow + i, cellBorder);
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
+							var testName = tests[i].name;
+							if (tests[i].description != null) {
+								testName += ' - ' + tests[i].description;
+							}
+							summarySheet.set(indexColumn, indexRow + i, testName);
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							summarySheet.wrap(indexColumn, indexRow + i, 'true');
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
+							summarySheet.set(indexColumn, indexRow + i, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
+							if (tests[i].status != null && tests[i].status.toLowerCase() != 'pass') {
+								summarySheet.fill(indexColumn, indexRow + i, redFont);
+							}
+							summarySheet.valign(indexColumn, indexRow + i, 'top');
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							indexColumn++;
+						}
+
+						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
+							summarySheet.set(indexColumn, indexRow + i, batam_util.durationToStr(tests[i].duration.value));
+							summarySheet.border(indexColumn, indexRow + i, cellBorder);
+							indexColumn++;
+						}
+					}
+					indexRow++;
+					return summarySheet;
+				}
+
+				var writePerformanceFormatTableData = function (worksheet) {
+					for (var i = 0; i < tests.length; i++) {
+						indexColumn = 1;
+						var valueArr = [];
+						if (_.isUndefined(tests[i].customEntry) || _.isNull(tests[i].customEntry)) {
+							return worksheet;
+						}
+						var obj = JSON.parse(tests[i].customEntry);
+						_.each(obj, function (value, key, obj) {
+							worksheet.set(indexColumn, indexRow + i, value);
+							worksheet.border(indexColumn, indexRow + i, cellBorder);
+							indexColumn++;
+						});
+					}
+					indexRow++;
+					return worksheet;
+				}
+
+				var writeCommonAttrs = function (summarySheet) {
+
+					if (_.isEqual(summaryDisplayConfig.name, true)) {
+						summarySheet.set(1, indexRow, 'Functional Area');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.name);
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.description, true)) {
+						summarySheet.set(1, indexRow, 'Description');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.description);
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.start_date, true)) {
+						summarySheet.set(1, indexRow, 'Start Date');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.date);
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.end_date, true)) {
+						summarySheet.set(1, indexRow, 'End Date');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.end_date);
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.status, true)) {
+						summarySheet.set(1, indexRow, 'Status');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, report.status != null ? report.status.capitalize() : report.status);
+						if (report.status != null && report.status.toLowerCase() != 'pass' && report.status.toLowerCase() != 'completed') {
+							summarySheet.fill(2, indexRow, redFont);
+						}
+						summarySheet.set(2, indexRow, report.status);
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.duration, true)) {
+						summarySheet.set(1, indexRow, 'Duration');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						summarySheet.set(2, indexRow, batam_util.durationToStr(report.duration.value));
+						indexRow++;
+					}
+					indexRow++;
+					if (_.isEqual(summaryDisplayConfig.total, true)) {
+						summarySheet.set(1, indexRow, 'Total');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.all) && !_.isNull(report.tests.all)) {
+							summarySheet.set(2, indexRow, report.tests.all.value);
+						}
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.passes, true)) {
+						summarySheet.set(1, indexRow, 'Passes');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.passes) && !_.isNull(report.tests.passes)) {
+							summarySheet.set(2, indexRow, report.tests.passes.value);
+						}
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.failures, true)) {
+						summarySheet.set(1, indexRow, 'Failures');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)) {
+							summarySheet.set(2, indexRow, report.tests.failures.value);
+							if (report.tests.failures.value > 0) {
+								summarySheet.fill(2, indexRow, redFont);
+							}
+						}
+						indexRow++;
+					}
+
+					if (_.isEqual(summaryDisplayConfig.errors, true)) {
+						summarySheet.set(1, indexRow, 'Not Completed');
+						summarySheet.font(1, indexRow, headerTextStyle);
+						if (!_.isUndefined(report.tests) && !_.isNull(report.tests) && !_.isUndefined(report.tests.regressions) && !_.isNull(report.tests.regressions) && !_.isUndefined(report.tests.failures) && !_.isNull(report.tests.failures)) {
+							summarySheet.set(2, indexRow, report.tests.regressions.value - report.tests.failures.value);
+							if ((report.tests.regressions.value - report.tests.failures.value) > 0) {
+								summarySheet.fill(2, indexRow, redFont);
+							}
+						}
+					}
+					indexRow++;
+					return summarySheet;
+				}
+
+				var createStandardFormatSummarySheet = function (workbook) {
+					var summarySheet = null;
+					summarySheet = workbook.createSheet("Summary", 14, maxRow + 2 + tests.length);
+					summarySheet.width(1, 25);
+					summarySheet.width(2, 100);
+					summarySheet = writeCommonAttrs(summarySheet);
+					summarySheet = writeStandardTemplateHeader(summarySheet);
+					summarySheet = writeStandardTableData(summarySheet);
+					return summarySheet;
+				};
+
+				var createPerfFormatSummarySheet = function (workbook) {
+					var summarySheet = null;
+					var headings = Object.keys(JSON.parse(tests[0].customEntry));
+					summarySheet = workbook.createSheet("Summary", headings.length+1, maxRow + 2 + tests.length);
+					summarySheet.width(1, 25);
+					summarySheet.width(2, 100);
+					summarySheet = writeCommonAttrs(summarySheet);
+					summarySheet = writePerformanceFormatHeader(summarySheet);
+					summarySheet = writePerformanceFormatTableData(summarySheet);
+					
+					return summarySheet;
+				};
 
 				var formatStepObject = function (value, result) {
 					_.each(value, function (vValue, vKey, value) {
@@ -550,17 +628,17 @@ exports.download = function(req, res, next){
 			if(error){
 				return next(error);
 			}
-			
+
 			//Fetch report.
 			req.collections.reports.findOne({id: req.query.report_id}, fetchReport);
-			
+
 		};
-		
+
 		//Handle Error.
 		if(error){
 			return next(error);
 		}
-		
+
 		//Create searchCriteria object.
 		var searchCriterias = batam_util.createSearchObject(req, criterias);
 		//Fetch tests based on defined searchCriterias

@@ -131,6 +131,9 @@ function createReport(build, data, ack){
 	report.build_id = build.id;
 	report.build_name = build.name;
 	report.lifecycle_status = "pending";
+	report.isCustomFormatEnabled = data.isCustomFormatEnabled;
+	report.customEntry = data.customEntry;
+	report.customFormat = data.customFormat;
 	build.next_id = null;
 	
 	//Check name
@@ -216,7 +219,7 @@ function updateReportEntrypoint(data, ack){
 		//Update report.
 		updateBuildReport(builds[0], data, ack);
 	};
-	
+
 	var id = data.id;
 	var name = data.name;
 	var buildId = data.build_id;

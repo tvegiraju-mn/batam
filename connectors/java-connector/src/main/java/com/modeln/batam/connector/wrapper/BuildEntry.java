@@ -45,6 +45,9 @@ import org.json.simple.JSONObject;
  * 		"steps" : [{@link com.modeln.batam.connector.wrapper.Step}],
  * 		"commits" : [{@link com.modeln.batam.connector.wrapper.Commit}],
  * 		"override" : false
+ * 		"isCustomFormatEnabled" : false,
+ * 	    "customFormat" : customFormat to be followed
+ * 	    "customEntry" :  special entry to be added on the report
  * }
  * 
  * @author gzussa
@@ -75,6 +78,12 @@ public class BuildEntry {
 	
 	private boolean override = false;
 
+	private boolean isCustomFormatEnabled = false;
+
+	private String customFormat;
+
+	private String customEntry;
+
 	public BuildEntry(){}
 	
 	public BuildEntry(String id, String name, Date startDate, Date endDate, String status,
@@ -94,6 +103,18 @@ public class BuildEntry {
 		this.steps = steps;
 		this.commits = commits;
 		this.override = override;
+	}
+
+	public BuildEntry(String id, String name, Date startDate, Date endDate, String status,
+					  String description, List<Pair> criterias,
+					  List<Pair> infos, List<Pair> reports,
+					  List<Step> steps, List<Commit> commits, boolean override,
+					  boolean isCustomFormatEnabled,
+					  String customFormat, String customEntry) {
+		this(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, override);
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+		this.customFormat = customFormat;
+		this.customEntry = customEntry;
 	}
 
 	public String getId() {
@@ -192,6 +213,30 @@ public class BuildEntry {
 		this.override = override;
 	}
 
+	public boolean isCustomFormatEnabled() {
+		return isCustomFormatEnabled;
+	}
+
+	public void setCustomFormatEnabled(boolean isCustomFormatEnabled) {
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+	}
+
+	public String getCustomFormat() {
+		return customFormat;
+	}
+
+	public void setCustomFormat(String customFormat) {
+		this.customFormat = customFormat;
+	}
+
+	public String getCustomEntry() {
+		return customEntry;
+	}
+
+	public void setCustomEntry(String customEntry) {
+		this.customEntry = customEntry;
+	}
+
 	@Override
 	public String toString() {
 		return toJSONString();
@@ -212,6 +257,9 @@ public class BuildEntry {
 		obj.put("steps", steps);
 		obj.put("commits", commits);
 		obj.put("override", override);
+		obj.put("isCustomFormatEnabled",isCustomFormatEnabled);
+		obj.put("customFormat", customFormat);
+		obj.put("customEntry", customEntry);
 		
 		return obj.toJSONString();
 	}
@@ -270,10 +318,13 @@ public class BuildEntry {
 				commits.add(Commit.fromJSON(commit));
 			}
 		}
+		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
+		String customFormat = (String)obj.get("customFormat");
+		String customEntry = (String)obj.get("customEntry");
 		
 		return new BuildEntry(id, name, 
 					startDate == null ? null : new Date(Long.valueOf(startDate)), 
 					endDate == null ? null : new Date(Long.valueOf(endDate)), 
-					status, description, criterias, infos, reports, steps, commits, override);
+					status, description, criterias, infos, reports, steps, commits, override, isCustomFormatEnabled, customFormat, customEntry);
 	}
 }

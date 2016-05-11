@@ -42,6 +42,9 @@ import org.json.simple.JSONObject;
  * 		"end_date" : "12341234", // Time in millisecond
  * 		"status" : "completed|failed|error| name it",
  * 		"logs" : ["list of html link to archived log files"]
+ * 	    "isCustomFormatEnabled" : false,
+ * 	    "customFormat" : customFormat to be followed
+ * 	    "customEntry" :  special entry to be added on the report
  * }
  * 
  * @author gzussa
@@ -66,6 +69,12 @@ public class ReportEntry {
 	
 	private List<String> logs;
 
+	private boolean isCustomFormatEnabled = false;
+
+	private String customFormat;
+
+	private String customEntry;
+
 	public ReportEntry() {
 		super();
 	}
@@ -83,6 +92,16 @@ public class ReportEntry {
 		this.endDate = endDate;
 		this.status = status;
 		this.logs = logs;
+	};
+
+	public ReportEntry(String id, String name, String buildId, String buildName,
+					   String description, Date startDate, Date endDate, String status,
+					   List<String> logs, boolean isCustomFormatEnabled,
+					   String customFormat, String customEntry) {
+		this(id, name, buildId, buildName, description, startDate, endDate, status, logs);
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+		this.customFormat = customFormat;
+		this.customEntry = customEntry;
 	}
 
 	public String getId() {
@@ -156,6 +175,30 @@ public class ReportEntry {
 	public void setLogs(List<String> logs) {
 		this.logs = logs;
 	}
+
+	public boolean isCustomFormatEnabled() {
+		return isCustomFormatEnabled;
+	}
+
+	public void setCustomFormatEnabled(boolean isCustomFormatEnabled) {
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+	}
+
+	public String getCustomFormat() {
+		return customFormat;
+	}
+
+	public void setCustomFormat(String customFormat) {
+		this.customFormat = customFormat;
+	}
+
+	public String getCustomEntry() {
+		return customEntry;
+	}
+
+	public void setCustomEntry(String customEntry) {
+		this.customEntry = customEntry;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public String toJSONString(){
@@ -169,6 +212,10 @@ public class ReportEntry {
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("status", status);
 		obj.put("logs", logs);
+		obj.put("isCustomFormatEnabled",isCustomFormatEnabled);
+		obj.put("customFormat", customFormat);
+		obj.put("customEntry", customEntry);
+
 		return obj.toJSONString();
 	}
 	
@@ -196,7 +243,10 @@ public class ReportEntry {
 				logs.add(log);
 			}
 		}
-		
-		return new ReportEntry(id, name, buildId, buildName, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, logs);
+		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
+		String customFormat = (String)obj.get("customFormat");
+		String customEntry = (String)obj.get("customEntry");
+		return new ReportEntry(id, name, buildId, buildName, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, logs,
+				isCustomFormatEnabled, customFormat, customEntry);
 	}
 }

@@ -277,7 +277,7 @@ public class Connector {
 		}else{
 			System.out.println(message);
 		}
-		
+
 		return message;
 	}
 	
@@ -435,7 +435,7 @@ public class Connector {
 		}else{
 			System.out.println(message);
 		}
-		
+
 		return message;
 	}
 
@@ -468,15 +468,54 @@ public class Connector {
 			List<Step> steps, 
 			List<Commit> commits) throws IOException {
 
+		return createBuild(id, name, startDate, endDate, status,  description, criterias, infos, reports, steps, commits, false, null, null);
+	}
+
+	/**
+	 * Create Build simple API with individual {@link com.modeln.batam.connector.wrapper.BuildEntry BuildEntry} parameters.
+	 *
+	 * @param id : Build Unique Identifier.
+	 * @param name : Build Name (required).
+	 * @param startDate : Build Start Date.
+	 * @param endDate : Build End Date.
+	 * @param status : Build Status.
+	 * @param description : Build Description.
+	 * @param criterias : Build Criterias, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param infos : Build Infos, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param reports : Build Reports, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param steps : Build Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
+	 * @param commits : Build Commits, List of {@see com.modeln.batam.connector.wrapper.Commit commits}.
+	 * @return published message.
+	 * @throws IOException
+	 */
+	public String createBuild(String id,
+							  String name,
+							  Date startDate,
+							  Date endDate,
+							  String status,
+							  String description,
+							  List<Pair> criterias,
+							  List<Pair> infos,
+							  List<Pair> reports,
+							  List<Step> steps,
+							  List<Commit> commits,
+							  boolean isCustomFormatEnabled,
+							  String format,
+							  String customEntry) throws IOException {
+
 		if(name == null){
 			throw new InvalidArgumentException("name field should not be null.");
 		}
 		if(!(startDate != null)){
 			throw new InvalidArgumentException("startDate field should not be null.");
 		}
-		
-		BuildEntry build = new BuildEntry(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, false);
-		
+
+		if(isCustomFormatEnabled && (format == null ||  !validateCustomFormat(format)))  {
+			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
+		}
+
+		BuildEntry build = new BuildEntry(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, false, isCustomFormatEnabled, format, customEntry);
+
 		return createBuild(build);
 	}
 
@@ -650,16 +689,35 @@ public class Connector {
 			Date endDate,
 			String status, 
 			List<String> logs) throws IOException {
-		
+
+		return createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs, false, null, null);
+	};
+
+	public String createReport(String id,
+							   String name,
+							   String buildId,
+							   String buildName,
+							   String description,
+							   Date startDate,
+							   Date endDate,
+							   String status,
+							   List<String> logs,
+							   boolean isCustomFormatEnabled,
+							   String format,
+							   String customEntry) throws IOException {
+
 		if(name == null){
 			throw new InvalidArgumentException("name field should not be null.");
 		}
 		if(buildId == null && buildName == null){
 			throw new InvalidArgumentException("At least one of the fields buildId and buildName should be provided.");
 		}
-		
-		ReportEntry report = new ReportEntry(id, name, buildId, buildName, description, startDate, endDate, status, logs);
-		
+		if(isCustomFormatEnabled && (format == null ||  !validateCustomFormat(format)))  {
+			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
+		}
+
+		ReportEntry report = new ReportEntry(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, format, customEntry);
+
 		return createReport(report);
 	}
 	
@@ -842,17 +900,58 @@ public class Connector {
 			List<Step> steps,
 			String log,
 			boolean override) throws IOException {
-		
+
+		return updateTest(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status,
+				criterias, tags, steps, log, override, false, null, null);
+	}
+
+
+	public String updateTest(String id,
+							 String buildId,
+							 String buildName,
+							 String reportId,
+							 String reportName,
+							 String name,
+							 String description,
+							 Date startDate,
+							 Date endDate,
+							 String status,
+							 List<Pair> criterias,
+							 List<String> tags,
+							 List<Step> steps,
+							 String log,
+							 boolean override,
+							 boolean isCustomFormatEnabled,
+							 String customFormat,
+							 String customEntry) throws IOException {
+
 		if(name == null){
 			throw new InvalidArgumentException("Name field is required.");
 		}
 		if(reportId == null && reportName == null){
 			throw new InvalidArgumentException("At least one of the fields reportId and reportName should be provided.");
 		}
-		
-		TestEntry test = new TestEntry(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override);
-		
+
+		if(isCustomFormatEnabled && (customFormat == null ||  !validateCustomFormat(customFormat)))  {
+			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
+		}
+
+		TestEntry test = new TestEntry
+							(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status,
+							criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry);
+
 		return updateTest(test);
 	}
 
+	/**
+	 * Returns true if the customFormat is any of these {STANDARD_FORMAT, UPGRADE_FORMAT, PERFORMANCE_FORMAT} values else it returns false
+	 * @param customFormat
+	 * @return
+	 */
+	private  boolean validateCustomFormat(String customFormat)  {
+		if(customFormat.equals("STANDARD_FORMAT") || customFormat.equals("UPGRADE_FORMAT") || customFormat.equals("PERFORMANCE_FORMAT")) {
+			return true;
+		}
+		return false;
+	}
 }
