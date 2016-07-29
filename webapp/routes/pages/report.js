@@ -20,11 +20,11 @@ function showReport(req, res, next){
 				return next(error);
 			}
 
-		    if(!_.isNull(report)){
-		    	res.render('build/report/view', {build_id: build.id, build_name: build.name, report_id: report.id});
-		    }else{
-		    	return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
-		   	}
+			if(!_.isNull(report)){
+				res.render('build/report/view', {build_id: build.id, build_name: build.name, report_id: report.id});
+			}else{
+				return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
+			}
 		};
 
 		//Handle Error.
@@ -52,7 +52,7 @@ function showReport(req, res, next){
 		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 
-    //Check if the report exist
+	//Check if the report exist
 	req.collections.builds.findOne({id: req.params.build_id}, findBuild);
 }
 
@@ -67,6 +67,14 @@ exports.download = function(req, res, next){
 	var indexRow = 1;
 	var maxRow = 0;
 	var maxTestRow = 0;
+	var firstBodyRow = 0;
+	var inputVisibile = false;
+	var expectedVisible = false;
+	var statusVisible = false;
+	var outputVisible = false;
+	var durationVisible = false;
+	var errorVisible = false;
+	var workbook;
 
 	var findTestCriterias = function (error, criterias){
 		var findTests = function (error, tests){
@@ -77,7 +85,7 @@ exports.download = function(req, res, next){
 				}
 				mkdirp('./tmp/', function (err) {
 					// Create a new workbook file in current working-path
-					var workbook = excelbuilder.createWorkbook('./tmp/', report.name + '.xlsx');
+					workbook = excelbuilder.createWorkbook('./tmp/', report.name + '.xlsx');
 					maxRow += (_.isEqual(summaryDisplayConfig.name, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.description, true) ? 1 : 0);
 					maxRow += (_.isEqual(summaryDisplayConfig.start_date, true) ? 1 : 0);
@@ -109,222 +117,17 @@ exports.download = function(req, res, next){
 						}
 					}
 					//Populate the data array with tests found.
-					var firstBodyRow = 0;
 					for (var i = 0; i < tests.length; i++) {
+						//createSheet for every Test
 						indexRow = 1;
 						indexColumn = 1;
 						// Create a new worksheet with 10 columns and 14 rows (+ step rows)
 						var stepsCount = tests[i].steps != null ? tests[i].steps.length : 0;
-						var sheet = workbook.createSheet(tests[i].name, 8, maxTestRow + 1 + stepsCount + 3);
-						// Fill some data
-						if (_.isEqual(testDisplayConfig.name, true)) {
-							sheet.set(1, indexRow, 'Test Name');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].name);
-							indexRow++;
-						}
+						var sheet = workbook.createSheet((tests[i].name.substring(0,29)), 8, maxTestRow + 1 + stepsCount + 3);
 
-						if (_.isEqual(testDisplayConfig.description, true)) {
-							sheet.set(1, indexRow, 'Test Description');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].description);
-							indexRow++;
-						}
-
-						if (_.isEqual(testDisplayConfig.start_date, true)) {
-							sheet.set(1, indexRow, 'Start Date');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].start_date);
-							indexRow++;
-						}
-
-						if (_.isEqual(testDisplayConfig.end_date, true)) {
-							sheet.set(1, indexRow, 'End Date');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].end_date);
-							indexRow++;
-						}
-
-						if (_.isEqual(testDisplayConfig.duration, true)) {
-							sheet.set(1, indexRow, 'Duration');
-							sheet.font(1, indexRow, headerTextStyle);
-							if (tests[i].start_date != null && tests[i].end_date != null &&
-								_.isDate(new Date(tests[i].start_date)) && _.isDate(new Date(tests[i].end_date))) {
-								sheet.set(2, indexRow, batam_util.durationToStr(tests[i].end_date - tests[i].start_date));
-							}
-							indexRow++;
-						}
-
-						if (_.isEqual(testDisplayConfig.status, true)) {
-							sheet.set(1, indexRow, 'Status');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].status != null ? tests[i].status.capitalize() : tests[i].status);
-							if (tests[i].status != null && tests[i].status.toLowerCase() != 'pass') {
-								sheet.fill(2, indexRow, redFont);
-							}
-							indexRow++;
-						}
-
-						if (_.isEqual(testDisplayConfig.tags, true)) {
-							sheet.set(1, indexRow, 'Tags');
-							sheet.font(1, indexRow, headerTextStyle);
-							sheet.set(2, indexRow, tests[i].tags);
-							indexRow++;
-						}
-
-						if (tests[i].steps != null && tests[i].steps.length != 0) {
-							var inputVisibile = false;
-							var expectedVisible = false;
-							var statusVisible = false;
-							var outputVisible = false;
-							var durationVisible = false;
-							var errorVisible = false;
-							for (var j = 0; j < tests[i].steps.length; j++) {
-								if (tests[i].steps[j].input != null) {
-									inputVisibile = true;
-								}
-								if (tests[i].steps[j].expected != null) {
-									expectedVisible = true;
-								}
-								if (tests[i].steps[j].status != null) {
-									statusVisible = true;
-								}
-								if (tests[i].steps[j].output != null) {
-									outputVisible = true;
-								}
-								if (tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null) {
-									durationVisible = true;
-								}
-								if (tests[i].steps[j].error != null) {
-									errorVisible = true;
-								}
-							}
-							indexRow++;
-							if (_.isEqual(testDisplayConfig.steps.order, true)) {
-								sheet.set(indexColumn, indexRow, 'Step #');
-								sheet.border(indexColumn, indexRow, cellBorder);
-								sheet.font(indexColumn, indexRow, headerTextStyle);
-								indexColumn++;
-							}
-							if (_.isEqual(testDisplayConfig.steps.name, true)) {
-								sheet.set(indexColumn, indexRow, 'Description');
-								sheet.border(indexColumn, indexRow, cellBorder);
-								sheet.font(indexColumn, indexRow, headerTextStyle);
-								sheet.width(indexColumn, 50);
-								sheet.wrap(column, firstBodyRow + j, 'true');
-								indexColumn++;
-							}
-
-							var column = indexColumn;
-
-							if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
-								sheet.set(column, indexRow, 'Input Data');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								column++;
-							}
-							if (expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)) {
-								sheet.set(column, indexRow, 'Expected Result');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								column++;
-							}
-							if (statusVisible && _.isEqual(testDisplayConfig.steps.status, true)) {
-								sheet.set(column, indexRow, 'Status');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								column++;
-							}
-							if (outputVisible && _.isEqual(testDisplayConfig.steps.output, true)) {
-								sheet.set(column, indexRow, 'Output Data');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								column++;
-							}
-							if (durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)) {
-								sheet.set(column, indexRow, 'Execution Time');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								column++;
-							}
-							if (errorVisible && _.isEqual(testDisplayConfig.steps.error, true)) {
-								sheet.set(column, indexRow, 'Reason for Failure');
-								sheet.border(column, indexRow, cellBorder);
-								sheet.font(column, indexRow, headerTextStyle);
-								sheet.width(column, 75);
-								column++;
-							}
-							firstBodyRow = indexRow + 1;
-							for (var j = 0; j < tests[i].steps.length; j++) {
-								indexColumn = 1;
-								if (_.isEqual(testDisplayConfig.steps.order, true)) {
-									sheet.set(indexColumn, firstBodyRow + j, tests[i].steps[j].order);
-									sheet.border(indexColumn, firstBodyRow + j, cellBorder);
-									sheet.valign(indexColumn, firstBodyRow + j, 'top');
-									indexColumn++;
-								}
-								if (_.isEqual(testDisplayConfig.steps.name, true)) {
-									sheet.set(2, firstBodyRow + j, tests[i].steps[j].name);
-									sheet.border(2, firstBodyRow + j, cellBorder);
-									sheet.valign(2, firstBodyRow + j, 'top');
-									sheet.wrap(2, firstBodyRow + j, 'true');
-									sheet.width(2, 30);
-									indexColumn++;
-								}
-								column = indexColumn;
-								if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
-									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].input));
-									sheet.border(column, firstBodyRow + j, cellBorder);
-									sheet.wrap(column, firstBodyRow + j, 'true');
-									sheet.valign(column, firstBodyRow + j, 'top');
-									sheet.width(column, 30);
-									column++;
-								}
-								if (expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)) {
-									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].expected));
-									sheet.border(column, firstBodyRow + j, cellBorder);
-									sheet.wrap(column, firstBodyRow + j, 'true');
-									sheet.valign(column, firstBodyRow + j, 'top');
-									sheet.width(column, 30);
-									column++;
-								}
-								if (statusVisible && _.isEqual(testDisplayConfig.steps.status, true)) {
-									sheet.set(column, firstBodyRow + j, tests[i].steps[j].status != null ? tests[i].steps[j].status.capitalize() : tests[i].steps[j].status);
-									sheet.border(column, firstBodyRow + j, cellBorder);
-									if (tests[i].steps[j].status != null && tests[i].steps[j].status.toLowerCase() != 'pass') {
-										sheet.fill(column, firstBodyRow + j, redFont);
-									}
-									sheet.valign(column, firstBodyRow + j, 'top');
-									column++;
-								}
-								if (outputVisible && _.isEqual(testDisplayConfig.steps.output, true)) {
-									sheet.set(column, firstBodyRow + j, formatStepsVariables(tests[i].steps[j].output));
-									sheet.border(column, firstBodyRow + j, cellBorder);
-									sheet.wrap(column, firstBodyRow + j, 'true');
-									sheet.valign(column, firstBodyRow + j, 'top');
-									sheet.width(column, 30);
-									column++;
-								}
-								if (durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)) {
-									if (tests[i].steps[j].start_date != null && tests[i].steps[j].end_date != null &&
-										_.isNumber(parseInt(tests[i].steps[j].start_date)) && _.isNumber(parseInt(tests[i].steps[j].end_date)) &&
-										_.isDate(new Date(parseInt(tests[i].steps[j].start_date))) && _.isDate(new Date(tests[i].steps[j].end_date)) &&
-										tests[i].steps[j].start_date <= tests[i].steps[j].end_date) {
-										sheet.set(column, firstBodyRow + j, batam_util.durationToStr(tests[i].steps[j].end_date - tests[i].steps[j].start_date));
-										sheet.border(column, firstBodyRow + j, cellBorder);
-										sheet.valign(column, firstBodyRow + j, 'top');
-									}
-									column++;
-								}
-								if (errorVisible && _.isEqual(testDisplayConfig.steps.error, true)) {
-									sheet.set(column, firstBodyRow + j, tests[i].steps[j].error);
-									sheet.border(column, firstBodyRow + j, cellBorder);
-									sheet.wrap(column, firstBodyRow + j, 'true');
-									sheet.valign(column, firstBodyRow + j, 'top');
-									column++;
-								}
-							}
-						}
+						sheet = writeTestCommonData(sheet, tests[i]);
+						sheet = createTestTableHeader(sheet, tests[i]);
+						sheet = populateTestTableData(sheet, tests[i]);
 						if (tests[i].steps != null && !_.isUndefined(tests[i].steps)) {
 							sheet.set(1, firstBodyRow + tests[i].steps.length + 2, "Logs");
 							sheet.valign(1, firstBodyRow + tests[i].steps.length + 2, 'top');
@@ -357,48 +160,48 @@ exports.download = function(req, res, next){
 
 				var writePerformanceFormatHeader = function (worksheet) {
 					var headings = Object.keys(JSON.parse(tests[0].customEntry));
-						if(headings) {
-							for (var i = 0; i < headings.length+1; i++) {
-								if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
-									worksheet.set(indexColumn, indexRow, headings[i]);
-									worksheet.font(indexColumn, indexRow, headerTextStyle);
-									worksheet.border(indexColumn, indexRow, cellBorder);
-									indexColumn++
-								}
+					if(headings) {
+						for (var i = 0; i < headings.length+1; i++) {
+							if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
+								worksheet.set(indexColumn, indexRow, headings[i]);
+								worksheet.font(indexColumn, indexRow, headerTextStyle);
+								worksheet.border(indexColumn, indexRow, cellBorder);
+								indexColumn++
 							}
+						}
 					}
 					indexRow++;
 					return worksheet;
 				}
 
 				var writeStandardTemplateHeader = function (summarySheet) {
-						if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
-							summarySheet.set(indexColumn, indexRow, 'Serial Number');
-							summarySheet.font(indexColumn, indexRow, headerTextStyle);
-							summarySheet.border(indexColumn, indexRow, cellBorder);
-							indexColumn++;
-						}
+					if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
+						summarySheet.set(indexColumn, indexRow, 'Serial Number');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
 
-						if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
-							summarySheet.set(indexColumn, indexRow, 'Test Name');
-							summarySheet.font(indexColumn, indexRow, headerTextStyle);
-							summarySheet.border(indexColumn, indexRow, cellBorder);
-							indexColumn++;
-						}
+					if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
+						summarySheet.set(indexColumn, indexRow, 'Test Name');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
 
-						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-							summarySheet.set(indexColumn, indexRow, 'Status');
-							summarySheet.font(indexColumn, indexRow, headerTextStyle);
-							summarySheet.border(indexColumn, indexRow, cellBorder);
-							indexColumn++;
-						}
+					if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
+						summarySheet.set(indexColumn, indexRow, 'Status');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++;
+					}
 
-						if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
-							summarySheet.set(indexColumn, indexRow, 'Duration');
-							summarySheet.font(indexColumn, indexRow, headerTextStyle);
-							summarySheet.border(indexColumn, indexRow, cellBorder);
-							indexColumn++
-						}
+					if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
+						summarySheet.set(indexColumn, indexRow, 'Duration');
+						summarySheet.font(indexColumn, indexRow, headerTextStyle);
+						summarySheet.border(indexColumn, indexRow, cellBorder);
+						indexColumn++
+					}
 					indexRow++;
 					return summarySheet;
 				}
@@ -535,6 +338,8 @@ exports.download = function(req, res, next){
 							if (report.tests.failures.value > 0) {
 								summarySheet.fill(2, indexRow, redFont);
 							}
+						} else {
+							console.log('isCustomFormatEnabled is set to true and Custom Format is not provided');
 						}
 						indexRow++;
 					}
@@ -573,8 +378,398 @@ exports.download = function(req, res, next){
 					summarySheet = writeCommonAttrs(summarySheet);
 					summarySheet = writePerformanceFormatHeader(summarySheet);
 					summarySheet = writePerformanceFormatTableData(summarySheet);
-					
+
 					return summarySheet;
+				};
+
+				var createTestTableHeader = function (sheet, test) {
+
+						for (var j = 0; j < test.steps.length; j++) {
+							if (test.steps[j].input) {
+								inputVisibile = true;
+							}
+							if (test.steps[j].expected) {
+								expectedVisible = true;
+							}
+							if (test.steps[j].status) {
+								statusVisible = true;
+							}
+							if (test.steps[j].output) {
+								outputVisible = true;
+							}
+							if (test.steps[j].start_date && test.steps[j].end_date) {
+								durationVisible = true;
+							}
+							if (test.steps[j].error != null) {
+								errorVisible = true;
+							}
+						}
+						indexRow++;
+						if (_.isEqual(testDisplayConfig.steps.order, true)) {
+							sheet.set(indexColumn, indexRow, 'Step #');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (_.isEqual(testDisplayConfig.steps.name, true)) {
+							sheet.set(indexColumn, indexRow, 'Description');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							sheet.width(indexColumn, 50);
+							sheet.wrap(indexColumn, firstBodyRow + j, 'true');
+							indexColumn++;
+						}
+						if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
+							sheet.set(indexColumn, indexRow, 'Input Data');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)) {
+							sheet.set(indexColumn, indexRow, 'Expected Result');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (statusVisible && _.isEqual(testDisplayConfig.steps.status, true)) {
+							sheet.set(indexColumn, indexRow, 'Status');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (outputVisible && _.isEqual(testDisplayConfig.steps.output, true)) {
+							sheet.set(indexColumn, indexRow, 'Output Data');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)) {
+							sheet.set(indexColumn, indexRow, 'Execution Time');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							indexColumn++;
+						}
+						if (errorVisible && _.isEqual(testDisplayConfig.steps.error, true)) {
+							sheet.set(indexColumn, indexRow, 'Reason for Failure');
+							sheet.border(indexColumn, indexRow, cellBorder);
+							sheet.font(indexColumn, indexRow, headerTextStyle);
+							sheet.width(indexColumn, 75);
+							indexColumn++;
+						}
+						return sheet;
+				};
+
+				var populateStepData = function (sheet, test, index) {
+             		var detailedSheet;
+
+					if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+						detailedSheet = workbook.createSheet(test.name + 'detailed', 1000, 1000);
+						writeDetailedData(detailedSheet, test, index);
+					}
+					if (_.isEqual(testDisplayConfig.steps.order, true)) {
+						sheet.set(indexColumn, firstBodyRow + index, test.steps[index].order);
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						indexColumn++;
+					}
+					if (_.isEqual(testDisplayConfig.steps.name, true)) {
+						sheet.set(2, firstBodyRow + index, test.steps[index].name);
+						sheet.border(2, firstBodyRow + index, cellBorder);
+						sheet.valign(2, firstBodyRow + index, 'top');
+						sheet.wrap(2, firstBodyRow + index, 'true');
+						sheet.width(2, 30);
+						indexColumn++;
+					}
+					if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
+						} else {
+							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].input));
+						}
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						sheet.wrap(indexColumn, firstBodyRow + index, 'true');
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						sheet.width(indexColumn, 30);
+						indexColumn++;
+					}
+					if (expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)) {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
+						} else {
+							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].expected));
+						}
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						sheet.wrap(indexColumn, firstBodyRow + index, 'true');
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						sheet.width(indexColumn, 30);
+						indexColumn++;
+					}
+					if (statusVisible && _.isEqual(testDisplayConfig.steps.status, true)) {
+						sheet.set(indexColumn, firstBodyRow + index, test.steps[index].status != null ? test.steps[index].status.capitalize() : test.steps[index].status);
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						if (test.steps[index].status != null && test.steps[index].status.toLowerCase() != 'pass') {
+							sheet.fill(indexColumn, firstBodyRow + index, redFont);
+						}
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						indexColumn++;
+					}
+					if (outputVisible && _.isEqual(testDisplayConfig.steps.output, true)) {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
+						} else {
+							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].output));
+						}
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						sheet.wrap(indexColumn, firstBodyRow + index, 'true');
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						sheet.width(indexColumn, 30);
+						indexColumn++;
+					}
+					if (durationVisible && _.isEqual(testDisplayConfig.steps.duration, true)) {
+						if (test.steps[index].start_date != null && test.steps[index].end_date != null &&
+							_.isNumber(parseInt(test.steps[index].start_date)) && _.isNumber(parseInt(test.steps[index].end_date)) &&
+							_.isDate(new Date(parseInt(test.steps[index].start_date))) && _.isDate(new Date(test.steps[index].end_date)) &&
+							test.steps[index].start_date <= test.steps[index].end_date) {
+							sheet.set(indexColumn, firstBodyRow + index, batam_util.durationToStr(test.steps[index].end_date - test.steps[index].start_date));
+							sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+							sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						}
+						indexColumn++;
+					}
+					if (errorVisible && _.isEqual(testDisplayConfig.steps.error, true)) {
+						sheet.set(indexColumn, firstBodyRow + index, test.steps[index].error);
+						sheet.border(indexColumn, firstBodyRow + index, cellBorder);
+						sheet.wrap(indexColumn, firstBodyRow + index, 'true');
+						sheet.valign(indexColumn, firstBodyRow + index, 'top');
+						indexColumn++;
+					}
+					return sheet;
+				};
+
+				var createDetailedSheetData = function(detailedSheet, input, header, level) {
+					var obj = JSON.parse(input);
+					_.each(obj, function (value, key, obj) {
+						if (_.isObject(value)) {
+							var column= 1, row=2;
+							var pre = [], post = [], variance = [];
+							var values = ['PreMigrated Value','PostMigrated Value', 'Variance'];
+							_.each(value, function (vValue, vKey, value) {
+
+								if (_.isObject(vValue)) {
+									column=1;
+									var noOfKeys = Object.keys(vValue).length;
+									var mergeLen = (noOfKeys*level);
+									detailedSheet.set(column, row, vKey);
+									for(var bIndex=0;bIndex<mergeLen;bIndex++) {
+										detailedSheet.border(column, row+bIndex, cellBorder);
+									}
+									detailedSheet.border(column,(row+mergeLen)-1, cellBorder);
+									detailedSheet.wrap(column, row, 'true');
+									detailedSheet.valign(column, row, 'top');
+									detailedSheet.width(column, 30);
+									detailedSheet.merge({col:column,row:row},{col:column,row:(row+mergeLen)-1});
+									_.each(vValue, function (vValue1, vKey1, vValue) {
+										pre = [], post = [], variance = [];
+										column = 2;
+										var mergeLen1 = mergeLen / (noOfKeys);
+										detailedSheet.set(column, row, vKey1);
+										for (var bIndex = 0; bIndex < mergeLen1; bIndex++) {
+											detailedSheet.border(column, row + bIndex, cellBorder);
+										}
+										detailedSheet.valign(column, row, 'top');
+										detailedSheet.width(column, 30);
+										detailedSheet.merge({col: column, row: row}, {col: column, row: row + 2});
+										var oldRowVal = row;
+										column++;
+										detailedSheet.set(column, row, 'PreMigrated Value');
+										detailedSheet.border(column, row, cellBorder);
+										detailedSheet.valign(column, row, 'top');
+										detailedSheet.width(column, 30);
+
+										row++;
+										detailedSheet.set(column, row, 'PostMigrated Value');
+										detailedSheet.border(column, row, cellBorder);
+										detailedSheet.valign(column, row, 'top');
+										detailedSheet.width(column, 30);
+
+										row++;
+										detailedSheet.set(column, row, 'Variance');
+										detailedSheet.border(column, row, cellBorder);
+										detailedSheet.valign(column, row, 'top');
+										detailedSheet.width(column, 30);
+
+										row = oldRowVal;
+
+										var json = JSON.stringify(vValue1);
+										for (var j = 0; j < header.length; j++) {
+											var preVal = vValue[vKey1][header[j]][values[0]];
+											var postVal = vValue[vKey1][header[j]][values[1]];
+											var varVal = vValue[vKey1][header[j]][values[2]];
+											pre.push(preVal);
+											post.push(postVal);
+											variance.push((varVal));
+										}
+										column = level + 1;
+										for (var i = 0; i < pre.length; i++) {
+											detailedSheet.set(column, row, pre[i]);
+											detailedSheet.border(column, row, cellBorder);
+											detailedSheet.valign(column, row, 'top');
+											detailedSheet.width(column, 20);
+											column++
+										}
+										row++;
+										column = level + 1;
+										for (var i = 0; i < post.length; i++) {
+											detailedSheet.set(column, row, post[i]);
+											detailedSheet.border(column, row, cellBorder);
+											detailedSheet.valign(column, row, 'top');
+											detailedSheet.width(column, 20);
+											column++
+										}
+										row++;
+										column = level + 1;
+										for (var i = 0; i < variance.length; i++) {
+											detailedSheet.set(column, row, variance[i]);
+											detailedSheet.border(column, row, cellBorder);
+											detailedSheet.valign(column, row, 'top');
+											detailedSheet.width(column, 20);
+											if (variance[i] != null && variance[i] != 0) {
+												detailedSheet.fill(column, row, redFont);
+											}
+											column++;
+										}
+										row++;
+									});
+								}
+							});
+						}
+					});
+				};
+
+				var getNumberOfLevelsInJSON = function(input, level) {
+					var value;
+					for(var key in input ) {
+						//Fetching the element in the map and finding the depth of the JSON
+						value = input[key];
+						break;
+					};
+
+					if (_.isObject(value)) {
+						level++;
+						level = getNumberOfLevelsInJSON(value, level);
+					} else if (_.isString(value) || _.isNumber(value)) {
+					}
+					return level;
+				};
+
+				var writeDetailedData = function (detailedSheet, test, index) {
+					var len = test.steps[index].input.length;
+					var input = test.steps[index].input;
+					var obj = JSON.parse(input);
+					var level = 0;
+					level = getNumberOfLevelsInJSON(obj[1], level);
+					var column = level+1;
+					var row = 1;
+
+					if (_.isNull(input) || _.isUndefined(input)) {
+						return;
+					}
+					var headings
+					try {
+						var obj = JSON.parse(input);
+						var node = obj[1];
+
+						//Logic for getting the heading Attrs. Traversing the one branch of data (all levels)
+						//  from root to leaf and getting the headers at the leaf node
+						for(var l=0; l < level ; l++) {
+							headings = Object.keys(node);
+							node = node[headings[0]];
+						}
+
+					}catch (exception) {
+						throw exception;
+					}
+
+					if(headings) {
+						for (var i = 0; i < headings.length; i++) {
+							if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
+								detailedSheet.set(column, row, headings[i]);
+								detailedSheet.font(column, row, headerTextStyle);
+								detailedSheet.border(column, row, cellBorder);
+								column++
+							}
+						}
+					}
+					createDetailedSheetData(detailedSheet, input, headings, level);
+				};
+
+				var populateTestTableData = function (sheet, test) {
+					firstBodyRow = indexRow + 1;
+					for (var j = 0; j < test.steps.length; j++) {
+						indexColumn = 1;
+						sheet = populateStepData(sheet, test, j);
+					}
+					return sheet;
+				};
+
+				var writeTestCommonData = function (sheet, test) {
+					// Fill some data
+					if (_.isEqual(testDisplayConfig.name, true)) {
+						sheet.set(1, indexRow, 'Test Name');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.name);
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.description, true)) {
+						sheet.set(1, indexRow, 'Test Description');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.description);
+						sheet.wrap(2, indexRow, 'false');
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.start_date, true)) {
+						sheet.set(1, indexRow, 'Start Date');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.start_date);
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.end_date, true)) {
+						sheet.set(1, indexRow, 'End Date');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.end_date);
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.duration, true)) {
+						sheet.set(1, indexRow, 'Duration');
+						sheet.font(1, indexRow, headerTextStyle);
+						if (test.start_date != null && test.end_date != null &&
+							_.isDate(new Date(test.start_date)) && _.isDate(new Date(test.end_date))) {
+							sheet.set(2, indexRow, batam_util.durationToStr(test.end_date - test.start_date));
+						}
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.status, true)) {
+						sheet.set(1, indexRow, 'Status');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.status != null ? test.status.capitalize() : test.status);
+						if (test.status != null && test.status.toLowerCase() != 'pass') {
+							sheet.fill(2, indexRow, redFont);
+						}
+						indexRow++;
+					}
+
+					if (_.isEqual(testDisplayConfig.tags, true)) {
+						sheet.set(1, indexRow, 'Tags');
+						sheet.font(1, indexRow, headerTextStyle);
+						sheet.set(2, indexRow, test.tags);
+						indexRow++;
+					}
+					return sheet;
 				};
 
 				var formatStepObject = function (value, result) {
@@ -615,7 +810,6 @@ exports.download = function(req, res, next){
 								result += key;
 								result += ' : ' + value + '\r\n';
 							}
-
 						});
 					} catch (exception) {
 						result = input;
