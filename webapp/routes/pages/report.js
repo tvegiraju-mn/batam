@@ -20,11 +20,11 @@ function showReport(req, res, next){
 				return next(error);
 			}
 
-			if(!_.isNull(report)){
-				res.render('build/report/view', {build_id: build.id, build_name: build.name, report_id: report.id});
-			}else{
-				return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
-			}
+		    if(!_.isNull(report)){
+		    	res.render('build/report/view', {build_id: build.id, build_name: build.name, report_id: report.id});
+		    }else{
+		    	return next('Report '+req.params.report_id+' for build '+req.params.build_id+' not found.');
+		   	}
 		};
 
 		//Handle Error.
@@ -52,7 +52,7 @@ function showReport(req, res, next){
 		return next(new Error('report_id param should not be null and match the following regex pattern [0-9a-zA-Z_-]+ .'));
 	}
 
-	//Check if the report exist
+    //Check if the report exist
 	req.collections.builds.findOne({id: req.params.build_id}, findBuild);
 }
 
@@ -160,48 +160,48 @@ exports.download = function(req, res, next){
 
 				var writePerformanceFormatHeader = function (worksheet) {
 					var headings = Object.keys(JSON.parse(tests[0].customEntry));
-					if(headings) {
-						for (var i = 0; i < headings.length+1; i++) {
-							if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
-								worksheet.set(indexColumn, indexRow, headings[i]);
-								worksheet.font(indexColumn, indexRow, headerTextStyle);
-								worksheet.border(indexColumn, indexRow, cellBorder);
-								indexColumn++
+						if(headings) {
+							for (var i = 0; i < headings.length+1; i++) {
+								if(!_.isUndefined(headings[i]) && !_.isNull(headings[i])) {
+									worksheet.set(indexColumn, indexRow, headings[i]);
+									worksheet.font(indexColumn, indexRow, headerTextStyle);
+									worksheet.border(indexColumn, indexRow, cellBorder);
+									indexColumn++
+								}
 							}
-						}
 					}
 					indexRow++;
 					return worksheet;
 				}
 
 				var writeStandardTemplateHeader = function (summarySheet) {
-					if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Serial Number');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
+						if (_.isEqual(summaryDisplayConfig.columns.order, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Serial Number');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
 
-					if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Test Name');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
+						if (_.isEqual(summaryDisplayConfig.columns.name, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Test Name');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
 
-					if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Status');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++;
-					}
+						if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Status');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++;
+						}
 
-					if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
-						summarySheet.set(indexColumn, indexRow, 'Duration');
-						summarySheet.font(indexColumn, indexRow, headerTextStyle);
-						summarySheet.border(indexColumn, indexRow, cellBorder);
-						indexColumn++
-					}
+						if (_.isEqual(summaryDisplayConfig.columns.duration, true)) {
+							summarySheet.set(indexColumn, indexRow, 'Duration');
+							summarySheet.font(indexColumn, indexRow, headerTextStyle);
+							summarySheet.border(indexColumn, indexRow, cellBorder);
+							indexColumn++
+						}
 					indexRow++;
 					return summarySheet;
 				}
@@ -463,7 +463,29 @@ exports.download = function(req, res, next){
              		var detailedSheet;
 
 					if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
-						detailedSheet = workbook.createSheet(test.name + 'detailed', 1000, 1000);
+						// This is for evaluating the total number of rows that are needed for the detailed sheet while creating it.
+						// But totalRows * 3 is done for all values (PreMigratedVal , PostMigratedVal and Variance) and the value is
+						// incremented by 10 as buffer
+						var totalRows = 0;
+						var inputValue = JSON.parse(test.steps[index].input);
+						_.each(inputValue, function (value, key, inputValue) {
+							if (_.isObject(value)) {
+								_.each(value, function (vValue, vKey, value) {
+
+									if (_.isObject(vValue)) {
+										column = 1;
+										var noOfKeys = Object.keys(vValue).length;
+										totalRows = totalRows + noOfKeys;
+									}
+								});
+							}
+						});
+						if(totalRows == 0) {
+							totalRows = 1000; //defaultRowCount
+						} else {
+							totalRows = (totalRows*3+10);
+						}
+						detailedSheet = workbook.createSheet(test.name + 'detailed', 1000, totalRows);
 						writeDetailedData(detailedSheet, test, index);
 					}
 					if (_.isEqual(testDisplayConfig.steps.order, true)) {
