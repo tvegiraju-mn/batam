@@ -61,6 +61,7 @@ exports.download = function(req, res, next){
 	var headerTextStyle = {bold: true};
 	var cellBorder = {left: 'thin', top: 'thin', right: 'thin', bottom: 'thin'};
 	var redFont = {fgColor: 'FFFF0000', type: 'solid'};
+	var greenFont = {fgColor: '00FF00', type: 'solid'};
 	var summaryDisplayConfig = config.reports.report.display.summary;
 	var testDisplayConfig = config.reports.report.display.test;
 	var indexColumn = 1;
@@ -461,7 +462,14 @@ exports.download = function(req, res, next){
 
 				var populateStepData = function (sheet, test, index) {
              		var detailedSheet;
-
+            		if(test.steps[index].customFormat == 'UPGRADED_DATA_VERIFICATION')
+                    {
+                        test.steps[index].output = JSON.parse(JSON.parse(test.steps[index].output))
+                        var totalRows = test.steps[index].output.length;
+                        var cols = test.steps[index].output[0].length;
+                        detailedSheet = workbook.createSheet(test.steps[index].name.substring(0,10) + '-data', cols +10, totalRows+10);
+                        writeUpgradedDataComparisonReport(detailedSheet, test, index);
+                    }
 					if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
 						// This is for evaluating the total number of rows that are needed for the detailed sheet while creating it.
 						// But totalRows * 3 is done for all values (PreMigratedVal , PostMigratedVal and Variance) and the value is
@@ -503,7 +511,7 @@ exports.download = function(req, res, next){
 						indexColumn++;
 					}
 					if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
-						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT' || test.steps[index].customFormat == 'UPGRADED_DATA_VERIFICATION') {
 							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
 						} else {
 							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].input));
@@ -515,7 +523,7 @@ exports.download = function(req, res, next){
 						indexColumn++;
 					}
 					if (expectedVisible && _.isEqual(testDisplayConfig.steps.expected, true)) {
-						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT' || test.steps[index].customFormat == 'UPGRADED_DATA_VERIFICATION') {
 							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
 						} else {
 							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].expected));
@@ -536,7 +544,7 @@ exports.download = function(req, res, next){
 						indexColumn++;
 					}
 					if (outputVisible && _.isEqual(testDisplayConfig.steps.output, true)) {
-						if(test.steps[index].customFormat == 'UPGRADE_FORMAT') {
+						if(test.steps[index].customFormat == 'UPGRADE_FORMAT' || test.steps[index].customFormat == 'UPGRADED_DATA_VERIFICATION') {
 							sheet.set(indexColumn, firstBodyRow + index, detailedSheet.name);
 						} else {
 							sheet.set(indexColumn, firstBodyRow + index, formatStepsVariables(test.steps[index].output));
@@ -683,6 +691,80 @@ exports.download = function(req, res, next){
 					}
 					return level;
 				};
+				var writeUpgradedDataComparisonReport = function (comparisonSheet, test, index)
+                {
+                    var dataRowStart = writeUpgradeDataCompHeader(comparisonSheet, test, index);
+                    writeUpgradeDataCompBody(comparisonSheet, test, index,dataRowStart);
+                };
+                var writeUpgradeDataCompBody = function (comparisonSheet, test, index, dataRowStart)
+                {
+                    var cellBorder = {left: 'thin', top: 'thin', right: 'thin', bottom: 'thin'};
+                    var step = test.steps[index];
+                    for (var dataRowIndex = 1; dataRowIndex<step.output.length; dataRowIndex++)
+                    {
+                        var dataRow = step.output[dataRowIndex];
+                        for (var colCount=0;colCount<dataRow.length; colCount++)
+                        {
+                            comparisonSheet.set(colCount+1, dataRowStart, dataRow[colCount]);
+                            comparisonSheet.border(colCount+1, dataRowStart, cellBorder);
+                            if ( (colCount+1) %3==0 && dataRow[colCount]=='No')
+                            {
+                                comparisonSheet.fill(colCount+1, dataRowStart, redFont);
+                            }
+                        }
+                        dataRowStart += 1;
+                    }
+                };
+                var writeUpgradeDataCompHeader = function (comparisonSheet, test, index)
+                {
+                    var currRow =1;
+                    var step = test.steps[index];
+                    var headerTextStyle = {bold: true, iter :true};
+                    var cellBorder = {left: 'thin', top: 'thin', right: 'thin', bottom: 'thin'};
+                    var testName = test.name;
+                    var stepName = step.name;
+
+                    setVal(comparisonSheet, 1, currRow, 'Test Name', headerTextStyle, null );
+                    setVal(comparisonSheet, 2, currRow, testName, null, null );
+                    currRow++;
+                    setVal(comparisonSheet, 1, currRow, 'Step Name', headerTextStyle, null );
+                    setVal(comparisonSheet, 2, currRow, stepName, null, null );
+                    currRow++;
+                    var headers = step.output[0];
+                    var dataHeaderColStartPoint = 1;
+                    for (var headerCount=0; headerCount<headers.length; headerCount++)
+                    {
+                        // We need to merge three cells
+                        var rangeEnd = (headerCount+1) * 3;
+                        var rangeStart = rangeEnd - 3 +1;
+                        for (var cellCount=rangeStart; cellCount<=rangeEnd; cellCount++)
+                        {
+                            setVal(comparisonSheet, cellCount, currRow, headers[headerCount], headerTextStyle, cellBorder );
+                            comparisonSheet.align(cellCount, currRow, 'center');
+                        }
+                        comparisonSheet.merge({col:rangeStart,row:3},{col:rangeEnd,row:3});
+                        setVal(comparisonSheet, rangeStart, currRow+1, 'Pre', headerTextStyle, cellBorder );
+                        setVal(comparisonSheet, rangeStart+1, currRow+1, 'Post', headerTextStyle, cellBorder );
+                        setVal(comparisonSheet, rangeStart+2, currRow+1, 'Match?', headerTextStyle, cellBorder );
+                    }
+                    currRow++;
+                    currRow++;
+                    return currRow;
+                };
+
+                var setVal = function (sheet, colIndex, rowIndex, value, fontStyle, border )
+                {
+                    sheet.set(colIndex, rowIndex, value);
+                    if (!_.isUndefined(fontStyle))
+                    {
+                        sheet.font(colIndex, rowIndex, fontStyle);
+                    }
+                    if (!_.isUndefined(border))
+                    {
+                        sheet.border(colIndex, rowIndex, border);
+                    }
+                };
+
 
 				var writeDetailedData = function (detailedSheet, test, index) {
 					var len = test.steps[index].input.length;
