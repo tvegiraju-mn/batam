@@ -72,6 +72,15 @@ app.get('/api/tests/stat', routes.apis.test.stat);
 app.get('/api/tests/:test_id', routes.apis.test.view);
 app.get('/api/tests/:test_id/history', routes.apis.test.history);
 
+//new rest calls for fetching data  from batam for pdf report generation
+app.get('/api/testnames/:report_name/:build_id', routes.apis.test.testNames);//api to fetch the test names of  report with a given buildId
+app.get('/api/testdescription/:report_name/:build_id', routes.apis.test.testDescriptions);//api to fetch the test case descriptions of  report with a given buildId
+app.get('/api/testcaseid/fail/:build_id', routes.apis.test.failTestCaseIds);//api to get the failed TestCaseId for a given build
+app.get('/api/reportnames/:build_id', routes.apis.test.reportNames);//api to get the reportnames of all test cases for a build
+app.get('/api/tests/:build_id/:report_name/:status', routes.apis.test.testsForaBuildWithStatus);//api to get the tests  for a report with given buildId and Status
+app.get('/api/tests/:build_id/:report_name', routes.apis.test.testsForaReport);//api to get the tests  for a report with a given build id
+app.get('/api/:build_id/reportIds', routes.apis.test.getReportIds);//api to get the reportIds for a given build
+
 app.all('*', function(req, res){
   res.status(404).end();
 });
