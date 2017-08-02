@@ -484,7 +484,6 @@ var prepareExcelFile = function(req, res, next) {
                             .string(batam_util.durationToStr(report.duration.value));
                         indexRow++;
                     }
-                    indexRow++;
                     if (_.isEqual(summaryDisplayConfig.total, true)) {
                         summarySheet.cell(indexRow, 1)
                             .string('Total');
