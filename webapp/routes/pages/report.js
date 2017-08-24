@@ -994,16 +994,13 @@ var prepareExcelFile = function(req, res, next) {
                             step_name = step_name[0];
                         }
                         if (fs.existsSync(path.resolve(screenshotBasePath + '/' + buildID + '/' + report.name + '/' + test.name + "/" + step_name))) {
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                                        .link(report.name + '/' + test.name + "/" + step_name, test.name+"_"+step_name+".png");
                             takeScreenShot = "Yes";
-                            files = recursiveReadSync(screenshotBasePath + '/' + buildID + '/' + report.name + '/' + test.name + "/" + step_name);
-                            for (var i = 0, len = files.length; i < len; i++) {
-                                screenshotString = screenshotString + "," + path.basename(files[i]);
-                            }
                         } else {
+                            sheet.cell(firstBodyRow + index, indexColumn).string(" ");
                             takeScreenShot = "No";
                         }
-                        sheet.cell(firstBodyRow + index, indexColumn)
-                            .link(report.name + '/' + test.name + "/" + step_name, screenshotString.replace(",", ""));
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
                                 border: cellBorder
