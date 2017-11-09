@@ -1210,7 +1210,7 @@ var prepareExcelFile = function(req, res, next) {
                         var dataRow = step.output[dataRowIndex];
                         for (var colCount = 0; colCount < dataRow.length; colCount++) {
                             comparisonSheet.cell(dataRowStart, colCount + 1)
-                                .string(dataRow[colCount+ ""]);
+                                .string(dataRow[colCount]+ "");
                             comparisonSheet.cell(dataRowStart, colCount + 1)
                                 .style({
                                     border: cellBorder
