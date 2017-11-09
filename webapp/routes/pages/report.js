@@ -400,7 +400,7 @@ var prepareExcelFile = function(req, res, next) {
                         var obj = JSON.parse(tests[i].customEntry);
                         _.each(obj, function(value, key, obj) {
                             worksheet.cell(indexRow + i, indexColumn)
-                                .string(value);
+                                .string(value + "");
                             worksheet.cell(indexRow + i, indexColumn)
                                 .style({
                                     border: cellBorder
@@ -1023,7 +1023,7 @@ var prepareExcelFile = function(req, res, next) {
                     }
                     if (_.isEqual(testDisplayConfig.steps.screenshot, true)) {
                         sheet.cell(firstBodyRow + index, indexColumn)
-                            .string(takeScreenShot);
+                            .string(takeScreenShot+ "");
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
                                 border: cellBorder
@@ -1210,7 +1210,7 @@ var prepareExcelFile = function(req, res, next) {
                         var dataRow = step.output[dataRowIndex];
                         for (var colCount = 0; colCount < dataRow.length; colCount++) {
                             comparisonSheet.cell(dataRowStart, colCount + 1)
-                                .string(dataRow[colCount]);
+                                .string(dataRow[colCount+ ""]);
                             comparisonSheet.cell(dataRowStart, colCount + 1)
                                 .style({
                                     border: cellBorder
@@ -1267,7 +1267,7 @@ var prepareExcelFile = function(req, res, next) {
                 };
                 var setVal = function(sheet, colIndex, rowIndex, value, fontStyle, cellBorder) {
                     sheet.cell(rowIndex, colIndex)
-                        .string(value);
+                        .string(value+ "");
                     if (!_.isUndefined(fontStyle)) {
                         sheet.cell(rowIndex, colIndex)
                             .style({
@@ -1301,7 +1301,7 @@ var prepareExcelFile = function(req, res, next) {
                                         .length;
                                     var mergeLen = (noOfKeys * level);
                                     detailedSheet.cell(row, column)
-                                        .string(vKey);
+                                        .string(vKey+ "");
                                     for (var bIndex = 0; bIndex < mergeLen; bIndex++) {
                                         detailedSheet.cell(row + bIndex, column)
                                             .style({
@@ -1401,7 +1401,7 @@ var prepareExcelFile = function(req, res, next) {
                                         detailedSheet.column(column)
                                             .setWidth(30);
                                         row = oldRowVal;
-                                        var json = JSON.stringify(vValue1);
+                                        var json = JSON.stringify(vValue1+ "");
                                         for (var j = 0; j < header.length; j++) {
                                             console.log("header[j]: " + header[j]);
                                             console.log("vKey1 " + vKey1);
@@ -1416,7 +1416,7 @@ var prepareExcelFile = function(req, res, next) {
                                         column = level + 1;
                                         for (var i = 0; i < pre.length; i++) {
                                             detailedSheet.cell(row, column)
-                                                .string(pre[i]);
+                                                .string(pre[i]+ "");
                                             detailedSheet.cell(row, column)
                                                 .style({
                                                     border: cellBorder
@@ -1435,7 +1435,7 @@ var prepareExcelFile = function(req, res, next) {
                                         column = level + 1;
                                         for (var i = 0; i < post.length; i++) {
                                             detailedSheet.cell(row, column)
-                                                .string(post[i]);
+                                                .string(post[i]+ "");
                                             detailedSheet.cell(row, column)
                                                 .style({
                                                     border: cellBorder
@@ -1490,14 +1490,14 @@ var prepareExcelFile = function(req, res, next) {
                                 mergeVKeyCellsNDCLevel[count].col,
                                 mergeVKeyCellsNDCLevel[count].rowEnd,
                                 mergeVKeyCellsNDCLevel[count].col, true)
-                            .string(mergeVKeyCellsNDCLevel[count].val);
+                            .string(mergeVKeyCellsNDCLevel[count].val+ "");
                     }
                     for (var count = mergeVKeyCells.length - 1; count >= 0; count--) {
                         detailedSheet.cell(mergeVKeyCells[count].rowStart,
                                 mergeVKeyCells[count].col,
                                 mergeVKeyCells[count].rowEnd,
                                 mergeVKeyCells[count].col, true)
-                            .string(mergeVKeyCells[count].val);
+                            .string(mergeVKeyCells[count].val+ "");
                     }
                 };
                 var getNumberOfLevelsInJSON = function(input, level) {
