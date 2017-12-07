@@ -834,7 +834,7 @@ var prepareExcelFile = function(req, res, next) {
                         } else {
                             totalRows = (totalRows * 3 + 10);
                         }
-                        detailedSheet = workbook.addWorksheet(test.name + 'detailed', 1000, totalRows);
+                        detailedSheet = workbook.addWorksheet( test.name.substring(0,24)  + '_Step' + (index+1) , 1000, totalRows);
                         writeDetailedData(detailedSheet, test, index);
                     }
                     if (_.isEqual(testDisplayConfig.steps.order, true)) {
