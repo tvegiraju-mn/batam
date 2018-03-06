@@ -237,7 +237,7 @@
 										'<td id="header_cell"><div align="center"><strong>Status</strong></div></td>' +
 									'</tr>' +
 								'</thead>' +
-								'<tbody id="report_tests_'+replaceAll(" ", "_", response.reports[i].id)+'">' +
+								'<tbody id="report_tests_'+replaceAll("." , "_" ,replaceAll(" ", "_", response.reports[i].id))+'">' +
 								'</tbody>' +
 							'</table>' +
 						'</div>' +
@@ -275,7 +275,7 @@
 	    	var htmlList = '';
 	    	var reportId = '';
 	    	for(var i = 0; i < response.data.length; i++){
-	    		reportId = replaceAll(" ", "_", response.data[i][1]);
+	    		reportId = replaceAll("." , "_" ,replaceAll(" ", "_", response.data[i][1]));
 	    		htmlList += '<tr><td><strong>'+response.data[i][3]+'</strong> - '+response.data[i][4]+'</td>';
 	    		if(response.data[i][5] == 'pass'){
 	    			htmlList += '<td><div align="center">'+response.data[i][5]+'</div></td></tr>';
