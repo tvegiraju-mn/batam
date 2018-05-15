@@ -14,6 +14,10 @@ var path = require("path"); //path is used to get the absolute path of folder
 var recursiveReadSync = require('recursive-readdir-sync'); //read the files recursively in folder
 var request = require('request'); //to check the server status
 var archiver = require('archiver'); //archieve the files
+var mergeDirs = require('merge-dirs');
+//always orverwriting from Manual as there may be cases user may want to update the screenshots
+//and assuming this conflict should not happen between RTS and Manual test cases
+var MERGE_CONFLIT_RESOLVE_METHOD = 'overwrite';
 /**
  * PAGE path /:build_id/report/:report_id
  */
@@ -115,7 +119,8 @@ var prepareExcelFile = function(req, res, next) {
     var durationVisible = false;
     var errorVisible = false;
     var takeScreenShot = "No";
-    var executed_by = "ATS";
+    var executed_by = "RTS";
+    var execution_type = "Automation";
     var workbook;
     var findTestCriterias = function(error, criterias) {
         var findTests = function(error, tests) {
@@ -155,6 +160,7 @@ var prepareExcelFile = function(req, res, next) {
                     maxTestRow += (_.isEqual(testDisplayConfig.approvedBy, true) ? 1 : 0);
                     maxTestRow += (_.isEqual(testDisplayConfig.executed_by, true) ? 1 : 0);
                     maxTestRow += (_.isEqual(testDisplayConfig.approval_date, true) ? 1 : 0);
+                    maxTestRow += (_.isEqual(testDisplayConfig.execution_type, true) ? 1 : 0);
                     maxTestRow += (_.isEqual(testDisplayConfig.start_date, true) ? 1 : 0);
                     maxTestRow += (_.isEqual(testDisplayConfig.signature, true) ? 1 : 0);
                     maxTestRow += (_.isEqual(testDisplayConfig.end_date, true) ? 1 : 0);
@@ -208,7 +214,7 @@ var prepareExcelFile = function(req, res, next) {
                                     }
                                 });
                             sheet.cell(firstBodyRow + tests[i].steps.length + 2, 2, firstBodyRow + tests[i].steps.length + 2, 5, true)
-                                .string(tests[i].log);
+                                .string(tests[i].log +'');
                             sheet.cell(firstBodyRow + tests[i].steps.length + 2, 2)
                                 .style({
                                     alignment: {
@@ -223,7 +229,7 @@ var prepareExcelFile = function(req, res, next) {
                     workbook.write('./' + report.name + '-Report/' + report.name + '.xlsx', function() {
                         // Create a new folder under ./'+ report.name + '-Report with name as report name
                         var buildID = req.params.build_id;
-                        if (fs.existsSync(screenshotBasePath + '/' + buildID)) {
+                        if (fs.existsSync(screenshotBasePath + '/' + buildID + '/' + report.name)) {
                             fs.mkdirSync('./' + report.name + '-Report/' + report.name);
                             fsextra.copySync(screenshotBasePath + '/' + buildID + '/' + report.name, './' + report.name + '-Report/' + report.name);
                         }
@@ -378,8 +384,13 @@ var prepareExcelFile = function(req, res, next) {
                             indexColumn++;
                         }
                         if (_.isEqual(summaryDisplayConfig.columns.status, true)) {
-                            summarySheet.cell(indexRow + i, indexColumn)
-                                .string(batam_util.durationToStr(tests[i].duration.value));
+                            if(_.isEqual(tests[i].execution_type,"Manual")) {
+                                summarySheet.cell(indexRow + i, indexColumn)
+                                    .string("N/A");
+                            }else {
+                                summarySheet.cell(indexRow + i, indexColumn)
+                                    .string(batam_util.durationToStr(tests[i].duration.value));
+                            }
                             summarySheet.cell(indexRow + i, indexColumn)
                                 .style({
                                     border: cellBorder
@@ -621,12 +632,6 @@ var prepareExcelFile = function(req, res, next) {
                             });
                         sheet.column(indexColumn)
                             .setWidth(50);
-                        sheet.cell(firstBodyRow + j, indexColumn)
-                            .style({
-                                alignment: {
-                                    wrapText: true
-                                }
-                            });
                         indexColumn++;
                     }
                     if (inputVisibile && _.isEqual(testDisplayConfig.steps.input, true)) {
@@ -1045,6 +1050,9 @@ var prepareExcelFile = function(req, res, next) {
                         indexColumn++;
                     }
                     if (_.isEqual(testDisplayConfig.executed_by, true)) {
+                        if(!_.isEmpty(test.executed_by)){
+                            executed_by = test.executed_by;
+                        }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .string(executed_by);
                         sheet.cell(firstBodyRow + index, indexColumn)
@@ -1068,8 +1076,19 @@ var prepareExcelFile = function(req, res, next) {
                         indexColumn++;
                     }
                     if (_.isEqual(testDisplayConfig.steps.executionDateAndTime, true)) {
-                        sheet.cell(firstBodyRow + index, indexColumn)
-                            .string('' + test.start_date);
+                        if(_.isEqual(test.execution_type,"Manual")) {
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string("N/A");
+                        }else {
+                            var executionDateAndTime = test.steps[index].start_date;
+                            if (executionDateAndTime != null && _.isNumber(parseInt(executionDateAndTime))) {
+                                executionDateAndTime = new Date(parseInt(executionDateAndTime));
+                            } else {
+                                executionDateAndTime = test.start_date;
+                            }
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string('' + executionDateAndTime);
+                        }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
                                 border: cellBorder
@@ -1111,6 +1130,9 @@ var prepareExcelFile = function(req, res, next) {
                         indexColumn++;
                     }
                     if (_.isEqual(testDisplayConfig.steps.attachmentUploadedBy, true)) {
+                        if(!_.isEmpty(test.executed_by)){
+                            executed_by = test.executed_by;
+                        }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .string(executed_by);
                         sheet.cell(firstBodyRow + index, indexColumn)
@@ -1134,8 +1156,19 @@ var prepareExcelFile = function(req, res, next) {
                         indexColumn++;
                     }
                     if (_.isEqual(testDisplayConfig.steps.attachmentUploadedDate, true)) {
-                        sheet.cell(firstBodyRow + index, indexColumn)
-                            .string('' + test.start_date);
+                        if(_.isEqual(test.execution_type,"Manual")) {
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string("N/A");
+                        }else {
+                            var attachmentUploadedDate = test.steps[index].end_date;
+                            if (attachmentUploadedDate != null && _.isNumber(parseInt(attachmentUploadedDate))) {
+                                attachmentUploadedDate = new Date(parseInt(attachmentUploadedDate));
+                            } else {
+                                attachmentUploadedDate = test.start_date;
+                            }
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string('' + attachmentUploadedDate);
+                        }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
                                 border: cellBorder
@@ -1157,8 +1190,13 @@ var prepareExcelFile = function(req, res, next) {
                         indexColumn++;
                     }
                     if (_.isEqual(testDisplayConfig.comments, true)) {
-                        sheet.cell(firstBodyRow + index, indexColumn)
-                            .string('');
+                        if(test.comments+'' != "undefined"){
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string(''+test.comments);
+                        }else {
+                            sheet.cell(firstBodyRow + index, indexColumn)
+                                .string('');
+                        }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
                                 border: cellBorder
@@ -1623,8 +1661,25 @@ var prepareExcelFile = function(req, res, next) {
                             .style({
                                 font: headerTextStyle
                             });
+                        if(!_.isEmpty(test.executed_by)){
+                            executed_by = test.executed_by;
+                        }
                         sheet.cell(indexRow, 2)
                             .string(executed_by);
+                        indexRow++;
+                    }
+                    if (_.isEqual(testDisplayConfig.execution_type, true)) {
+                        sheet.cell(indexRow, 1)
+                            .string('Execution Type');
+                        sheet.cell(indexRow, 1)
+                            .style({
+                                font: headerTextStyle
+                            });
+                        if(!_.isEmpty(test.execution_type)){
+                            execution_type = test.execution_type;
+                        }
+                        sheet.cell(indexRow, 2)
+                            .string(execution_type);
                         indexRow++;
                     }
                     if (_.isEqual(testDisplayConfig.start_date, true)) {
@@ -1634,8 +1689,13 @@ var prepareExcelFile = function(req, res, next) {
                             .style({
                                 font: headerTextStyle
                             });
-                        sheet.cell(indexRow, 2)
-                            .string('' + test.start_date);
+                        if(_.isEqual(test.execution_type,"Manual")) {
+                            sheet.cell(indexRow, 2)
+                                .string('N/A');
+                        }else {
+                            sheet.cell(indexRow, 2)
+                                .string('' + test.start_date);
+                        }
                         indexRow++;
                     }
                     if (_.isEqual(testDisplayConfig.end_date, true)) {
@@ -1645,8 +1705,13 @@ var prepareExcelFile = function(req, res, next) {
                             .style({
                                 font: headerTextStyle
                             });
-                        sheet.cell(indexRow, 2)
-                            .string('' + test.end_date);
+                        if(_.isEqual(test.execution_type,"Manual")) {
+                            sheet.cell(indexRow, 2)
+                                .string('N/A');
+                        }else {
+                            sheet.cell(indexRow, 2)
+                                .string('' + test.end_date);
+                        }
                         indexRow++;
                     }
                     if (_.isEqual(testDisplayConfig.duration, true)) {
@@ -1660,6 +1725,8 @@ var prepareExcelFile = function(req, res, next) {
                             _.isDate(new Date(test.start_date)) && _.isDate(new Date(test.end_date))) {
                             sheet.cell(indexRow, 2)
                                 .string(batam_util.durationToStr(test.end_date - test.start_date));
+                        }else if(_.isEqual(tests.execution_type,"Manual")) {
+                            sheet.cell(indexRow, 2).string("N/A");
                         }
                         indexRow++;
                     }
@@ -1686,7 +1753,7 @@ var prepareExcelFile = function(req, res, next) {
                                 font: headerTextStyle
                             });
                         sheet.cell(indexRow, 2)
-                            .string(test.tags);
+                            .string(test.tags + '');
                         indexRow++;
                     }
                     return sheet;
@@ -1893,6 +1960,7 @@ var getImagesFromScreenshotsServer = function(req, res, next, callbackFn) {
     }
     var buildID = replaceall(":", "", req.params.build_id);
     if (fs.existsSync(extractPath + '/' + buildID)) {
+        mergeManualScreenshots(buildID);
         // The folder is already there, so we just need to prepare excel file.
         callbackFn();
         return;
@@ -1905,6 +1973,8 @@ var getImagesFromScreenshotsServer = function(req, res, next, callbackFn) {
                 .pipe(fileStream);
         } else {
             console.log("remote server is down");
+            //creating this directory as there may be manual executions only suite
+            mkdirp.sync(extractPath + '/' + buildID);
             callbackFn();
             return;
         }
@@ -1918,7 +1988,17 @@ var extractAndDeleteTempZipFile = function(req, res, next, callbackFn) {
     extract(finalPath + '/test.zip', {
         dir: path.resolve(extractPath)
     }, function(postExtract) {
+        mergeManualScreenshots(buildID);
         callbackFn();
         deleteFolderRecursive(finalPath);
     });
 }
+
+var mergeManualScreenshots = function(buildID) {
+    // Merge the images of the manual test cases as well.
+    var manualTestcaseImagesLocation = config.manualTestcasesScreenshotsLocation + '/' + buildID;
+    console.log('Manual test case attachments/images location : '+ manualTestcaseImagesLocation);
+    if (fs.existsSync(manualTestcaseImagesLocation)) {
+        mergeDirs.default(manualTestcaseImagesLocation, extractPath + '/' + buildID, MERGE_CONFLIT_RESOLVE_METHOD);
+    }
+};
