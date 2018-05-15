@@ -72,6 +72,9 @@ app.get('/api/tests/stat', routes.apis.test.stat);
 app.get('/api/tests/:test_id', routes.apis.test.view);
 app.get('/api/tests/:test_id/history', routes.apis.test.history);
 
+app.post('/api/:build_id/importAttachments', routes.apis.build.importAttachments);
+app.get('/:build_id/imagesImportResult/:result', routes.pages.build.show);
+
 //new rest calls for fetching data  from batam for pdf report generation
 app.get('/api/testnames/:report_name/:build_id', routes.apis.test.testNames);//api to fetch the test names of  report with a given buildId
 app.get('/api/testdescription/:report_name/:build_id', routes.apis.test.testDescriptions);//api to fetch the test case descriptions of  report with a given buildId
@@ -88,6 +91,11 @@ app.all('*', function(req, res){
 //Start the server
 var server = http.createServer(app);
 var boot = function(){
+	if (config.screenshotsLocation == config.manualTestcasesScreenshotsLocation)
+	{
+		console.error('The value of the screenshots location and manual screenshots storage location Must be different, can not start server...')
+		return;
+	}
   server.listen(app.get('port'), function(){
     console.info('Express server listening on port ' + app.get('port'));
   });

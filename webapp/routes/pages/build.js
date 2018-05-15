@@ -42,9 +42,9 @@ function searchTests(view, req, res, next){
 		if(error) {
 	    	return next(error);
 	    }
-	    
+
 	    if(!isNullOrUndefined(build)){
-	    	res.render(view, {build_id: req.params.build_id});
+	    	res.render(view, {build_id: req.params.build_id , importSuccess : req.params.result});
 	    }else{
 	    	return next(new Error('Build '+req.params.build_id+' not found.'));
 	    }

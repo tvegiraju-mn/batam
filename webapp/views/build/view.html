@@ -39,12 +39,17 @@
 	</div>
 	<div class="container">
 		<div class="row">
-			<div class="page-header" style="margin-top: 75px">
-				<h1>
-					Build
-					<!--<a href="build/create.html"> <button type="button" class="btn btn-success pull-right">Add Test Execution Plan</button></a> -->
-				</h1>
-			</div>
+            <TABLE WIDTH="100%" STYLE="margin-top:75px">
+                <tR>
+                    <tD width="30%"><h1>Build <!--<a href="build/create.html"> <button type="button" class="btn btn-success pull-right">Add Test Execution Plan</button></a> -->
+                     </h1></tD>
+                    <TD width="70%">
+                        <div class="alert alert-success text-center" style="display:none">
+                            Import of images is successful!!!
+                        </div>
+                    </TD>
+                </tR>
+            </TABLE>
 		</div>
 		<div class="row">
 			<div id="main_panel" class="panel">
@@ -188,12 +193,66 @@
 						<a class="btn btn-default" href="/{{build_id}}/print">
 							<span class="glyphicon glyphicon-print"></span> Print
 						</a>
-						<a class="btn btn-default" href="/{{build_id}}/search">
+						<a class="btn btn-default" href="#import" data-placement="bottom" data-toggle="modal" data-target="#importAttachments">
+							<span class="glyphicon glyphicon-import"></span> Import Manual Attachments
+						</a>
+						<a class="btn btn-default pull-right" href="/{{build_id}}/search">
 							<span class="glyphicon glyphicon-search"></span> Search
 						</a>
 					</div>
 				</div><!-- /.col-md-12 -->
 			</div>
+            <div class="modal fade" id="importAttachments" role="dialog">
+                <form id="attchmentImport" action="/api/{{build_id}}/importAttachments" method="post" enctype="multipart/form-data">
+                    <div class="modal-dialog modal-lg actions-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4>Import Manual Attachments</h4>
+                            </div>
+							<div class="modal-body actions-modal-body">
+								<div class="container-fluid">
+									<div class="row">
+										<div class="form-group">
+											<table width="100%">
+												<tbody>
+												<tr>
+													<td nowrap="" align="right">
+														<label class="control-label" for="reportName">Module
+															Name:
+															<sup style="color: red">*</sup>
+															&nbsp;
+														</label>
+													</td>
+													<td>
+														<input id="reportName" type="text" name="reportName"
+															   required="required"><br>
+													</td>
+													<td nowrap="" align="right">
+														<label class="control-label" for="attachmentFile">Attachment
+															File:
+															<sup style="color: red">*</sup>&nbsp;
+														</label>
+													</td>
+													<td>
+														<input id="attachmentFile" style="display: inline;" type="file"
+															   accept="application/zip" name="fileName"
+															   multiple="multiple" required="required">
+													</td>
+												</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-default">Import</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
 			<div class="row">
 				<div class="col-md-12">
 					<div class="list-group" id="reports_list"></div>
@@ -601,7 +660,15 @@
           	
           	displayTrend(response);
 	  	}
-	    
+
+		var v = '{{importSuccess}}'
+	  	if (v =='true')
+		{
+            $(".alert-success").show();
+            $(".alert-success").fadeOut(4000);
+
+		}
+
 	});
               
     </script>

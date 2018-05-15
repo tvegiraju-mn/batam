@@ -1,6 +1,12 @@
 module.exports = {
     screenshotsLocation: './screenshots',
-    screenshotUrl: 'http://10.4.6.30:9999/screenshots?buildId=',
+    /**
+        manualTestcasesScreenshotsLocation is the location of the screeshots that are obtained from ZIRA, through rest calls to BATAM.
+        When a report is downloaded, the screenshots obtained from RTS, and manual will be merged. Hence the values of the screenshotsLocation and
+        manualTestcasesScreenshotsLocation MUST always be different.
+    */
+    manualTestcasesScreenshotsLocation : 'D:\\Screenshots',
+    screenshotUrl: 'http://screenshots_server_host_name:9999/screenshots?buildId=',
     database: {
         URL: 'mongodb://@localhost:27017/batam' 
     },

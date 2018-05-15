@@ -11,6 +11,11 @@
   "license": "MIT",
   "dependencies": {
     "amqp": "^0.2.0",
+    "array": "^0.4.3",
+    "body-parser": "^1.9.0",
+    "express": "^4.9.5",
+    "hashmap": "^2.3.0",
+    "hashset": "0.0.6",
     "mongoskin": "^1.4.4",
     "underscore": "^1.7.0"
   },
