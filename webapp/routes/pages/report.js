@@ -998,6 +998,7 @@ var prepareExcelFile = function(req, res, next) {
                             step_name = step_name.split(":");
                             step_name = step_name[0];
                         }
+                        step_name = step_name.trim();
                         if (fs.existsSync(path.resolve(screenshotBasePath + '/' + buildID + '/' + report.name + '/' + test.name + "/" + step_name))) {
                             sheet.cell(firstBodyRow + index, indexColumn)
                                                         .link(report.name + '/' + test.name + "/" + step_name, test.name+"_"+step_name+".png");
