@@ -25,6 +25,7 @@ var mergeDirs = require('merge-dirs');
 //always orverwriting from Manual as there may be cases user may want to update the screenshots
 //and assuming this conflict should not happen between RTS and Manual test cases
 var MERGE_CONFLIT_RESOLVE_METHOD = 'overwrite';
+var MSG_SKIP_OUTPUT_IF_SCREENSHOT_AVAILABLE = 'Please refer to the screenshot';
 /**
  * PAGE path /:build_id/report/:report_id
  */
