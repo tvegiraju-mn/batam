@@ -1461,9 +1461,20 @@ var prepareExcelFile = function(req, res, next) {
                                             console.log("header[j]: " + header[j]);
                                             console.log("vKey1 " + vKey1);
                                             console.log("vValue[vKey1]: " + JSON.stringify(vValue[vKey1]));
-                                            var preVal = vValue[vKey1][header[j]][values[0]];
-                                            var postVal = vValue[vKey1][header[j]][values[1]];
-                                            var varVal = vValue[vKey1][header[j]][values[2]];
+                                            var preVal, postVal, varVal;
+                                            var comparisonRecord = vValue[vKey1][header[j]];
+                                            if ( comparisonRecord == null || comparisonRecord == undefined)
+                                            {
+                                                preVal = "N/A";
+                                                postVal = "N/A";
+                                                varVal = "N/A";
+                                            }
+                                            else
+                                            {
+                                                preVal = (comparisonRecord[values[0]] == null ? "" : comparisonRecord[values[0]]);
+                                                postVal = (comparisonRecord[values[1]] == null ? "" : comparisonRecord[values[1]])
+                                                varVal = (comparisonRecord[values[2]] == null ? "" : comparisonRecord[values[2]])
+                                            }
                                             pre.push(preVal);
                                             post.push(postVal);
                                             variance.push((varVal));
