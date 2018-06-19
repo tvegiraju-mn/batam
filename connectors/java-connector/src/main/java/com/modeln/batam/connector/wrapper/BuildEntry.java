@@ -23,10 +23,7 @@
  */
 package com.modeln.batam.connector.wrapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -48,6 +45,7 @@ import org.json.simple.JSONObject;
  * 		"isCustomFormatEnabled" : false,
  * 	    "customFormat" : customFormat to be followed
  * 	    "customEntry" :  special entry to be added on the report
+ * 	    "screenshotURL" : Screenshot Server URL
  * }
  * 
  * @author gzussa
@@ -84,6 +82,10 @@ public class BuildEntry {
 
 	private String customEntry;
 
+	private String screenshotURL;
+
+	private Map<String, String> customAttributes;
+
 	public BuildEntry(){}
 	
 	public BuildEntry(String id, String name, Date startDate, Date endDate, String status,
@@ -116,6 +118,18 @@ public class BuildEntry {
 		this.customFormat = customFormat;
 		this.customEntry = customEntry;
 	}
+
+    public BuildEntry(String id, String name, Date startDate, Date endDate, String status,
+                      String description, List<Pair> criterias,
+                      List<Pair> infos, List<Pair> reports,
+                      List<Step> steps, List<Commit> commits, boolean override,
+                      boolean isCustomFormatEnabled,
+                      String customFormat, String customEntry, String screenshotURL, Map<String, String> customAttributes) {
+        this(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, override,
+                isCustomFormatEnabled, customFormat, customEntry);
+        this.screenshotURL = screenshotURL;
+		this.customAttributes = customAttributes;
+    }
 
 	public String getId() {
 		return id;
@@ -237,6 +251,22 @@ public class BuildEntry {
 		this.customEntry = customEntry;
 	}
 
+    public void setScreenshotURL(String screenshotURL1) {
+        this.screenshotURL = screenshotURL1;
+    }
+
+    public String getScreenshotURL() {
+        return this.screenshotURL;
+    }
+
+	public void setCustomAttributes(Map<String, String> customAttributes1) {
+		this.customAttributes = customAttributes1;
+	}
+
+	public Map<String, String> getCustomAttributes() {
+		return this.customAttributes;
+	}
+
 	@Override
 	public String toString() {
 		return toJSONString();
@@ -260,6 +290,8 @@ public class BuildEntry {
 		obj.put("isCustomFormatEnabled",isCustomFormatEnabled);
 		obj.put("customFormat", customFormat);
 		obj.put("customEntry", customEntry);
+        obj.put("screenshotURL", screenshotURL);
+		obj.put("customAttributes", customAttributes);
 		
 		return obj.toJSONString();
 	}
@@ -321,10 +353,12 @@ public class BuildEntry {
 		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
 		String customFormat = (String)obj.get("customFormat");
 		String customEntry = (String)obj.get("customEntry");
+        String screenshotURL = (String)obj.get("screenshotURL");
+		Map<String, String> customAttributes = (Map<String, String>)obj.get("customAttributes");
 		
 		return new BuildEntry(id, name, 
 					startDate == null ? null : new Date(Long.valueOf(startDate)), 
 					endDate == null ? null : new Date(Long.valueOf(endDate)), 
-					status, description, criterias, infos, reports, steps, commits, override, isCustomFormatEnabled, customFormat, customEntry);
+					status, description, criterias, infos, reports, steps, commits, override, isCustomFormatEnabled, customFormat, customEntry, screenshotURL, customAttributes);
 	}
 }

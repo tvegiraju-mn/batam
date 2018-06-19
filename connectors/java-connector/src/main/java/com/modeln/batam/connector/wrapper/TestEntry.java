@@ -23,10 +23,7 @@
  */
 package com.modeln.batam.connector.wrapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -50,6 +47,8 @@ import org.json.simple.JSONObject;
  * 	    "isCustomFormatEnabled" : false,
  * 	    "customFormat" : customFormat to be followed
  * 	    "customEntry" :  special entry to be added on the report
+ * 	    "JIRA Test ID" : Jira Test Case ID
+ * 	    "Custom Attributes" : HashMap for Future changes
  * }
  * 
  * @author gzussa
@@ -92,6 +91,17 @@ public class TestEntry {
 	private String customFormat;
 
 	private String customEntry;
+
+	private String jiraTestID;
+	private String jiraReqID;
+	private String executionType;
+	private String authoredBy;
+	private String dateCreated;
+	private String approvalStatus;
+	private String approvedBy;
+	private String approvedDate;
+	private String comments;
+	private Map<String, String> customAttributes;
 	
 	public TestEntry() {
 		super();
@@ -152,6 +162,39 @@ public class TestEntry {
 		this.isCustomFormatEnabled = isCustomFormatEnabled;
 		this.customFormat = customFormat;
 		this.customEntry = customEntry;
+	}
+
+	public TestEntry(String id,
+					 String buildId,
+					 String buildName,
+					 String reportId,
+					 String reportName,
+					 String name,
+					 String description,
+					 Date startDate,
+					 Date endDate,
+					 String status,
+					 List<Pair> criterias,
+					 List<String> tags,
+					 List<Step> steps,
+					 String log,
+					 boolean override,
+					 boolean isCustomFormatEnabled,
+					 String customFormat,
+					 String customEntry, String jiraTestID, String jiraReqID, String executionType, Map<String, String> customAttributes,
+					 String authoredBy, String dateCreated, String approvalStatus, String approvedBy, String approvedDate, String comments) {
+		this(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status, criterias, tags, steps, log, override,
+				isCustomFormatEnabled, customFormat, customEntry);
+		this.jiraTestID = jiraTestID;
+		this.jiraReqID = jiraReqID;
+		this.customAttributes = customAttributes;
+		this.authoredBy = authoredBy;
+		this.dateCreated = dateCreated;
+		this.approvalStatus = approvalStatus;
+		this.approvedBy = approvedBy;
+		this.approvedDate = approvedDate;
+		this.comments = comments;
+		this.executionType = executionType;
 	}
 
 	public String getId() {
@@ -298,6 +341,74 @@ public class TestEntry {
 		this.customEntry = customEntry;
 	}
 
+	public void setJiraTestID(String jiraTestID1) {
+		this.jiraTestID = jiraTestID1;
+	}
+
+	public String getJiraTestID() {
+		return this.jiraTestID;
+	}
+
+	public void setJiraReqID(String jiraReqID1) {
+		this.jiraReqID = jiraReqID1;
+	}
+
+	public String getJiraReqID() {
+		return this.jiraReqID;
+	}
+
+	public void setExecutionType(String executionType1) {
+		this.executionType = executionType1;
+	}
+
+	public String getExecutionType() {
+		return this.executionType;
+	}
+
+	public void setCustomAttributes(Map<String, String> customAttributes1) {
+		this.customAttributes = customAttributes1;
+	}
+
+	public Map<String, String> getCustomAttributes() {
+		return this.customAttributes;
+	}
+	public void setAuthoredBy(String authoredBy1) {
+		this.authoredBy = authoredBy1;
+	}
+	public String getAuthoredBy() {
+		return this.authoredBy;
+	}
+	public void setDateCreated(String dateCreated1) {
+		this.dateCreated = dateCreated1;
+	}
+	public String getDateCreated() {
+		return this.dateCreated;
+	}
+	public void setApprovedBy(String approvedBy1) {
+		this.approvedBy = approvedBy1;
+	}
+	public String getApprovedBy() {
+		return this.approvedBy;
+	}
+	public void setApprovalStatus(String approvalStatus1) {
+		this.approvalStatus = approvalStatus1;
+	}
+	public String getApprovalStatus() {
+		return this.approvalStatus;
+	}
+	public void setComments(String comments1) {
+		this.comments = comments1;
+	}
+	public String getComments() {
+		return this.comments;
+	}
+	public void setApprovedDate(String approvedDate1) {
+		this.approvedDate = approvedDate1;
+	}
+	public String getApprovedDate() {
+		return this.approvedDate;
+	}
+
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
 		JSONObject obj = new JSONObject();
@@ -319,6 +430,16 @@ public class TestEntry {
 		obj.put("isCustomFormatEnabled", isCustomFormatEnabled);
 		obj.put("customFormat", customFormat);
 		obj.put("customEntry", customEntry);
+		obj.put("jiraTestID", jiraTestID);
+		obj.put("jiraReqID", jiraReqID);
+		obj.put("executionType", executionType);
+		obj.put("customAttributes", customAttributes);
+		obj.put("approvedDate", approvedDate);
+		obj.put("authoredBy", authoredBy);
+		obj.put("dateCreated", dateCreated);
+		obj.put("comments", comments);
+		obj.put("approvalStatus", approvalStatus);
+		obj.put("approvedBy", approvedBy);
 		return obj.toJSONString();
 	}
 	
@@ -373,10 +494,21 @@ public class TestEntry {
 		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
 		String customFormat = (String)obj.get("customFormat");
 		String customEntry = (String)obj.get("customEntry");
+		String jiraTestID = (String)obj.get("jiraTestID");
+		String jiraReqID = (String)obj.get("jiraReqID");
+		Map<String, String> customAttributes = (Map<String, String>)obj.get("customAttributes");
+		String approvedDate = (String)obj.get("approvedDate");
+		String authoredBy = (String)obj.get("authoredBy");
+		String dateCreated = (String)obj.get("dateCreated");
+		String comments = (String)obj.get("comments");
+		String approvalStatus = (String)obj.get("approvalStatus");
+		String approvedBy = (String)obj.get("approvedBy");
+		String executionType = (String) obj.get("executionType");
 		
 		return new TestEntry(id, buildId, buildName, reportId, reportName, name, description, 
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)), 
-				status, criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry);
+				status, criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry,
+				jiraTestID, jiraReqID, executionType, customAttributes, authoredBy, dateCreated, approvalStatus, approvedBy, approvedDate, comments);
 	}
 }

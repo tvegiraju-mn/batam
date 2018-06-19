@@ -26,6 +26,7 @@ package com.modeln.batam.connector;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.jcabi.aspects.RetryOnFailure;
@@ -503,6 +504,41 @@ public class Connector {
 							  String format,
 							  String customEntry) throws IOException {
 
+        return createBuild(id, name, startDate, endDate, status,  description, criterias, infos, reports, steps, commits, isCustomFormatEnabled, format, customEntry, null, null);
+    }
+
+	/**
+	 * Create Build simple API with individual {@link com.modeln.batam.connector.wrapper.BuildEntry BuildEntry} parameters.
+	 *
+	 * @param id : Build Unique Identifier.
+	 * @param name : Build Name (required).
+	 * @param startDate : Build Start Date.
+	 * @param endDate : Build End Date.
+	 * @param status : Build Status.
+	 * @param description : Build Description.
+	 * @param criterias : Build Criterias, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param infos : Build Infos, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param reports : Build Reports, List of {@see com.modeln.batam.connector.wrapper.Pair pairs}.
+	 * @param steps : Build Steps, List of {@see com.modeln.batam.connector.wrapper.Step steps}.
+	 * @param commits : Build Commits, List of {@see com.modeln.batam.connector.wrapper.Commit commits}.
+	 * @return published message.
+	 * @throws IOException
+	 */
+	public String createBuild(String id,
+							  String name,
+							  Date startDate,
+							  Date endDate,
+							  String status,
+							  String description,
+							  List<Pair> criterias,
+							  List<Pair> infos,
+							  List<Pair> reports,
+							  List<Step> steps,
+							  List<Commit> commits,
+							  boolean isCustomFormatEnabled,
+							  String format,
+							  String customEntry, String screenshotURL, Map<String, String> customAttributes) throws IOException {
+
 		if(name == null){
 			throw new InvalidArgumentException("name field should not be null.");
 		}
@@ -514,7 +550,7 @@ public class Connector {
 			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
 		}
 
-		BuildEntry build = new BuildEntry(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, false, isCustomFormatEnabled, format, customEntry);
+		BuildEntry build = new BuildEntry(id, name, startDate, endDate, status, description, criterias, infos, reports, steps, commits, false, isCustomFormatEnabled, format, customEntry, screenshotURL, customAttributes);
 
 		return createBuild(build);
 	}
@@ -706,6 +742,22 @@ public class Connector {
 							   String format,
 							   String customEntry) throws IOException {
 
+		return createReport(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, format, customEntry, null, null);
+	}
+
+	public String createReport(String id,
+							   String name,
+							   String buildId,
+							   String buildName,
+							   String description,
+							   Date startDate,
+							   Date endDate,
+							   String status,
+							   List<String> logs,
+							   boolean isCustomFormatEnabled,
+							   String format,
+							   String customEntry, String screenshotURL, Map<String, String> customAttributes) throws IOException {
+
 		if(name == null){
 			throw new InvalidArgumentException("name field should not be null.");
 		}
@@ -716,7 +768,7 @@ public class Connector {
 			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
 		}
 
-		ReportEntry report = new ReportEntry(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, format, customEntry);
+		ReportEntry report = new ReportEntry(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, format, customEntry, screenshotURL, customAttributes);
 
 		return createReport(report);
 	}
@@ -924,6 +976,29 @@ public class Connector {
 							 boolean isCustomFormatEnabled,
 							 String customFormat,
 							 String customEntry) throws IOException {
+		return updateTest(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status,
+                criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry, null, null, null, null, null, null, null, null, null, null);
+	}
+
+    public String updateTest(String id,
+                             String buildId,
+                             String buildName,
+                             String reportId,
+                             String reportName,
+                             String name,
+                             String description,
+                             Date startDate,
+                             Date endDate,
+                             String status,
+                             List<Pair> criterias,
+                             List<String> tags,
+                             List<Step> steps,
+                             String log,
+                             boolean override,
+                             boolean isCustomFormatEnabled,
+                             String customFormat,
+                             String customEntry, String jiraTestID, String jiraReqID, String executionType, Map<String, String> customAttributes,
+                             String authoredBy, String dateCreated, String approvalStatus, String approvedBy, String approvedDate, String comments) throws IOException {
 
 		if(name == null){
 			throw new InvalidArgumentException("Name field is required.");
@@ -936,9 +1011,10 @@ public class Connector {
 			throw new InvalidArgumentException("CustomFormat provided is not a valid one");
 		}
 
-		TestEntry test = new TestEntry
-							(id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status,
-							criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry);
+        TestEntry test = new TestEntry
+                        (id, buildId, buildName, reportId, reportName, name, description, startDate, endDate, status,
+                        criterias, tags, steps, log, override, isCustomFormatEnabled, customFormat, customEntry,
+                                jiraTestID, jiraReqID, executionType, customAttributes, authoredBy, dateCreated, approvalStatus, approvedBy, approvedDate, comments);
 
 		return updateTest(test);
 	}

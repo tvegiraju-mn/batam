@@ -124,7 +124,7 @@ function createReport(build, data, ack){
 	var end_date = data.end_date;
 	var status = data.status;
 	var logs = data.logs;
-	
+
 	var report = {};
 	report.description = description;
 	report.status = status;
@@ -134,6 +134,8 @@ function createReport(build, data, ack){
 	report.isCustomFormatEnabled = data.isCustomFormatEnabled;
 	report.customEntry = data.customEntry;
 	report.customFormat = data.customFormat;
+	report.screenshotURL = data.screenshotURL;
+	report.customAttributes = data.customAttributes;
 	build.next_id = null;
 	
 	//Check name
@@ -343,6 +345,8 @@ function updateReport(report, data, ack){
 			report.logs[logsLength + i] = logs[i];
 		}
 	}
+	report.screenshotURL = data.screenshotURL;
+	report.customAttributes = data.customAttributes;
 
 	//Update reports
 	collections.reports.updateById(report._id, {$set: report}, updateReportInfoCallback);

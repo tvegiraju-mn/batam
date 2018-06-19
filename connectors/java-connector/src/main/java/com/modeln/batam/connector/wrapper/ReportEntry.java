@@ -23,10 +23,7 @@
  */
 package com.modeln.batam.connector.wrapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -75,6 +72,10 @@ public class ReportEntry {
 
 	private String customEntry;
 
+	private String screenshotURL;
+
+    private Map<String, String> customAttributes;
+
 	public ReportEntry() {
 		super();
 	}
@@ -103,6 +104,30 @@ public class ReportEntry {
 		this.customFormat = customFormat;
 		this.customEntry = customEntry;
 	}
+
+    public ReportEntry(String id, String name, String buildId, String buildName,
+                       String description, Date startDate, Date endDate, String status,
+                       List<String> logs, boolean isCustomFormatEnabled,
+                       String customFormat, String customEntry, String screenshotURL, Map<String, String> customAttributes) {
+        this(id, name, buildId, buildName, description, startDate, endDate, status, logs, isCustomFormatEnabled, customFormat, customEntry);
+        this.screenshotURL = screenshotURL;
+        this.customAttributes = customAttributes;
+    }
+
+    public String getScreenshotURL() {
+        return screenshotURL;
+    }
+
+    public void setScreenshotURL(String screenshotURL1) {
+        this.screenshotURL = screenshotURL1;
+    }
+    public void setCustomAttributes(Map<String, String> customAttributes1) {
+        this.customAttributes = customAttributes1;
+    }
+
+    public Map<String, String> getCustomAttributes() {
+        return this.customAttributes;
+    }
 
 	public String getId() {
 		return id;
@@ -215,6 +240,8 @@ public class ReportEntry {
 		obj.put("isCustomFormatEnabled",isCustomFormatEnabled);
 		obj.put("customFormat", customFormat);
 		obj.put("customEntry", customEntry);
+        obj.put("screenshotURL", screenshotURL);
+        obj.put("customAttributes", customAttributes);
 
 		return obj.toJSONString();
 	}
@@ -234,6 +261,8 @@ public class ReportEntry {
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
 		String status = (String)obj.get("status");
+        String screenshotURL = (String)obj.get("screenshotURL");
+        Map<String, String> customAttributes = (Map<String, String>)obj.get("customAttributes");
 		
 		List<String> logs = new ArrayList<String>();
 		JSONArray logsArray = (JSONArray)obj.get("logs");
@@ -247,6 +276,6 @@ public class ReportEntry {
 		String customFormat = (String)obj.get("customFormat");
 		String customEntry = (String)obj.get("customEntry");
 		return new ReportEntry(id, name, buildId, buildName, description, startDate == null ? null : new Date(Long.valueOf(startDate)), endDate == null ? null : new Date(Long.valueOf(endDate)), status, logs,
-				isCustomFormatEnabled, customFormat, customEntry);
+				isCustomFormatEnabled, customFormat, customEntry, screenshotURL, customAttributes);
 	}
 }

@@ -206,6 +206,7 @@ function createTest(report, data, ack){
 	var criterias = data.criterias;
 	var tags = data.tags;
 	var steps = data.steps;
+    var jiraTestID = data.jiraTestID;
 
 	var test = {};
 	test.status = status;
@@ -215,6 +216,19 @@ function createTest(report, data, ack){
 	test.build_id = report.build_id;
 	test.description = description;
 	test.log = log;
+    if (!_.isNull(jiraTestID) && !_.isUndefined(jiraTestID)) {
+        test.jiraTestID = jiraTestID;
+    } else {
+        test.jiraTestID = name;
+    }
+    test.customAttributes = data.customAttributes;
+    test.executionType = data.executionType;
+    test.approvedDate = data.approvedDate;
+    test.authoredBy = data.authoredBy;
+    test.dateCreated = data.dateCreated;
+    test.comments = data.comments;
+    test.approvalStatus = data.approvalStatus;
+    test.approvedBy = data.approvedBy;
 	
 	//Check name
 	if(_.isUndefined(name) || _.isNull(name)){
@@ -315,7 +329,7 @@ function createTest(report, data, ack){
 				return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
 			}
 			if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
-					_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
+					_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || (!_.isNumber(steps[i].order) && !_.isString(steps[i].order))) ||
 					(!_.isUndefined(steps[i].input) && !_.isNull(steps[i].input) && !_.isString(steps[i].input)) ||		
 					(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
 					(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
@@ -533,6 +547,7 @@ function updateTest(report, data, ack){
 		var tags = data.tags;
 		var steps = data.steps;
 		var customEntry = data.customEntry;
+        var jiraTestID = data.jiraTestID;
 
 
 
@@ -545,6 +560,20 @@ function updateTest(report, data, ack){
 		if(!_.isNull(customEntry)){
 			test.customEntry = customEntry;
 		}
+
+		if (!_.isNull(jiraTestID) && !_.isUndefined(jiraTestID)) {
+			test.jiraTestID = jiraTestID;
+		} else {
+			test.jiraTestID = name;
+		}
+        test.customAttributes = data.customAttributes;
+        test.executionType = data.executionType;
+        test.approvedDate = data.approvedDate;
+        test.authoredBy = data.authoredBy;
+        test.dateCreated = data.dateCreated;
+        test.comments = data.comments;
+        test.approvalStatus = data.approvalStatus;
+        test.approvedBy = data.approvedBy;
 
 		//Check start date
 		if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
@@ -661,7 +690,7 @@ function updateTest(report, data, ack){
 					return e.error(data, ack, true, "Steps object "+i+" end_date not valid.");
 				}
 				if((_.isUndefined(steps[i].name) || _.isNull(steps[i].name) || !_.isString(steps[i].name) || 
-						_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || !_.isNumber(steps[i].order)) ||
+						_.isUndefined(steps[i].order) || _.isNull(steps[i].order) || (!_.isNumber(steps[i].order) && !_.isString(steps[i].order))) ||
 						(!_.isUndefined(steps[i].input) && !_.isNull(steps[i].input) && !_.isString(steps[i].input)) ||		
 						(!_.isUndefined(steps[i].expected) && !_.isNull(steps[i].expected) && !_.isString(steps[i].expected)) ||
 						(!_.isUndefined(steps[i].status) && !_.isNull(steps[i].status) && !_.isString(steps[i].status)) || 
@@ -696,7 +725,11 @@ function updateTest(report, data, ack){
 						}
 						if(steps[i].error != null){	
 							test.steps[j].error = steps[i].error;
-						}		
+						}
+                        if(steps[i].description != null) {
+                            test.steps[j].description = steps[i].description;
+                            test.steps[j].name = test.steps[j].name.split(":")[0];
+                        }
 					}
 					
 				}
@@ -715,6 +748,10 @@ function updateTest(report, data, ack){
 					test.steps[stepsLength].customFormat = steps[i].customFormat;
 					test.steps[stepsLength].customEntry = steps[i].customEntry;
 					test.steps[stepsLength].error = steps[i].error;
+					if(steps[i].description != null) {
+						test.steps[stepsLength].description = steps[i].description;
+						test.steps[stepsLength].name = test.steps[stepsLength].name.split(":")[0];
+					}
 				}	
 			}
 		}

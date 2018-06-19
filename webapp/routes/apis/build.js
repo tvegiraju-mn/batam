@@ -309,6 +309,103 @@ var extractAndDeleteTempZipFile = function(stepImagesDirPath, zipFileName, extra
     });
 };
 
+/*var extractAndDeleteTempZipFileNew = function(stepImagesDirPath, zipFileName, extractPath, callbackFn) {
+    zipLocal.sync.unzip(extractPath + "/" + zipFileName).save(path.resolve(extractPath));
+    callbackFn(stepImagesDirPath, zipFileName, extractPath);
+    console.log('Deleting extracted zip and Folder: ' + extractPath);
+    deleteFolderRecursive(extractPath);
+};*/
+
+var deleteFolderRecursive = function(path) {
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path)
+            .forEach(function(file, index) {
+                var curPath = path + "/" + file;
+                if (fs.lstatSync(curPath)
+                    .isDirectory()) { // recurse
+                    deleteFolderRecursive(curPath);
+                } else { // delete file
+                    fs.unlinkSync(curPath);
+                }
+            });
+        fs.rmdirSync(path);
+    }
+};
+exports.importAttachments = storeScreenshots;
+function storeScreenshots(req, res, next) {
+    console.log('Start of storeScreenshots....');
+    var buildID = req.params.build_id;
+    var buildId = replaceall(":", "", buildID);
+    if (validator.isNull(buildId)) {
+        return next(new Error(" Build Id should be defined and it should not be null"));
+    }
+    console.log('buildID::' + buildId);
+    var form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+        var reportName = fields.reportName;
+        if (validator.isNull(reportName))
+        {
+            return next(new Error("Report Name should be defined and it should not be null"));
+        }
+        var stepImagesDirPath = config.manualTestcasesScreenshotsLocation + '/' + buildId + '/' + reportName;
+        console.log('Creating the manual test images directory with path:' + stepImagesDirPath);
+        if (makeDir(stepImagesDirPath)) {
+            var extractPath = stepImagesDirPath + '/test';
+            if (makeDir(extractPath)) {
+                var keys = Object.keys(files);
+                for (var keyIndex in keys) {
+                    var key = keys[keyIndex];
+                    var fileObj = files[key];
+                    var originalFileName = fileObj.name;
+                    var filePathInServer = extractPath + "/zip/" + originalFileName;
+                    fsextra.copySync(fileObj.path, filePathInServer);
+                    extractAndDeleteTempZipFile(stepImagesDirPath, originalFileName, extractPath, copyFilesToStepImagesDirPath);
+                }
+            }
+        } else {
+            return next(new Error("Unable to create directory with path: " + stepImagesDirPath));
+        }
+        //res.end('Success')
+        res.redirect('/' + req.params.build_id + '/imagesImportResult/true');
+    });
+    console.log('End of storeScreenshots....')
+};
+
+var makeDir = function(dirPath) {
+    mkdirp.sync(dirPath);
+    return true;
+};
+
+var copyFilesToStepImagesDirPath = function(stepImagesDirPath, zipFileName, extractPath) {
+    var testName = zipFileName.substring(0, zipFileName.lastIndexOf('.'));
+    var testPath = stepImagesDirPath + '/' + testName;
+    if (makeDir(testPath)) {
+        var files = fs.readdirSync(extractPath);
+        files.forEach( function( file, index ) {
+            var fromPath = path.join( extractPath, file );
+            var stepName = file;
+            stepName = stepName.substring(0, stepName.indexOf('_'));
+            var stepPath = testPath + '/' + stepName;
+            if (makeDir(stepPath)) {
+                var toPath = path.join( stepPath, file );
+                var stat = fs.statSync( fromPath);
+                if( stat.isFile() ) {
+                    fs.renameSync( fromPath, toPath);
+                }
+            }
+        });
+    }
+};
+
+var extractAndDeleteTempZipFile = function(stepImagesDirPath, zipFileName, extractPath, callbackFn) {
+    extract(extractPath + "/zip/" + zipFileName, {dir: path.resolve(extractPath)},
+        function(postExtract) {
+            callbackFn(stepImagesDirPath, zipFileName, extractPath);
+            console.log('Deleting extracted zip and Folder: ' + extractPath);
+            deleteFolderRecursive(extractPath);
+    });
+};
+
 
 
 var deleteFolderRecursive = function(path) {

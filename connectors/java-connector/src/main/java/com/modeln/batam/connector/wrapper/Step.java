@@ -24,6 +24,7 @@
 package com.modeln.batam.connector.wrapper;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 
@@ -51,6 +52,8 @@ public class Step {
 	private Integer order;
 	
 	private String name;
+    private Map<String, String> customAttributes;
+    private String description;
 	
 	private Date startDate;
 	
@@ -72,6 +75,21 @@ public class Step {
 
 	private String customEntry;
 
+    public void setCustomAttributes(Map<String, String> customAttributes1) {
+        this.customAttributes = customAttributes1;
+    }
+
+    public Map<String, String> getCustomAttributes() {
+        return this.customAttributes;
+    }
+    public void setDescription(String description1) {
+        this.description = description1;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
 	public Step(String name, Date startDate, Date endDate) {
 		super();
 		this.name = name;
@@ -92,12 +110,35 @@ public class Step {
 		this.error = error;
 	};
 
+	public Step(Integer order, String name, String description, Date startDate, Date endDate, String input, String expected, String output, String status, String error) {
+		super();
+		this.order = order;
+		this.name = name;
+		this.description = description;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.input = input;
+		this.expected = expected;
+		this.output = output;
+		this.status = status;
+		this.error = error;
+	};
+
 	public Step(Integer order, String name, Date startDate, Date endDate, String input, String expected, String output, String status, String error,
 				boolean isCustomFormatEnabled, String customFormat, String customEntry) {
 		this(order, name, startDate, endDate, input, expected, output, status, error);
 		this.isCustomFormatEnabled = isCustomFormatEnabled;
 		this.customFormat = customFormat;
 		this.customEntry = customEntry;
+	}
+
+	public Step(Integer order, String name, String description, Date startDate, Date endDate, String input, String expected, String output, String status, String error,
+				boolean isCustomFormatEnabled, String customFormat, String customEntry, Map<String, String> customAttributes) {
+		this(order, name, description, startDate, endDate, input, expected, output, status, error);
+		this.isCustomFormatEnabled = isCustomFormatEnabled;
+		this.customFormat = customFormat;
+		this.customEntry = customEntry;
+        this.customAttributes = customAttributes;
 	}
 	
 	public Integer getOrder() {
@@ -206,6 +247,7 @@ public class Step {
 		JSONObject obj = new JSONObject();
 		obj.put("order", order);
 		obj.put("name", name);
+        obj.put("description", description);
 		obj.put("start_date", startDate == null ? null : String.valueOf(startDate.getTime()));
 		obj.put("end_date", endDate == null ? null : String.valueOf(endDate.getTime()));
 		obj.put("input", input);
@@ -216,14 +258,17 @@ public class Step {
 		obj.put("isCustomFormatEnabled", isCustomFormatEnabled);
 		obj.put("customFormat", customFormat);
 		obj.put("customEntry", customEntry);
+        obj.put("customAttributes", customAttributes);
 
 
-		return obj.toJSONString();
+
+        return obj.toJSONString();
 	}
 	
 	public static Step fromJSON(JSONObject obj){
 		Integer order = (Integer)obj.get("order");
 		String name = (String)obj.get("name");
+        String description = (String)obj.get("description");
 		String startDate = (String)obj.get("start_date");
 		String endDate = (String)obj.get("end_date");
 		String input = (String)obj.get("input");
@@ -234,9 +279,11 @@ public class Step {
 		boolean isCustomFormatEnabled = (Boolean)obj.get("isCustomFormatEnabled") == null? false:(Boolean)obj.get("isCustomFormatEnabled");
 		String customFormat = (String)obj.get("customFormat");
 		String customEntry = (String)obj.get("customEntry");
+        Map<String, String> customAttributes = (Map<String, String>)obj.get("customAttributes");
 		
 		return new Step(order,
-				name, 
+				name,
+                description,
 				startDate == null ? null : new Date(Long.valueOf(startDate)), 
 				endDate == null ? null : new Date(Long.valueOf(endDate)),
 				input,
@@ -246,6 +293,6 @@ public class Step {
 				error,
 				isCustomFormatEnabled,
 				customFormat,
-				customEntry);
+				customEntry, customAttributes);
 	}
 }

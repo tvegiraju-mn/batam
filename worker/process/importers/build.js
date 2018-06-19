@@ -139,6 +139,8 @@ function createBuildEntrypoint(data, ack){
 	var reports = data.reports;	
 	var steps = data.steps;
 	var commits = data.commits;
+    var screenshotURL = data.screenshotURL;
+	var customAttributes = data.customAttributes;
 	
 	var build = {};
 	build.lifecycle_status = "pending";
@@ -146,6 +148,8 @@ function createBuildEntrypoint(data, ack){
 	build.status = status;
 	//Set next_id to null this this build is the latest one.
 	build.next_id = null;
+    build.screenshotURL = screenshotURL;
+	build.customAttributes = customAttributes;
 	
 	//Check name
 	if(_.isUndefined(name) || _.isNull(name)){
@@ -441,10 +445,20 @@ function updateBuild(build, data, ack){
 	var reports = data.reports;
 	var steps = data.steps;
 	var commits = data.commits;
+	var screenshotURL = data.screenshotURL;
+	var customAttributes = data.customAttributes;
 	
 	//Check and set description
 	if(!_.isNull(description)){
 		build.description = description;
+	}
+
+    if(!_.isNull(screenshotURL)){
+        build.screenshotURL = screenshotURL;
+    }
+
+	if (!_.isNull(customAttributes)) {
+		build.customAttributes = customAttributes;
 	}
 	
 	//Check and set status
