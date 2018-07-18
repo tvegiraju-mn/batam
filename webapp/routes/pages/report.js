@@ -587,25 +587,27 @@ var prepareExcelFile = function(req, res, next) {
                     summarySheet = writePerformanceFormatTableData(summarySheet);
                     return summarySheet;
                 };
-                var createTestTableHeader = function(sheet, test) {
-                    for (var j = 0; j < test.steps.length; j++) {
-                        if (test.steps[j].input) {
-                            inputVisibile = true;
-                        }
-                        if (test.steps[j].expected) {
-                            expectedVisible = true;
-                        }
-                        if (test.steps[j].status) {
-                            statusVisible = true;
-                        }
-                        if (test.steps[j].output) {
-                            outputVisible = true;
-                        }
-                        if (test.steps[j].start_date && test.steps[j].end_date) {
-                            durationVisible = true;
-                        }
-                        if (test.steps[j].error != null) {
-                            errorVisible = true;
+                var createTestTableHeader = function (sheet, test) {
+                    if (test.steps != null) {
+                        for (var j = 0; j < test.steps.length; j++) {
+                            if (test.steps[j].input) {
+                                inputVisibile = true;
+                            }
+                            if (test.steps[j].expected) {
+                                expectedVisible = true;
+                            }
+                            if (test.steps[j].status) {
+                                statusVisible = true;
+                            }
+                            if (test.steps[j].output) {
+                                outputVisible = true;
+                            }
+                            if (test.steps[j].start_date && test.steps[j].end_date) {
+                                durationVisible = true;
+                            }
+                            if (test.steps[j].error != null) {
+                                errorVisible = true;
+                            }
                         }
                     }
                     indexRow = indexRow + 5;
@@ -1624,6 +1626,9 @@ var prepareExcelFile = function(req, res, next) {
                 };
                 var populateTestTableData = function(sheet, test) {
                     firstBodyRow = indexRow + 1;
+                    if (test.steps == null) {
+                        return sheet;
+                    }
                     for (var j = 0; j < test.steps.length; j++) {
                         indexColumn = 1;
                         sheet = populateStepData(sheet, test, j);
