@@ -231,8 +231,9 @@ var prepareExcelFile = function(req, res, next) {
                     // Save it
                     workbook.write('./' + report.name + '-Report/' + report.name + '.xlsx', function() {
                         // Create a new folder under ./'+ report.name + '-Report with name as report name
-                        var buildID = req.params.build_id;
-                        if(fs.existsSync('./' + report.name + '-Report/' + report.name)){
+                        var buildID = req.params.build_id;              
+                        if (fs.existsSync(screenshotBasePath + '/' + buildID + '/' + report.name)) {
+                            if(fs.existsSync('./' + report.name + '-Report/' + report.name)){
                             console.log('Deleting stale file : ' + report.name + '-Report/' + report.name);
                             try{
                                 var deletingPath = './' + report.name + '-Report/' + report.name;
@@ -243,8 +244,6 @@ var prepareExcelFile = function(req, res, next) {
                             }
 
                         }
-
-                        if (fs.existsSync(screenshotBasePath + '/' + buildID + '/' + report.name)) {
                             fs.mkdirSync('./' + report.name + '-Report/' + report.name);
                             fsextra.copySync(screenshotBasePath + '/' + buildID + '/' + report.name, './' + report.name + '-Report/' + report.name);
                         }
