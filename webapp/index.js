@@ -89,26 +89,43 @@ app.all('*', function(req, res){
 });
 
 //Start the server
-var server = http.createServer(app);
-var boot = function(){
-	if (config.screenshotsLocation == config.manualTestcasesScreenshotsLocation)
-	{
+var server;
+var boot = function () {
+	if (config.screenshotsLocation == config.manualTestcasesScreenshotsLocation) {
 		console.error('The value of the screenshots location and manual screenshots storage location Must be different, can not start server...')
 		return;
 	}
-  server.listen(app.get('port'), function(){
-    console.info('Express server listening on port ' + app.get('port'));
-  });
-}
+	const cluster = require('cluster');
+	const numCPUs = require('os').cpus().length;
 
-var shutdown = function(){
-  server.close();
+
+	if (cluster.isMaster) {
+		console.log('Master' + process.pid + 'is running');
+		// Fork workers.
+		for (var i = 0; i < numCPUs; i++) {
+			cluster.fork();
+		}
+
+		cluster.on('exit', function (worker, code, signal) {
+			console.log('worker' + worker.process.pid + 'died');
+		});
+	}
+	else {
+		server = http.createServer(app);
+		server.listen(app.get('port'), function () {
+			console.info('Express server listening on port ' + app.get('port'));
+		});
+		var shutdown = function () {
+			server.close();
+		}
+
+	}
 }
 
 if(require.main === module){
   boot();
 }else{
-  console.info('Running app as a module')
+  console.info('Running app as a module');
   exports.boot = boot;
   exports.shutdown = shutdown;
   exports.port = app.get('port');
