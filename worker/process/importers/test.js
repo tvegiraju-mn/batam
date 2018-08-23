@@ -207,6 +207,7 @@ function createTest(report, data, ack){
 	var tags = data.tags;
 	var steps = data.steps;
     var jiraTestID = data.jiraTestID;
+    var jiraReqID = data.jiraReqID;
 
 	var test = {};
 	test.status = status;
@@ -221,14 +222,33 @@ function createTest(report, data, ack){
     } else {
         test.jiraTestID = name;
     }
-    test.customAttributes = data.customAttributes;
-    test.executionType = data.executionType;
-    test.approvedDate = data.approvedDate;
-    test.authoredBy = data.authoredBy;
-    test.dateCreated = data.dateCreated;
-    test.comments = data.comments;
-    test.approvalStatus = data.approvalStatus;
-    test.approvedBy = data.approvedBy;
+	if (!_.isNull(jiraReqID) && !_.isUndefined(jiraReqID)) {
+		test.jiraReqID = jiraReqID;
+	}
+	if (!_.isUndefined(data.customAttributes) && !_.isNull(data.customAttributes) && Object.keys(data.customAttributes).length > 0) {
+		test.customAttributes = data.customAttributes;
+	}
+	if (!_.isNull(data.executionType) && !_.isUndefined(data.executionType)) {
+		test.executionType = data.executionType;
+	}
+	if (!_.isNull(data.approvedDate) && !_.isUndefined(data.approvedDate)) {
+		test.approvedDate = data.approvedDate;
+	}
+	if (!_.isNull(data.authoredBy) && !_.isUndefined(data.authoredBy)) {
+		test.authoredBy = data.authoredBy;
+	}
+	if (!_.isNull(data.dateCreated) && !_.isUndefined(data.dateCreated)) {
+		test.dateCreated = data.dateCreated;
+	}
+	if (!_.isNull(data.comments) && !_.isUndefined(data.comments)) {
+		test.comments = data.comments;
+	}
+	if (!_.isNull(data.approvalStatus) && !_.isUndefined(data.approvalStatus)) {
+		test.approvalStatus = data.approvalStatus;
+	}
+	if (!_.isNull(data.approvedBy) && !_.isUndefined(data.approvedBy)) {
+		test.approvedBy = data.approvedBy;
+	}
 	
 	//Check name
 	if(_.isUndefined(name) || _.isNull(name)){
@@ -548,6 +568,7 @@ function updateTest(report, data, ack){
 		var steps = data.steps;
 		var customEntry = data.customEntry;
         var jiraTestID = data.jiraTestID;
+		var jiraReqID = data.jiraReqID;
 
 
 
@@ -566,14 +587,33 @@ function updateTest(report, data, ack){
 		} else {
 			test.jiraTestID = name;
 		}
-        test.customAttributes = data.customAttributes;
-        test.executionType = data.executionType;
-        test.approvedDate = data.approvedDate;
-        test.authoredBy = data.authoredBy;
-        test.dateCreated = data.dateCreated;
-        test.comments = data.comments;
-        test.approvalStatus = data.approvalStatus;
-        test.approvedBy = data.approvedBy;
+		if (!_.isNull(jiraReqID) && !_.isUndefined(jiraReqID)) {
+			test.jiraReqID = jiraReqID;
+		}
+		if (!_.isUndefined(data.customAttributes) && !_.isNull(data.customAttributes) && Object.keys(data.customAttributes).length > 0) {
+			test.customAttributes = data.customAttributes;
+		}
+		if (!_.isNull(data.executionType) && !_.isUndefined(data.executionType)) {
+			test.executionType = data.executionType;
+		}
+		if (!_.isNull(data.approvedDate) && !_.isUndefined(data.approvedDate)) {
+			test.approvedDate = data.approvedDate;
+		}
+		if (!_.isNull(data.authoredBy) && !_.isUndefined(data.authoredBy)) {
+			test.authoredBy = data.authoredBy;
+		}
+		if (!_.isNull(data.dateCreated) && !_.isUndefined(data.dateCreated)) {
+			test.dateCreated = data.dateCreated;
+		}
+		if (!_.isNull(data.comments) && !_.isUndefined(data.comments)) {
+			test.comments = data.comments;
+		}
+		if (!_.isNull(data.approvalStatus) && !_.isUndefined(data.approvalStatus)) {
+			test.approvalStatus = data.approvalStatus;
+		}
+		if (!_.isNull(data.approvedBy) && !_.isUndefined(data.approvedBy)) {
+			test.approvedBy = data.approvedBy;
+		}
 
 		//Check start date
 		if(!_.isNull(start_date) && (!_.isNumber(parseInt(start_date)) || !_.isDate(new Date(parseInt(start_date))))){
@@ -753,6 +793,15 @@ function updateTest(report, data, ack){
 						test.steps[stepsLength].name = test.steps[stepsLength].name.split(":")[0];
 					}
 				}	
+			}
+		}
+		if(!_.isNull(status) && "fail" == status){
+			for(var l = 0; l < test.steps.length; l++){
+				if(test.steps[l].status == 'running'){
+					test.steps[l].status = 'Fail';
+                    test.steps[l].error = 'Unhandled Exception occurred in this step. Please check below for Failure Reasons.';
+                    test.steps[l].end_date = test.end_date.getTime();
+				}
 			}
 		}
 
