@@ -766,10 +766,19 @@ function updateTest(report, data, ack){
 						if(steps[i].error != null){	
 							test.steps[j].error = steps[i].error;
 						}
-                        if(steps[i].description != null) {
-                            test.steps[j].description = steps[i].description;
-                            test.steps[j].name = test.steps[j].name.split(":")[0];
-                        }
+						if(steps[i].isCustomFormatEnabled != null){
+							test.steps[j].isCustomFormatEnabled = steps[i].isCustomFormatEnabled;
+						}
+						if(steps[i].customFormat != null){
+							test.steps[j].customFormat = steps[i].customFormat;
+						}
+						if(steps[i].customEntry != null){
+							test.steps[j].customEntry = steps[i].customEntry;
+						}
+                        			if(steps[i].description != null) {
+                            				test.steps[j].description = steps[i].description;
+                            				test.steps[j].name = test.steps[j].name.split(":")[0];
+                        			}
 					}
 					
 				}
