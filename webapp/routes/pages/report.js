@@ -3,6 +3,7 @@ var util = require('util');
 var validator = require('validator');
 var fs = require('fs');
 var batam_util = require('../../util/util.js');
+var moment = require('../../public/js/moment.min.js');
 var config = require('../../config.js');
 var mkdirp = require('mkdirp');
 var excelbuilder = require('excel4node');
@@ -467,7 +468,7 @@ var prepareExcelFile = function(req, res, next) {
                                 font: headerTextStyle
                             });
                         summarySheet.cell(indexRow, 2)
-                            .string('' + report.date);
+                            .string('' + moment(report.date).format('MMM Do YYYY, h:mm:ss A'));
                         indexRow++;
                     }
                     if (_.isEqual(summaryDisplayConfig.end_date, true)) {
@@ -478,7 +479,7 @@ var prepareExcelFile = function(req, res, next) {
                                 font: headerTextStyle
                             });
                         summarySheet.cell(indexRow, 2)
-                            .string('' + report.end_date);
+                            .string('' + moment(report.end_date).format('MMM Do YYYY, h:mm:ss A'));
                         indexRow++;
                     }
                     if (_.isEqual(summaryDisplayConfig.status, true)) {
@@ -1117,7 +1118,7 @@ var prepareExcelFile = function(req, res, next) {
                                 executionDateAndTime = test.start_date;
                             }
                             sheet.cell(firstBodyRow + index, indexColumn)
-                                .string('' + executionDateAndTime);
+                                .string('' + moment(executionDateAndTime).format('MMM Do YYYY, h:mm:ss A'));
                         }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
@@ -1197,7 +1198,7 @@ var prepareExcelFile = function(req, res, next) {
                                 attachmentUploadedDate = test.start_date;
                             }
                             sheet.cell(firstBodyRow + index, indexColumn)
-                                .string('' + attachmentUploadedDate);
+                                .string('' + moment(attachmentUploadedDate).format('MMM Do YYYY, h:mm:ss A'));
                         }
                         sheet.cell(firstBodyRow + index, indexColumn)
                             .style({
@@ -1738,7 +1739,7 @@ var prepareExcelFile = function(req, res, next) {
                                 .string('N/A');
                         }else {
                             sheet.cell(indexRow, 2)
-                                .string('' + test.start_date);
+                                .string('' + moment(test.start_date).format('MMM Do YYYY, h:mm:ss A'));
                         }
                         indexRow++;
                     }
@@ -1754,7 +1755,7 @@ var prepareExcelFile = function(req, res, next) {
                                 .string('N/A');
                         }else {
                             sheet.cell(indexRow, 2)
-                            .string('' + test.end_date);
+                            .string('' + moment(test.end_date).format('MMM Do YYYY, h:mm:ss A'));
                         }
                         indexRow++;
                     }
