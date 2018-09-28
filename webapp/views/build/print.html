@@ -139,9 +139,9 @@
 	    	var buildHeader = '';
 	    	
 	    	$('#build_name').html(response.build.name);
-	    	var date = response.build.date == undefined ? notAvailable : moment(response.build.date).format('MMM Do YYYY, h:mm:ss a');
+	    	var date = response.build.date == undefined ? notAvailable : moment(response.build.date).format('MMM Do YYYY, h:mm:ss A');
 	    	$('#build_start_date').html(date);
-	    	var end_date = response.build.end_date == undefined ? notAvailable : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss a');
+	    	var end_date = response.build.end_date == undefined ? notAvailable : moment(response.build.end_date).format('MMM Do YYYY, h:mm:ss A');
 	    	$('#build_end_date').html(end_date);
 	    	if(response.build.duration != undefined){
 	    		$('#build_duration').html(durationToStr(response.build.duration.value));
